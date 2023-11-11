@@ -1,0 +1,7 @@
+
+*.iso
+*.bin
+build/*
+
+.vs
+.vscode
