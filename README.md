@@ -13,11 +13,11 @@ an operating system made by matan and yonatan
 
 ## in the container compile
 
-`make`
+`make all`
 
 ## in windows run qemu
 
-`& 'C:\Program Files\qemu\qemu-system-i386.exe' -cdrom .\dist\kibro.iso`
+`& 'C:\Program Files\qemu\qemu-system-i386.exe' -cdrom .\dist\os.iso`
 
 ## in wsl run
 
