@@ -1,9 +1,17 @@
+/* TODO: get framebuffer info from EBX*/
+
 /* constants for the multiboot header. */
 .set MAGIC,    0xE85250D6       /* 'magic number' lets bootloader find the header */
 .set ARCHITECTURE, 	  0			/* architecture is protected mode i386 */
 .set HEADER_LENGTH,		header_end - header_start
 .set CHECKSUM, -(MAGIC + ARCHITECTURE + HEADER_LENGTH) /* checksum of above, to prove we are multiboot */
-
+/* framebuffer tag */
+.set TYPE, 5 /* framebuffer tag is of type 5*/
+.set FLAG,  0 /* flag to tell if framebuffer does not exist then still boot */
+.set SIZE, 20
+.set WIDTH, 1024
+.set HEIGHT, 768
+.set DEPTH, 32
 
 .section .multiboot
 header_start:
@@ -14,11 +22,17 @@ header_start:
 .long HEADER_LENGTH
 .long CHECKSUM
 
-/*
-	optional multiboot tags
-*/
+.align 8
+.short TYPE
+.short FLAG
+.long SIZE
+.long WIDTH
+.long HEIGHT
+.long DEPTH
+
 
 /* required end tag */
+.align 8
 .short 0		/* type */
 .short 0		/* flags */
 .long 8		/* size */

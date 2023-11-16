@@ -13,7 +13,7 @@ an operating system made by matan and yonatan
 
 ## in the container compile
 
-`make all`
+`make`
 
 ## in windows run qemu
 
