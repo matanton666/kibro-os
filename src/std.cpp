@@ -1,4 +1,4 @@
-#include "headers/std.h"
+#include "std.h"
 
 void* memcpy(void* dest, const void* src, size_t n) {
 	if (dest == src) {
@@ -15,6 +15,31 @@ void* memcpy(void* dest, const void* src, size_t n) {
 	}
 
 	return dest;
+}
+
+int memcmp(const void* lhs, const void* rhs, size_t count)
+{
+	unsigned char* x = (unsigned char*)lhs;
+	unsigned char* y = (unsigned char*)rhs;
+
+	if (lhs == rhs)
+	{
+		return 0;
+	}
+
+	int compare = 0;
+	while (count > 0)
+	{
+		if (*x != *y)
+		{
+			compare = (*x > *y) ? 1 : -1;
+			break;
+		}
+		count--;
+		x++;
+		y++;
+	}
+	return compare;
 }
 
 

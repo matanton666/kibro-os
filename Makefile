@@ -8,9 +8,11 @@ headers_folder := src/headers
 asm_source_files := $(wildcard src/*.s)
 cpp_source_files := $(wildcard src/*.cpp)
 cpp_header_files := $(wildcard $(headers_folder)/*.h)
+psf_object_files := $(wildcard res/*.psf)
 
 asm_object_files := $(patsubst src/%.s, build/%.o, $(asm_source_files))
 cpp_object_files := $(patsubst src/%.cpp, build/%.o, $(cpp_source_files))
+psf_object_files := $(patsubst res/%.psf, build/%.o, $(psf_object_files))
 
 # $< is dependency, $@ is target
 
@@ -21,9 +23,9 @@ os_iso_file: os_bin_file
 	@echo "compiled final iso $<"
 
 # link all object files
-os_bin_file: $(asm_object_files) $(cpp_object_files) $(linker_file)
+os_bin_file: $(asm_object_files) $(cpp_object_files) $(psf_object_files) $(linker_file)
 	@mkdir -p dist
-	i686-elf-g++ -T $(linker_file) -o $(os_bin_file) -ffreestanding -O2 -nostdlib $(asm_object_files) $(cpp_object_files) -lgcc
+	i686-elf-g++ -T $(linker_file) -o $(os_bin_file) -ffreestanding -O2 -nostdlib $(asm_object_files) $(cpp_object_files) $(psf_object_files) -lgcc
 	@echo "linked all object files"
 
 
@@ -38,7 +40,9 @@ $(cpp_object_files): build/%.o: src/%.cpp $(cpp_header_files)
 	i686-elf-g++ -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -I $(headers_folder) -c  -o $@ $<
 	@echo "compiled $<"
 
-
+$(psf_object_files): build/%.o: res/%.psf
+	objcopy -O elf32-i386 -B i386 -I binary $< $@
+	@echo "compiled $<"
 
 # other functions
 all: os_iso_file
@@ -49,4 +53,3 @@ clean:
 	rm $(os_bin_file)
 	rm $(os_iso_file)
 	@echo "cleaned"
-

@@ -19,6 +19,10 @@ an operating system made by matan and yonatan
 
 `& 'C:\Program Files\qemu\qemu-system-i386.exe' -cdrom .\dist\os.iso`
 
-## in wsl run
+## in wsl/linux run
 
 `qemu-system-x86_64 -cdrom ./dist/iso/os.iso`
+
+## or can also run with the bat script
+
+`.\run.bat`
