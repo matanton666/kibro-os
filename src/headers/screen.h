@@ -101,11 +101,11 @@ unsigned int identifyPSFVersion();
 // initialize the PSF font file and the unicode table
 bool initPSF();
 
-// draw char to screen with PSF2
+// draw char to screen with PSF2 (without moving the curser)
 // c - char to draw, cx, cy - position in pixels from the top left corner (0,0)
 void putcPSF2( unsigned char c, int cx, int cy, uint32_t fgColor, uint32_t bgColor);
 
-// draw string to screen with PSF2
+// draw string to screen with PSF2 (without moving the curser)
 // str - string to draw, startx, starty - position in pixels from the top left corner (0,0)
 void putsPSF2( unsigned char* str, int startx, int starty, uint32_t fgColor, uint32_t bgColor);
 
@@ -124,3 +124,5 @@ void putsCurserPSF2( unsigned char* str, uint32_t fgColor, uint32_t bgColor);
 // draw entire screen in color
 void clearScreen(uint32_t color);
 
+
+const Point& getCursur();

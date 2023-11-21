@@ -163,7 +163,7 @@ void putcPSF2( unsigned char c, int cx, int cy, uint32_t fgColor, uint32_t bgCol
 
 
 // ! does not move curser!! use with caution
-void putsPSF2( unsigned char* str, int startx, int starty, uint32_t fgColor, uint32_t bgColor)
+void putsPSF2(unsigned char* str, int startx, int starty, uint32_t fgColor, uint32_t bgColor)
 {
     int i = 0;
     int x = startx, y = starty;
@@ -281,4 +281,9 @@ void clearScreen(uint32_t color)
     }
     curserPos.x = CURSER_PADDING;
     curserPos.y = CURSER_PADDING;
+}
+
+const Point& getCursur()
+{
+    return curserPos;
 }

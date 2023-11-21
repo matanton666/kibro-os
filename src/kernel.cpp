@@ -21,6 +21,10 @@ extern "C" void kernel_main(void) {
 	print(123456789);
 	print('\n');
 	print('A');
+	print('\n');
+	print((int)getCursur().x);
+	print(',');
+	print((int)getCursur().y);
 
 	write_serial((char*)"screen works");
 
