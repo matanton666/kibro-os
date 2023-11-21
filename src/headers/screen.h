@@ -65,8 +65,8 @@ typedef struct __attribute__((packed)) {
 } PSF2_Header;
 
 typedef struct __attribute__((packed)) {
-    int x;
-    int y;
+    unsigned int x;
+    unsigned int y;
 } Point;
 
 extern FramebufferInfo* fbInfo;

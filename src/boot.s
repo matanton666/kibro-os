@@ -1,4 +1,3 @@
-/* TODO: get framebuffer info from EBX*/
 
 /* constants for the multiboot header. */
 .set MAGIC,    0xE85250D6       /* 'magic number' lets bootloader find the header */

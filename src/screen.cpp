@@ -124,6 +124,7 @@ bool initPSF()
     return false;
 }
 
+// ! does not move curser!! use with caution
 void putcPSF2( unsigned char c, int cx, int cy, uint32_t fgColor, uint32_t bgColor)
 {
     int bytesPerLine = (PSF2_font->width + 7) / 8;
@@ -141,8 +142,8 @@ void putcPSF2( unsigned char c, int cx, int cy, uint32_t fgColor, uint32_t bgCol
     unsigned char* glyph = (unsigned char*)&PSF_START + PSF2_font->headerSize + c * PSF2_font->bytesPerGlyph;
 
     // get offset to the top left corner of the current charicter
-    int offs = (cy * PSF2_font->height * fbInfo->pitch) + (cx * (PSF2_font->width + 1) * fbInfo->bpp / 8);
-    int x, y, line, mask;
+    uint32_t offs = (cy * PSF2_font->height * fbInfo->pitch) + (cx * (PSF2_font->width + 1) * fbInfo->bpp / 8);
+    uint32_t x, y, line, mask;
     
     // print the char
     for (y = 0; y < PSF2_font->height; y++) {
@@ -160,6 +161,29 @@ void putcPSF2( unsigned char c, int cx, int cy, uint32_t fgColor, uint32_t bgCol
     }
 }
 
+
+// ! does not move curser!! use with caution
+void putsPSF2( unsigned char* str, int startx, int starty, uint32_t fgColor, uint32_t bgColor)
+{
+    int i = 0;
+    int x = startx, y = starty;
+
+    while (str[i] != '\0')
+    {
+        putcPSF2(str[i], x, y, fgColor, bgColor);
+
+        if (str[i] == '\n')
+        {
+            x = startx;
+            y += PSF2_font->height;
+        }
+        else {
+            x += PSF2_font->width;
+        }
+        i++;
+    }
+}
+
 void curserAdd(int x, int y)
 {
     curserPos.x += x;
@@ -169,23 +193,27 @@ void curserAdd(int x, int y)
 
 void curserCheckBounds()
 {
+    // x after right of screen
     if (curserPos.x >= fbInfo->width - (CURSER_PADDING + PSF2_font->width)) // padding
     {
         curserPos.x = CURSER_PADDING;
         curserPos.y += PSF2_font->height;
     }
+    // x before left of screen
     else if (curserPos.x <= CURSER_PADDING)
     {
         curserPos.x = CURSER_PADDING;
     }
 
+    // y below bottom of screen
     if (curserPos.y >= fbInfo->height - (CURSER_PADDING + PSF2_font->height)) // padding
     {
+        cls(); // clear screen if goten to the bottom
         curserPos.y = CURSER_PADDING;
     }
-    else if (curserPos.y <= CURSER_PADDING)
+    // y above top of screen
+    else if (curserPos.y < CURSER_PADDING)
     {
-        // TODO: clear screen or something
         curserPos.y = CURSER_PADDING;
     }
 }
@@ -211,8 +239,8 @@ void putcCurserPSF2( unsigned char c,uint32_t fgColor, uint32_t bgColor)
         unsigned char* glyph = (unsigned char*)&PSF_START + PSF2_font->headerSize + c * PSF2_font->bytesPerGlyph;
 
         // get offset to the top left corner of the current charicter
-        int offs = (curserPos.y * PSF2_font->height * fbInfo->pitch) + (curserPos.x * (PSF2_font->width + 1) * fbInfo->bpp / 8);
-        int x, y, line, mask;
+        uint32_t offs = (curserPos.y * PSF2_font->height * fbInfo->pitch) + (curserPos.x * (PSF2_font->width + 1) * fbInfo->bpp / 8);
+        uint32_t x, y, line, mask;
 
         for (y = 0; y < PSF2_font->height; y++) {
             line = offs;
@@ -232,28 +260,7 @@ void putcCurserPSF2( unsigned char c,uint32_t fgColor, uint32_t bgColor)
     }
  }
 
-void putsPSF2( unsigned char* str, int startx, int starty, uint32_t fgColor, uint32_t bgColor)
-{
-    int i = 0;
-    int x = startx, y = starty;
-
-    while (str[i] != '\0')
-    {
-        putcPSF2(str[i], x, y, fgColor, bgColor);
-
-        if (str[i] == '\n')
-        {
-            x = startx;
-            y += PSF2_font->height;
-        }
-        else {
-            x += PSF2_font->width;
-        }
-        i++;
-    }
-}
-
- void putsCurserPSF2( unsigned char* str, uint32_t fgColor, uint32_t bgColor)
+void putsCurserPSF2( unsigned char* str, uint32_t fgColor, uint32_t bgColor)
  {
      int i = 0;
      while (str[i] != '\0')
@@ -265,9 +272,9 @@ void putsPSF2( unsigned char* str, int startx, int starty, uint32_t fgColor, uin
 
 void clearScreen(uint32_t color)
 {
-    for (int y = 0; y < fbInfo->height; y++)
+    for (unsigned int y = 0; y < fbInfo->height; y++)
     {
-        for (int x = 0; x < fbInfo->width; x++)
+        for (unsigned int x = 0; x < fbInfo->width; x++)
         {
             drawPixel(x, y, color);
         }

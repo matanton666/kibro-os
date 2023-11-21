@@ -1,6 +1,7 @@
 #include "headers/serial.h"
 #include "headers/std.h"
 
+
 #define PORT 0x3f8          // COM1
 
 void outb(unsigned short port, unsigned char value)
@@ -31,7 +32,7 @@ void write_serial_char(char a) {
    outb(PORT,a);
 }
 
-void write_serial(char* str) {
+void write_serial(const char* str) {
 	for (int i = 0; str[i] != '\0'; i++)
 	{
 		write_serial_char(str[i]);
