@@ -75,4 +75,25 @@ char* itoa(int num, char* str, int base) {
 	return str;
 }
 
+char* uitoa(uint64_t num, char *str, int base)
+{
+	int i = 0;
 
+	// convert int to string in wanted base in reverse
+	do {
+		int digit = num % base;
+		str[i++] = (digit <= 9) ? digit + '0' : digit + 'A' - 10; // convert to hex if need
+	} while ((num /= base) != 0);
+
+
+	// reverse the string back
+	int k = i - 1;
+	for (int j = 0; j < k; ++j, --k) {
+		char temp = str[j]; // swap first and last char
+		str[j] = str[k];
+		str[k] = temp;
+	}
+
+	str[i] = '\0';
+	return str;
+}

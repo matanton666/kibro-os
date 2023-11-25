@@ -1,5 +1,6 @@
 #pragma once
 #include "std.h"
+#include "serial.h"
 
 
 struct BasicMemoryInfo
@@ -10,24 +11,33 @@ struct BasicMemoryInfo
     uint32_t upper_mem; // starts at addr 1mb
 }__attribute__((packed));
 
+struct MemoryMapEntry
+{
+    uint64_t base_addr; // addr of the memory region (devided to low and high)
+    uint64_t length; // length in bytes of the memory region (devided to low and high)
+    uint32_t type; // type of memory region
+    uint32_t reserved; // always 0
+}__attribute__((packed));
+// types of memory regions
+#define MULTIBOOT_MEMORY_AVAILABLE              1
+#define MULTIBOOT_MEMORY_RESERVED               2
+#define MULTIBOOT_MEMORY_ACPI_RECLAIMABLE       3
+#define MULTIBOOT_MEMORY_NVS                    4
+#define MULTIBOOT_MEMORY_BADRAM                 5
 
 struct MemoryMap
 {
     uint32_t type; // type = 6
     uint32_t size;
-    uint32_t entry_size;
-    uint32_t entry_version;
-    uint32_t entries;
+    uint32_t entry_size; // size of each entry
+    uint32_t entry_version; // should be 0
+    struct MemoryMapEntry entries[0];
 }__attribute__((packed));
 
-struct MemoryMapEntry
-{
-    uint64_t base_addr;
-    uint64_t length;
-    uint32_t type;
-    uint32_t reserved;
-}__attribute__((packed));
 
+
+
+bool initMemoryMap();
 
 
 

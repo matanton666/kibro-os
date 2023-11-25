@@ -2,12 +2,14 @@
 #include "serial.h"
 #include "screen.h"
 #include "std.h"
+#include "pageFrameAllocator.h"
 
 
 
 extern "C" void kernel_main(void) {
 	init_serial();
 	write_serial((char*)"kernel booted");
+
 
 	if (initializeScreen()) {
 		write_serial((char*)"screen initialized");
@@ -28,6 +30,7 @@ extern "C" void kernel_main(void) {
 
 	write_serial((char*)"screen works");
 
+	initMemoryMap();
 	
 	while (true)
 	{

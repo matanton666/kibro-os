@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-
 struct BootTag
 {
     uint32_t type;
@@ -12,6 +11,7 @@ struct BootTag
 
 
 char* itoa(int num, char *str, int base);
+char* uitoa(uint64_t num, char *str, int base);
 void* memcpy(void *dest, const void *src, size_t n);
 int memcmp(const void* lhs, const void* rhs, size_t count);
 
