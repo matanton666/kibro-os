@@ -10,7 +10,10 @@ Point curserPos = { CURSER_PADDING, CURSER_PADDING };
 
 bool initializeScreen()
 {
-    initFramebuffer();
+    
+    // init framebuffer - get the framebuffer from the multiboot info
+    fbInfo = getBootInfo<FramebufferInfo>(8);
+
     if (fbInfo == nullptr) {
         return false;
     }
@@ -43,37 +46,6 @@ void print(int num)
     char cnum[32];
     itoa(num, cnum, 10);
     putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
-}
-
-void initFramebuffer()
-{
-    struct BootTag
-    {
-        uint32_t type;
-        uint32_t size;
-    };
-    
-    // get boot info
-    // move the boot info location to the pointer from ebx
-    uint32_t* bootInfo = 0;
-    __asm("movl %%ebx, %0;" : "=r"(bootInfo));
-
-    // loop untill finds the framebuffer info
-    uint32_t* addr = bootInfo;
-    for (BootTag* tag = (BootTag *)(&addr[2]);
-       tag->type != 0;
-       tag = (BootTag *) ((uint8_t *) tag + ((tag->size + 7) & ~7))) // move to next tag (with padding)
-    {
-        switch (tag->type)
-        {
-        case 8: // framebuffer tag
-            fbInfo = (FramebufferInfo*)tag;
-            break;
-
-        default:
-            break;
-        }
-    }
 }
 
 void drawPixel( int x, int y, uint32_t color)

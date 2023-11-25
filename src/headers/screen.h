@@ -86,9 +86,6 @@ void print(int num);
 
 
 
-// get the framebuffer from the multiboot info
-void initFramebuffer();
-
 // draw a pixel on the screen
 // x, y - position in pixels from the top left corner (0,0)
 // color - 32 bit color (0xAARRGGBB)

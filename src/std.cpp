@@ -42,8 +42,7 @@ int memcmp(const void* lhs, const void* rhs, size_t count)
 	return compare;
 }
 
-
-// convert from int to char* (string)
+// convert from int to char* (ascii)
 char* itoa(int num, char* str, int base) {
 	int i = 0;
 	bool isNegative = false;
@@ -75,3 +74,5 @@ char* itoa(int num, char* str, int base) {
 	str[i] = '\0';
 	return str;
 }
+
+
