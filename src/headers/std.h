@@ -7,7 +7,7 @@ struct BootTag
 {
     uint32_t type;
     uint32_t size;
-};
+}__attribute__((packed));
     
 
 

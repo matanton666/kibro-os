@@ -34,7 +34,7 @@ depth	how many bits of color you have
 bpp 	how many bytes of VRAM you should skip to go one pixel right.
 */
 
-typedef struct  __attribute__((packed)) {
+struct FramebufferInfo {
     uint32_t type; // should be 8
     uint32_t size; // should be around 32
     uint64_t addr; // address of the framebuffer
@@ -45,15 +45,15 @@ typedef struct  __attribute__((packed)) {
     uint8_t bufferType; // should be 1
     uint8_t reserved; // should be 0
 
-}FramebufferInfo;
+}__attribute__((packed));
 
-typedef struct __attribute__((packed)) {
+struct  PSF1_Header {
     uint16_t magic; // for identification
     uint8_t fontMode;
     uint8_t characterSize;
-} PSF1_Header;
+} __attribute__((packed)) ;
 
-typedef struct __attribute__((packed)) {
+struct PSF2_Header {
     uint32_t magic;         /* magic bytes to identify PSF */
     uint32_t version;       /* zero */
     uint32_t headerSize;    /* offset of bitmaps in file, 32 */
@@ -62,12 +62,12 @@ typedef struct __attribute__((packed)) {
     uint32_t bytesPerGlyph; /* size of each glyph */
     uint32_t height;        /* height in pixels */
     uint32_t width;         /* width in pixels */
-} PSF2_Header;
+}__attribute__((packed));
 
-typedef struct __attribute__((packed)) {
+struct Point {
     unsigned int x;
     unsigned int y;
-} Point;
+}__attribute__((packed));
 
 extern FramebufferInfo* fbInfo;
 
