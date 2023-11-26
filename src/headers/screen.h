@@ -1,3 +1,6 @@
+/*
+manage the output screen of the os
+*/
 #pragma once
 #include <stdint.h>
 #include "serial.h"

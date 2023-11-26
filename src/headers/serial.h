@@ -1,3 +1,6 @@
+/*
+manage serial output from the os. (for debuging purposes)
+*/
 #pragma once
 
 // serial code is for debuging the application

@@ -1,3 +1,6 @@
+/*
+our implementation of the standard library
+*/
 #pragma once
 #include <stdint.h>
 #include <stddef.h>

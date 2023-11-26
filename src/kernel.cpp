@@ -3,6 +3,7 @@
 #include "screen.h"
 #include "std.h"
 #include "pageFrameAllocator.h"
+#include "bitmap.h"
 
 
 
@@ -57,7 +58,6 @@ extern "C" void kernel_main(void) {
 	print("reserved memory: ");
 	print((uint64_t)reservedMemory / 1024);
 	print("KB\n");
-	
 	
 	while (true)
 	{

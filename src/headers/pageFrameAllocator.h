@@ -1,6 +1,10 @@
+/*
+maintain in-use and free pages of the system.
+*/
 #pragma once
 #include "std.h"
 #include "serial.h"
+
 
 
 struct BasicMemoryInfo
