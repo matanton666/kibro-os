@@ -30,7 +30,34 @@ extern "C" void kernel_main(void) {
 
 	write_serial((char*)"screen works");
 
-	initMemoryMap();
+	if (getMemoryMap()) {
+		write_serial((char*)"memory map initialized");
+	}
+	else {
+		write_serial((char*)"memory map failed to initialize");
+	}
+
+	print('\n');
+	while ((uint8_t*)entries < (uint8_t*)memMap + memMap->size) // size of the memory map
+    {
+        print("base: ");
+		print((uint64_t)entries->base_addr);
+		print(" length: ");
+		print((uint64_t)entries->length / 1024);
+		print("KB type: ");
+		entries->type == 1 ? print("available") : print("reserved");
+		print('\n');
+        entries = (MemoryMapEntry*)((uint64_t)entries + memMap->entry_size);
+    }
+
+	setMemorySizes();
+	print("free memory: ");
+	print((uint64_t)freeMemory / 1024);
+	print("KB\n");
+	print("reserved memory: ");
+	print((uint64_t)reservedMemory / 1024);
+	print("KB\n");
+	
 	
 	while (true)
 	{

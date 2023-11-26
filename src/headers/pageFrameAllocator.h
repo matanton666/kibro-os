@@ -35,9 +35,14 @@ struct MemoryMap
 }__attribute__((packed));
 
 
+extern MemoryMap* memMap;
+extern BasicMemoryInfo* memInfo;
+extern MemoryMapEntry* entries;
+extern uint64_t usedMemory;
+extern uint64_t freeMemory;
+extern uint64_t reservedMemory;
 
-
-bool initMemoryMap();
-
+bool getMemoryMap();
+void setMemorySizes();
 
 

@@ -83,6 +83,7 @@ void cls();
 void print(char* str);
 void print(char c);
 void print(int num);
+void print(uint64_t num);
 
 
 

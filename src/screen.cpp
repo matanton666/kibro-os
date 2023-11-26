@@ -48,6 +48,13 @@ void print(int num)
     putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
 }
 
+void print(uint64_t num)
+{
+    char cnum[40];
+    uitoa(num, cnum, 10);
+    putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+}
+
 void drawPixel( int x, int y, uint32_t color)
 {
     // get the pixel location 					              
