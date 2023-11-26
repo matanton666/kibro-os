@@ -2,7 +2,7 @@
 #include "serial.h"
 #include "screen.h"
 #include "std.h"
-#include "pageFrameAllocator.h"
+#include "memoryMap.h"
 #include "bitmap.h"
 
 
