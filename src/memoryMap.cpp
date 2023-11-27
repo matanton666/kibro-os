@@ -7,7 +7,7 @@ MemoryMapEntry* entrie = nullptr;
 uint64_t freeMemory = 0;
 uint64_t usedMemory = 0;
 uint64_t reservedMemory = 0;
-void* largestFreeSegment = nullptr;
+uint64_t largestFreeSegment = 0;
 
 
 bool getMemoryMapFromBootloader()
@@ -16,12 +16,15 @@ bool getMemoryMapFromBootloader()
     memMap = getBootInfo<MemoryMap>(6);
     entrie = memMap->entries;
 
+    write_serial_uint(memInfo->upper_mem);
+
     if (memInfo == nullptr || memMap == nullptr || entrie == nullptr) {
         return false;
     }
     return true;
 }
 
+// puts the free memroy size in freeMemroy
 void getMemorySizes()
 {
     entrie = memMap->entries;
@@ -34,11 +37,8 @@ void getMemorySizes()
             // get largest free segment
             if (entrie->length > largestSegment) {
                 largestSegment = entrie->length;
-                largestFreeSegment = (void*)entrie->base_addr;
+                largestFreeSegment = entrie->base_addr;
             }
-        }
-        else {
-            reservedMemory += entrie->length;
         }
         entrie = (MemoryMapEntry*)((uint64_t)entrie + memMap->entry_size); // next entrie
     }

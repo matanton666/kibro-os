@@ -12,25 +12,34 @@ used to maintain in-use and free pages of the system.
 #define PAGE_FREE false
 #define PAGE_LOCKED true
 
-extern unsigned long bitmapBufferSize;
+extern uint64_t _KernelStart;
+extern uint64_t _KernelEnd;
+
+extern unsigned long bitmapBufferSize; // in bytes
 extern unsigned char* bitmapBuffer;
 
 extern bool isInitialized;
 
 bool initMemoryMap();
 
+unsigned long getFreeMem();
+unsigned long getUsedMem();
+unsigned long getReservedMem();
+
+
 // get value of index
 bool bitmapGet(unsigned long index);
 // set value of index
 void bitmapSet(unsigned long index, bool value);
 
+
 // void* pointing to memory block
 
 void freePage(void* addr);
-void lockPage(void* addr);
+void lockPage(unsigned char* addr);
 
 void freePages(void* addr, unsigned int amount);
-void lockPages(void* addr, unsigned int amount);
+void lockPages(unsigned char* addr, unsigned int amount);
 
 // do not use this outside of pageFrameAllocator
 void reservePage(void* addr);
@@ -40,3 +49,5 @@ void unreservePage(void* addr);
 void reservePages(void* addr, unsigned int amount);
 // do not use this outside of pageFrameAllocator
 void unreservePages(void* addr, unsigned int amount);
+
+

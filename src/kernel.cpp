@@ -38,6 +38,7 @@ extern "C" void kernel_main(void) {
 	}
 
 	print('\n');
+	entrie = memMap->entries;
 	while ((uint8_t*)entrie < (uint8_t*)memMap + memMap->size) // size of the memory map
     {
         print("base: ");
@@ -49,14 +50,18 @@ extern "C" void kernel_main(void) {
 		print('\n');
         entrie = (MemoryMapEntry*)((uint64_t)entrie + memMap->entry_size); 
     }
+	write_serial("printed memory map");
 
-	getMemorySizes();
 	print("free memory: ");
-	print((uint64_t)freeMemory / 1024);
+	print((uint64_t)getFreeMem() / 1024);
 	print("KB\n");
 	print("reserved memory: ");
-	print((uint64_t)reservedMemory / 1024);
+	print((uint64_t)getReservedMem() / 1024);
 	print("KB\n");
+	print("used memory: ");
+	print((uint64_t)getUsedMem() / 1024);
+	print("KB\n");
+	write_serial("printed memory state");
 
 	
 	while (true)

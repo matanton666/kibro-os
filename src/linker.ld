@@ -5,7 +5,8 @@ SECTIONS
 {
 	/* one mb shift for convention */
 	. = 1M;
- 
+
+	_KernelStart = .;
     /* put everything in 4k blocks for paging */
 	.text BLOCK(4K) : ALIGN(4K)
 	{
@@ -32,3 +33,4 @@ SECTIONS
 		*(.bss)
 	}
 }
+_KernelEnd = .;

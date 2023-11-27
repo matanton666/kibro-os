@@ -1,7 +1,6 @@
 
 #include "pageFrameAllocator.h"
 
-
 unsigned long bitmapBufferSize = 0;
 unsigned char* bitmapBuffer = nullptr;
 
@@ -43,22 +42,63 @@ bool initMemoryMap()
     }
     isInitialized = true;
 
-    getMemoryMapFromBootloader();
-
-    unsigned long memMapEntriesAmount = (memMap->size - sizeof(MemoryMap)) / memMap->entry_size;
+    if (!getMemoryMapFromBootloader()) {
+        return false;
+    }
     getMemorySizes();
     // 4kib memory per page and one bit representing each page, plus one just in case
-    bitmapBufferSize = (freeMemory / PAGE_SIZE / 8) + 1; // in bits
+    bitmapBufferSize = (freeMemory / PAGE_SIZE / 8) + 1; // in bytes
 
     bitmapBuffer = (unsigned char*)largestFreeSegment;
 
+    // TODO: move this to other place and make readable
+    
+    write_serial_uint((uint64_t)&_KernelStart);
+    write_serial_uint((uint64_t)bitmapBuffer);
+
+    if ((uint64_t)&_KernelEnd > (uint64_t)bitmapBuffer) {
+        bitmapBuffer = (unsigned char*)(uint64_t)&_KernelEnd + PAGE_SIZE * 100; // FIXME: not right
+    }
+
+    write_serial_uint((uint64_t)bitmapBuffer);
     for (unsigned long i = 0; i < bitmapBufferSize; i++)
     {
         bitmapBuffer[i] = 0;
+        // write_serial_uint(bitmapBuffer[i]);
     }
-    // free, lock and reserve
+
+    // lock bitmap pages
+    // lockPage(bitmapBuffer);
+    lockPages((unsigned char*)(uint64_t)&_KernelStart, ((uint64_t)bitmapBuffer - (uint64_t)&_KernelStart) / PAGE_SIZE + 1);
+    lockPages(bitmapBuffer, bitmapBufferSize / PAGE_SIZE + 1);
+
+    // reserve reserved memory
+    entrie = memMap->entries;
+    while ((uint8_t*)entrie < (uint8_t*)memMap + memMap->size) // loop all entries
+    {
+        if (entrie->type != MULTIBOOT_MEMORY_AVAILABLE) {
+            reservePages((void*)entrie->base_addr, entrie->length / PAGE_SIZE + 1);
+        }
+        entrie = (MemoryMapEntry*)((uint64_t)entrie + memMap->entry_size); // next entrie
+    }
+
+    return true;
 }
 
+unsigned long getFreeMem()
+{
+    return freeMemory;
+}
+
+unsigned long getUsedMem()
+{
+    return usedMemory;
+}
+
+unsigned long getReservedMem()
+{
+    return reservedMemory;
+}
 
 void freePage(void* addr)
 {
@@ -70,7 +110,7 @@ void freePage(void* addr)
     }
 }
 
-void lockPage(void* addr)
+void lockPage(unsigned char* addr)
 {
     unsigned long index = (unsigned long)addr / PAGE_SIZE;
     if (bitmapGet(index) == PAGE_FREE) {
@@ -83,18 +123,17 @@ void lockPage(void* addr)
 void freePages(void *addr, unsigned int amount)
 {
     unsigned long address = (unsigned long)addr;
-    for (int i = 0; i < amount; i += PAGE_SIZE)
+    for (unsigned int i = 0; i < amount; i += PAGE_SIZE)
     {
         freePage((void*)(address + i));
     }
 }
 
-void lockPages(void *addr, unsigned int amount)
+void lockPages(unsigned char *addr, unsigned int amount)
 {
-    unsigned long address = (unsigned long)addr;
-    for (int i = 0; i < amount; i += PAGE_SIZE)
+    for (unsigned int i = 0; i < amount; i += PAGE_SIZE)
     {
-        lockPage((void*)(address + i));
+        lockPage((unsigned char*)((uint64_t)addr + i));
     }
 }
 
@@ -121,7 +160,7 @@ void reservePage(void* addr)
 void reservePages(void *addr, unsigned int amount)
 {
     unsigned long address = (unsigned long)addr;
-    for (int i = 0; i < amount; i += PAGE_SIZE)
+    for (unsigned int i = 0; i < amount; i += PAGE_SIZE)
     {
         reservePage((void*)(address + i));
     }
@@ -130,7 +169,7 @@ void reservePages(void *addr, unsigned int amount)
 void unreservePages(void *addr, unsigned int amount)
 {
     unsigned long address = (unsigned long)addr;
-    for (int i = 0; i < amount; i += PAGE_SIZE)
+    for (unsigned int i = 0; i < amount; i += PAGE_SIZE)
     {
         unreservePage((void*)(address + i));
     }

@@ -46,7 +46,7 @@ extern MemoryMapEntry* entrie;
 extern uint64_t usedMemory;
 extern uint64_t freeMemory;
 extern uint64_t reservedMemory;
-extern void* largestFreeSegment; // pointer to uninitialized memory
+extern uint64_t largestFreeSegment; // pointer to uninitialized memory
 
 bool getMemoryMapFromBootloader();
 void getMemorySizes();
