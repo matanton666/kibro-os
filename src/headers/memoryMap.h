@@ -1,10 +1,9 @@
 /*
-maintain in-use and free pages of the system.
+map of all the memory in the system devided into parts 
 */
 #pragma once
 #include "std.h"
 #include "serial.h"
-
 
 
 struct BasicMemoryInfo
@@ -22,6 +21,7 @@ struct MemoryMapEntry
     uint32_t type; // type of memory region
     uint32_t reserved; // always 0
 }__attribute__((packed));
+
 // types of memory regions
 #define MULTIBOOT_MEMORY_AVAILABLE              1
 #define MULTIBOOT_MEMORY_RESERVED               2
@@ -41,12 +41,14 @@ struct MemoryMap
 
 extern MemoryMap* memMap;
 extern BasicMemoryInfo* memInfo;
-extern MemoryMapEntry* entries;
+extern MemoryMapEntry* entrie;
+
 extern uint64_t usedMemory;
 extern uint64_t freeMemory;
 extern uint64_t reservedMemory;
+extern void* largestFreeSegment; // pointer to uninitialized memory
 
-bool getMemoryMap();
-void setMemorySizes();
+bool getMemoryMapFromBootloader();
+void getMemorySizes();
 
 

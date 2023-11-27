@@ -3,8 +3,7 @@
 #include "screen.h"
 #include "std.h"
 #include "memoryMap.h"
-#include "bitmap.h"
-
+#include "pageFrameAllocator.h"
 
 
 extern "C" void kernel_main(void) {
@@ -31,7 +30,7 @@ extern "C" void kernel_main(void) {
 
 	write_serial((char*)"screen works");
 
-	if (getMemoryMap()) {
+	if (initMemoryMap()) {
 		write_serial((char*)"memory map initialized");
 	}
 	else {
@@ -39,25 +38,26 @@ extern "C" void kernel_main(void) {
 	}
 
 	print('\n');
-	while ((uint8_t*)entries < (uint8_t*)memMap + memMap->size) // size of the memory map
+	while ((uint8_t*)entrie < (uint8_t*)memMap + memMap->size) // size of the memory map
     {
         print("base: ");
-		print((uint64_t)entries->base_addr);
+		print((uint64_t)entrie->base_addr);
 		print(" length: ");
-		print((uint64_t)entries->length / 1024);
+		print((uint64_t)entrie->length / 1024);
 		print("KB type: ");
-		entries->type == 1 ? print("available") : print("reserved");
+		entrie->type == 1 ? print("available") : print("reserved");
 		print('\n');
-        entries = (MemoryMapEntry*)((uint64_t)entries + memMap->entry_size);
+        entrie = (MemoryMapEntry*)((uint64_t)entrie + memMap->entry_size); 
     }
 
-	setMemorySizes();
+	getMemorySizes();
 	print("free memory: ");
 	print((uint64_t)freeMemory / 1024);
 	print("KB\n");
 	print("reserved memory: ");
 	print((uint64_t)reservedMemory / 1024);
 	print("KB\n");
+
 	
 	while (true)
 	{

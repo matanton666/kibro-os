@@ -2,34 +2,44 @@
 
 MemoryMap* memMap = nullptr;
 BasicMemoryInfo* memInfo = nullptr;
-extern MemoryMapEntry* entries = nullptr;
-extern uint64_t freeMemory = 0;
-extern uint64_t usedMemory = 0;
-uint64_t reservedMemory = 0;
+MemoryMapEntry* entrie = nullptr;
 
-bool getMemoryMap()
+uint64_t freeMemory = 0;
+uint64_t usedMemory = 0;
+uint64_t reservedMemory = 0;
+void* largestFreeSegment = nullptr;
+
+
+bool getMemoryMapFromBootloader()
 {
     memInfo = getBootInfo<BasicMemoryInfo>(4);
     memMap = getBootInfo<MemoryMap>(6);
-    entries = memMap->entries;
+    entrie = memMap->entries;
 
-    if (memInfo == nullptr || memMap == nullptr || entries == nullptr) {
+    if (memInfo == nullptr || memMap == nullptr || entrie == nullptr) {
         return false;
     }
     return true;
 }
 
-void setMemorySizes()
+void getMemorySizes()
 {
-    entries = memMap->entries;
-    while ((uint8_t*)entries < (uint8_t*)memMap + memMap->size) // size of the memory map
+    entrie = memMap->entries;
+    uint64_t largestSegment = 0;
+
+    while ((uint8_t*)entrie < (uint8_t*)memMap + memMap->size) // loop all entries
     {
-        if (entries->type == MULTIBOOT_MEMORY_AVAILABLE) {
-            freeMemory += entries->length;
+        if (entrie->type == MULTIBOOT_MEMORY_AVAILABLE) {
+            freeMemory += entrie->length;
+            // get largest free segment
+            if (entrie->length > largestSegment) {
+                largestSegment = entrie->length;
+                largestFreeSegment = (void*)entrie->base_addr;
+            }
         }
         else {
-            reservedMemory += entries->length;
+            reservedMemory += entrie->length;
         }
-        entries = (MemoryMapEntry*)((uint64_t)entries + memMap->entry_size);
+        entrie = (MemoryMapEntry*)((uint64_t)entrie + memMap->entry_size); // next entrie
     }
 }
