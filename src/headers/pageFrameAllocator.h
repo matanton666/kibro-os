@@ -14,7 +14,7 @@ used to maintain in-use and free pages of the system.
 
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
-#define KERNEL_MEM_END (&_KernelEnd + PAGE_SIZE*2) // take 2 pages to make sure not overwriteing anything
+#define KERNEL_MEM_END (&_KernelEnd + PAGE_SIZE*3) // take 2 pages to make sure not overwriteing anything
 
 extern unsigned long bitmapBufferSize; // in bytes
 extern unsigned char* bitmapBuffer;
@@ -36,19 +36,19 @@ void bitmapSet(unsigned long index, bool value);
 
 // void* pointing to memory block
 
-void freePage(void* addr);
+void freePage(unsigned char *addr);
 void lockPage(unsigned char* addr);
 
-void freePages(void* addr, unsigned int amount);
+void freePages(unsigned char *addr, unsigned int amount);
 void lockPages(unsigned char* addr, unsigned int amount);
 
 // do not use this outside of pageFrameAllocator
-void reservePage(void* addr);
+void reservePage(unsigned char *addr);
 // do not use this outside of pageFrameAllocator
-void unreservePage(void* addr);
+void unreservePage(unsigned char *addr);
 // do not use this outside of pageFrameAllocator
-void reservePages(void* addr, unsigned int amount);
+void reservePages(unsigned char *addr, unsigned int amount);
 // do not use this outside of pageFrameAllocator
-void unreservePages(void* addr, unsigned int amount);
+void unreservePages(unsigned char *addr, unsigned int amount);
 
 
