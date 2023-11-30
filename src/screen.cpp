@@ -23,6 +23,9 @@ bool initializeScreen()
     }
 
     clearScreen(COLOR_BLACK);
+    write_serial_hex((uint64_t)&_binary_res_Tamsyn8x16b_psf_start);
+    write_serial_hex((uint64_t)&_binary_res_Tamsyn8x16b_psf_end);
+    write_serial_hex((uint64_t)fbInfo->addr);
     return true;
 }
 

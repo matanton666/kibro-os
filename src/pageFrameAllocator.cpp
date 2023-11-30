@@ -46,30 +46,25 @@ bool initMemoryMap()
         return false;
     }
     getMemorySizes();
+
     // 4kib memory per page and one bit representing each page, plus one just in case
     bitmapBufferSize = (freeMemory / PAGE_SIZE / 8) + 1; // in bytes
+    bitmapBuffer = (unsigned char*)largestFreeSegment;// begins at the start of the largest memroy segment
 
-    bitmapBuffer = (unsigned char*)largestFreeSegment;
-
-    // TODO: move this to other place and make readable
-    
-    write_serial_uint((uint64_t)&_KernelStart);
-    write_serial_uint((uint64_t)bitmapBuffer);
-
-    if ((uint64_t)&_KernelEnd > (uint64_t)bitmapBuffer) {
-        bitmapBuffer = (unsigned char*)(uint64_t)&_KernelEnd + PAGE_SIZE * 100; // FIXME: not right
+    // make sure bitmap is after kernel code and not overwriting it
+    if ((uint64_t)KERNEL_MEM_END > (uint64_t)bitmapBuffer) {
+        bitmapBuffer = (unsigned char*)(uint64_t)KERNEL_MEM_END;
     }
 
-    write_serial_uint((uint64_t)bitmapBuffer);
-    for (unsigned long i = 0; i < bitmapBufferSize; i++)
+    write_serial_hex((uint64_t)bitmapBuffer);
+    for (unsigned long i = 0; i < bitmapBufferSize; i++) // zero out memory
     {
         bitmapBuffer[i] = 0;
-        // write_serial_uint(bitmapBuffer[i]);
     }
 
-    // lock bitmap pages
-    // lockPage(bitmapBuffer);
-    lockPages((unsigned char*)(uint64_t)&_KernelStart, ((uint64_t)bitmapBuffer - (uint64_t)&_KernelStart) / PAGE_SIZE + 1);
+    // lock bitmap pages (kernel memory and bitmap memory)
+    // TODO: lock the framebuffer
+    lockPages((unsigned char*)(uint64_t)&_KernelStart, ((uint64_t)KERNEL_MEM_END - (uint64_t)&_KernelStart) / PAGE_SIZE + 1);
     lockPages(bitmapBuffer, bitmapBufferSize / PAGE_SIZE + 1);
 
     // reserve reserved memory
@@ -112,7 +107,7 @@ void freePage(void* addr)
 
 void lockPage(unsigned char* addr)
 {
-    unsigned long index = (unsigned long)addr / PAGE_SIZE;
+    unsigned long index = (uint64_t)addr / PAGE_SIZE;
     if (bitmapGet(index) == PAGE_FREE) {
         bitmapSet(index, PAGE_LOCKED);
         freeMemory -= PAGE_SIZE;
@@ -123,7 +118,7 @@ void lockPage(unsigned char* addr)
 void freePages(void *addr, unsigned int amount)
 {
     unsigned long address = (unsigned long)addr;
-    for (unsigned int i = 0; i < amount; i += PAGE_SIZE)
+    for (unsigned int i = 0; i < amount*PAGE_SIZE; i += PAGE_SIZE)
     {
         freePage((void*)(address + i));
     }
@@ -131,7 +126,8 @@ void freePages(void *addr, unsigned int amount)
 
 void lockPages(unsigned char *addr, unsigned int amount)
 {
-    for (unsigned int i = 0; i < amount; i += PAGE_SIZE)
+    // TODO: make others like this
+    for (unsigned int i = 0; i < amount*PAGE_SIZE; i += PAGE_SIZE)
     {
         lockPage((unsigned char*)((uint64_t)addr + i));
     }

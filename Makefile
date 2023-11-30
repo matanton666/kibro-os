@@ -25,7 +25,7 @@ os_iso_file: os_bin_file
 # link all object files
 os_bin_file: $(asm_object_files) $(cpp_object_files) $(psf_object_files) $(linker_file)
 	@mkdir -p dist
-	i686-elf-g++ -T $(linker_file) -o $(os_bin_file) -ffreestanding -O2 -nostdlib $(asm_object_files) $(cpp_object_files) $(psf_object_files) -lgcc
+	i686-elf-g++ -T $(linker_file) -o $(os_bin_file) -ffreestanding -O2 -nostdlib $(psf_object_files) $(asm_object_files) $(cpp_object_files) -lgcc
 	@echo "linked all object files"
 
 

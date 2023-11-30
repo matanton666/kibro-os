@@ -15,3 +15,4 @@ void write_serial_char(char a);
 void write_serial(const char* str);
 void write_serial_int(int num);
 void write_serial_uint(uint64_t num);
+void write_serial_hex(uint64_t num);
