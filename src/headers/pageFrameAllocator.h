@@ -14,7 +14,7 @@ used to maintain in-use and free pages of the system.
 
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
-#define KERNEL_MEM_END (&_KernelEnd + PAGE_SIZE*3) // take 2 pages to make sure not overwriteing anything
+#define KERNEL_MEM_END (&_KernelEnd + PAGE_SIZE*3) // take 3 pages to make sure not overwriteing anything
 
 extern unsigned long bitmapBufferSize; // in bytes
 extern unsigned char* bitmapBuffer;
@@ -26,6 +26,7 @@ bool initMemoryMap();
 unsigned long getFreeMem();
 unsigned long getUsedMem();
 unsigned long getReservedMem();
+unsigned char* requestPage();
 
 
 // get value of index
@@ -34,7 +35,8 @@ bool bitmapGet(unsigned long index);
 void bitmapSet(unsigned long index, bool value);
 
 
-// void* pointing to memory block
+
+// unsinged char* pointing to memory block
 
 void freePage(unsigned char *addr);
 void lockPage(unsigned char* addr);

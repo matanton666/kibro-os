@@ -18,6 +18,22 @@ extern "C" void kernel_main(void) {
 		write_serial((char*)"screen failed to initialize");
 	}
 
+	if (initMemoryMap()) {
+		write_serial((char*)"memory map initialized");
+	}
+	else {
+		write_serial((char*)"memory map failed to initialize");
+	}
+
+	// reserve the pages before the kernel just in case
+	reservePages(0, (uint64_t)&_KernelStart / PAGE_SIZE - 1);
+	// lock the framebuffer and kernel pages
+	lockPages((unsigned char*)fbInfo->addr, fbLength / PAGE_SIZE);
+    lockPages((unsigned char*)(uint64_t)&_KernelStart, ((uint64_t)KERNEL_MEM_END - (uint64_t)&_KernelStart) / PAGE_SIZE + 1);
+
+
+
+	// prints and tests here:
 	cls();
 	print("Welcome to Kibro!\n");
 	print(123456789);
@@ -28,15 +44,7 @@ extern "C" void kernel_main(void) {
 	print(',');
 	print((int)getCursur().y);
 
-	write_serial((char*)"screen works");
-
-	if (initMemoryMap()) {
-		write_serial((char*)"memory map initialized");
-	}
-	else {
-		write_serial((char*)"memory map failed to initialize");
-	}
-
+	
 	print('\n');
 	entrie = memMap->entries;
 	while ((uint8_t*)entrie < (uint8_t*)memMap + memMap->size) // size of the memory map
@@ -50,7 +58,7 @@ extern "C" void kernel_main(void) {
 		print('\n');
         entrie = (MemoryMapEntry*)((uint64_t)entrie + memMap->entry_size); 
     }
-	write_serial("printed memory map");
+
 
 	print("free memory: ");
 	print((uint64_t)getFreeMem() / 1024);
@@ -61,9 +69,15 @@ extern "C" void kernel_main(void) {
 	print("used memory: ");
 	print((uint64_t)getUsedMem() / 1024);
 	print("KB\n");
-	write_serial("printed memory state");
-
 	
+	print("requesting pages:\n");
+	for (int i = 0; i < 10; i++)
+	{
+		unsigned char* addr = requestPage();
+		print((uint64_t)addr);
+		print('\n');
+	}
+
 	while (true)
 	{
 		 

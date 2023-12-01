@@ -20,7 +20,6 @@ void bitmapSet(unsigned long index, bool value)
     }
 }
 
-
 bool bitmapGet(unsigned long index)
 {
     unsigned long byteIndex = index / 8;
@@ -35,6 +34,20 @@ bool bitmapGet(unsigned long index)
     }
 }
 
+unsigned char *requestPage()
+{
+    // loop all indexes in bitmap untill find free page
+    for (unsigned long i = 0; i < bitmapBufferSize * 8; i++)
+    {
+        if (bitmapGet(i) == PAGE_FREE) {
+            unsigned char* addr = (unsigned char*)(i * PAGE_SIZE);
+            lockPage(addr);
+            return addr;
+        }
+    }
+
+    return nullptr; // todo: page frame swap when file system is available
+}
 
 bool initMemoryMap()
 {
@@ -57,14 +70,12 @@ bool initMemoryMap()
         bitmapBuffer = (unsigned char*)(uint64_t)KERNEL_MEM_END;
     }
 
-    write_serial_hex((uint64_t)bitmapBuffer);
     for (unsigned long i = 0; i < bitmapBufferSize; i++) // zero out memory
     {
         bitmapBuffer[i] = 0;
     }
 
     // lock bitmap pages (kernel memory and bitmap memory)
-    lockPages((unsigned char*)(uint64_t)&_KernelStart, ((uint64_t)KERNEL_MEM_END - (uint64_t)&_KernelStart) / PAGE_SIZE + 1);
     lockPages(bitmapBuffer, bitmapBufferSize / PAGE_SIZE + 1);
 
     // reserve reserved memory

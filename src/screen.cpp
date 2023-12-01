@@ -8,6 +8,9 @@ PSF2_Header* PSF2_font = nullptr;
 uint16_t* unicode = nullptr;
 Point curserPos = { CURSER_PADDING, CURSER_PADDING };
 
+unsigned long fbLength = 0;
+
+
 bool initializeScreen()
 {
     
@@ -21,11 +24,8 @@ bool initializeScreen()
     if (!initPSF()) {
         return false;
     }
-
+    fbLength = fbInfo->pitch * fbInfo->height;
     clearScreen(COLOR_BLACK);
-    write_serial_hex((uint64_t)&_binary_res_Tamsyn8x16b_psf_start);
-    write_serial_hex((uint64_t)&_binary_res_Tamsyn8x16b_psf_end);
-    write_serial_hex((uint64_t)fbInfo->addr);
     return true;
 }
 

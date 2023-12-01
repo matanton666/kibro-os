@@ -16,8 +16,6 @@ bool getMemoryMapFromBootloader()
     memMap = getBootInfo<MemoryMap>(6);
     entrie = memMap->entries;
 
-    write_serial_uint(memInfo->upper_mem);
-
     if (memInfo == nullptr || memMap == nullptr || entrie == nullptr) {
         return false;
     }

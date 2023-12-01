@@ -72,6 +72,8 @@ struct Point {
     unsigned int y;
 }__attribute__((packed));
 
+
+
 extern FramebufferInfo* fbInfo;
 
 extern PSF1_Header* PSF1_font;
@@ -79,6 +81,10 @@ extern PSF2_Header* PSF2_font;
 
 extern uint16_t* unicode;
 extern Point curserPos;
+extern unsigned long fbLength;
+
+
+
 
 
 bool initializeScreen();
