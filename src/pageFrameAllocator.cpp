@@ -75,7 +75,7 @@ bool initMemoryMap()
         bitmapBuffer[i] = 0;
     }
 
-    // lock bitmap pages (kernel memory and bitmap memory)
+    // lock bitmap pages
     lockPages(bitmapBuffer, bitmapBufferSize / PAGE_SIZE + 1);
 
     // reserve reserved memory

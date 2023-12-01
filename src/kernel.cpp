@@ -26,11 +26,10 @@ extern "C" void kernel_main(void) {
 	}
 
 	// reserve the pages before the kernel just in case
-	reservePages(0, (uint64_t)&_KernelStart / PAGE_SIZE - 1);
+	reservePages(0, (uint64_t)KENREL_MEM_START / PAGE_SIZE - 1);
 	// lock the framebuffer and kernel pages
 	lockPages((unsigned char*)fbInfo->addr, fbLength / PAGE_SIZE);
-    lockPages((unsigned char*)(uint64_t)&_KernelStart, ((uint64_t)KERNEL_MEM_END - (uint64_t)&_KernelStart) / PAGE_SIZE + 1);
-
+    lockPages((unsigned char*)(uint64_t)KENREL_MEM_START, ((uint64_t)KERNEL_MEM_END - (uint64_t)KENREL_MEM_START) / PAGE_SIZE + 1);
 
 
 	// prints and tests here:
@@ -44,23 +43,8 @@ extern "C" void kernel_main(void) {
 	print(',');
 	print((int)getCursur().y);
 
-	
-	print('\n');
-	entrie = memMap->entries;
-	while ((uint8_t*)entrie < (uint8_t*)memMap + memMap->size) // size of the memory map
-    {
-        print("base: ");
-		print((uint64_t)entrie->base_addr);
-		print(" length: ");
-		print((uint64_t)entrie->length / 1024);
-		print("KB type: ");
-		entrie->type == 1 ? print("available") : print("reserved");
-		print('\n');
-        entrie = (MemoryMapEntry*)((uint64_t)entrie + memMap->entry_size); 
-    }
 
-
-	print("free memory: ");
+	print("\nfree memory: ");
 	print((uint64_t)getFreeMem() / 1024);
 	print("KB\n");
 	print("reserved memory: ");
@@ -70,7 +54,7 @@ extern "C" void kernel_main(void) {
 	print((uint64_t)getUsedMem() / 1024);
 	print("KB\n");
 	
-	print("requesting pages:\n");
+	print("requesting pages...\naddresses at start of requested pages:\n");
 	for (int i = 0; i < 10; i++)
 	{
 		unsigned char* addr = requestPage();

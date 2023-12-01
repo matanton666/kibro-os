@@ -22,7 +22,7 @@ bool getMemoryMapFromBootloader()
     return true;
 }
 
-// puts the free memroy size in freeMemroy
+// sets the memory size variables (freeMemory, largestFreeSegment)
 void getMemorySizes()
 {
     entrie = memMap->entries;
