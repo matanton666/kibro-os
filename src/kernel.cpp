@@ -4,6 +4,7 @@
 #include "std.h"
 #include "memoryMap.h"
 #include "pageFrameAllocator.h"
+#include "GDT.h"
 
 
 extern "C" void kernel_main(void) {
@@ -17,6 +18,8 @@ extern "C" void kernel_main(void) {
 	else {
 		write_serial((char*)"screen failed to initialize");
 	}
+	
+	initGdt();
 
 	if (initMemoryMap()) {
 		write_serial((char*)"memory map initialized");
