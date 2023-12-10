@@ -5,6 +5,7 @@
 #include "memoryMap.h"
 #include "pageFrameAllocator.h"
 #include "GDT.h"
+#include "IDT.h"
 
 
 extern "C" void kernel_main(void) {
@@ -18,8 +19,6 @@ extern "C" void kernel_main(void) {
 	else {
 		write_serial((char*)"screen failed to initialize");
 	}
-	
-	initGdt();
 
 	if (initMemoryMap()) {
 		write_serial((char*)"memory map initialized");
@@ -34,6 +33,9 @@ extern "C" void kernel_main(void) {
 	lockPages((unsigned char*)fbInfo->addr, fbLength / PAGE_SIZE);
     lockPages((unsigned char*)(uint64_t)KENREL_MEM_START, ((uint64_t)KERNEL_MEM_END - (uint64_t)KENREL_MEM_START) / PAGE_SIZE + 1);
 
+	initGdt();
+
+	idt_init();
 
 	// prints and tests here:
 	cls();
