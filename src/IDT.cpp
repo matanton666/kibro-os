@@ -1,7 +1,7 @@
 #include "headers/IDT.h"
 #include "IDT.h"
 
-IdtPtr idtPtr;
+IdtPtr idtPtr; 
 
 void idtSetEntry(uint8_t vector, void *isr, uint8_t flags)
 {
@@ -16,15 +16,16 @@ void idtSetEntry(uint8_t vector, void *isr, uint8_t flags)
 
 void idt_init()
 {
-    idtPtr.base = (uint32_t)requestPage();
+    idtPtr.base = (uint32_t)requestPage(); // TODO: make identity paging for this
     idtPtr.limit = (uint16_t)(sizeof(IdtEntry) * IDT_SIZE - 1);
 
-    __asm__ volatile("cli");
+    idtSetEntry(0xE, (void*)pagefaultHandler, IDT_TA_InterruptGate);
+
     __asm__ volatile(
-        "lidt %0" // Load the GDT using the lgdt instruction
+        "lidt %0" // Load the IDT
         :
-        : "m"(idtPtr) // Input: Operand for the lgdt instruction
+        : "m"(idtPtr) 
     );
-    // __asm__ volatile("lidt %0" : : "m"(idtPtr)); // load the new IDT
-    // __asm__ volatile("sti");                   // set the interrupt flag
+    // __asm__ volatile("cli");
+    // __asm__ __volatile__ ("sti");                   // set the interrupt flag
 }

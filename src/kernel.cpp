@@ -37,7 +37,10 @@ extern "C" void kernel_main(void) {
 
 	idt_init();
 
+
 	// prints and tests here:
+
+	//* test printing to screen
 	cls();
 	print("Welcome to Kibro!\n");
 	print(123456789);
@@ -48,7 +51,7 @@ extern "C" void kernel_main(void) {
 	print(',');
 	print((int)getCursur().y);
 
-
+	//* test memory map
 	print("\nfree memory: ");
 	print((uint64_t)getFreeMem() / 1024);
 	print("KB\n");
@@ -59,6 +62,7 @@ extern "C" void kernel_main(void) {
 	print((uint64_t)getUsedMem() / 1024);
 	print("KB\n");
 	
+	//* test page frame allocator
 	print("requesting pages...\naddresses at start of requested pages:\n");
 	for (int i = 0; i < 10; i++)
 	{
@@ -66,6 +70,9 @@ extern "C" void kernel_main(void) {
 		print((uint64_t)addr);
 		print('\n');
 	}
+
+	//* test IDT
+	__asm("int $0x0E");
 
 	while (true)
 	{
