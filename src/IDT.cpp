@@ -18,14 +18,19 @@ void idt_init()
 {
     idtPtr.base = (uint32_t)requestPage(); // TODO: make identity paging for this
     idtPtr.limit = (uint16_t)(sizeof(IdtEntry) * IDT_SIZE - 1);
+    // memset((void *)idtPtr.base, 0, idtPtr.limit); //TODO: memset here when implemented
 
-    idtSetEntry(0xE, (void*)pagefaultHandler, IDT_TA_InterruptGate);
+    for (int i = 0; i < 40; i++)
+    { 
+        idtSetEntry(i, (void*)generalFault, IDT_TA_InterruptGate);
+    }
+    idtSetEntry(0x0E, (void*)pagefaultHandler, IDT_TA_InterruptGate);
+    
 
     __asm__ volatile(
         "lidt %0" // Load the IDT
         :
         : "m"(idtPtr) 
     );
-    // __asm__ volatile("cli");
-    // __asm__ __volatile__ ("sti");                   // set the interrupt flag
+    // __asm__ __volatile__ ("sti"); // FIXME: for some reason os generates interupt if use this command
 }
