@@ -32,5 +32,5 @@ void idt_init()
         :
         : "m"(idtPtr) 
     );
-    // __asm__ __volatile__ ("sti"); // FIXME: command generates a fault, keep like this untill IRQ are done
+    __asm__ volatile("sti");
 }

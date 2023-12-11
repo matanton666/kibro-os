@@ -72,7 +72,7 @@ extern "C" void kernel_main(void) {
 	}
 
 	//* test IDT
-	__asm("int $0x0E");
+	__asm("int $0x0E"); // pagefault
 
 	while (true)
 	{
