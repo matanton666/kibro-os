@@ -50,11 +50,11 @@ void gdtSetGate(unsigned short index, uint32_t base, uint32_t limit, uint8_t acc
 void initGdt()
 {
 	gdtPtr.size = (sizeof(GdtEntry) * 3) - 1;
-	gdtPtr.base = (uint32_t)&gdtTable;
+	gdtPtr.base = (uintptr_t)&gdtTable;
 
 	gdtSetGate(0, 0, 0, 0, 0);				// Null segment
 	gdtSetGate(1, 0, 0xFFFF, 0x9A, 0xCF);	// Code segment
 	gdtSetGate(2, 0, 0xFFFF, 0x92, 0xCF);	// Data segment
 
-	gdtSet((uint32_t)&gdtPtr);
+	gdtSet((uintptr_t)&gdtPtr);
 }

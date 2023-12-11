@@ -8,9 +8,8 @@
 
 #define IDT_SIZE 256
 
-#define IDT_TA_InterruptGate 0b10001110 // 32-bit interrupt gate 
-#define IDT_TA_CallGate 0b10001100 
-#define IDT_TA_TrapGate 0b10001111 // 32-bit trap gate
+#define IDT_INTERRUPT_GATE 0b10001110 // 32-bit interrupt gate
+#define IDT_TRAP_GATE 0b10001111 // 32-bit trap gate
 
 struct IdtEntry {
     uint16_t isrLow; // low 16 bits of ISR address

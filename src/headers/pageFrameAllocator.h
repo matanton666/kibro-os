@@ -14,6 +14,7 @@ used to maintain in-use and free pages of the system.
 
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
+
 #define KERNEL_MEM_END (&_KernelEnd + PAGE_SIZE*3) // take 3 pages to make sure not overwriteing anything
 #define KENREL_MEM_START &_KernelStart
 
