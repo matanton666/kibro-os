@@ -5,6 +5,7 @@
 #include "memoryMap.h"
 #include "pageFrameAllocator.h"
 #include "GDT.h"
+#include "IDT.h"
 
 
 extern "C" void kernel_main(void) {
@@ -18,8 +19,6 @@ extern "C" void kernel_main(void) {
 	else {
 		write_serial((char*)"screen failed to initialize");
 	}
-	
-	initGdt();
 
 	if (initMemoryMap()) {
 		write_serial((char*)"memory map initialized");
@@ -34,8 +33,14 @@ extern "C" void kernel_main(void) {
 	lockPages((unsigned char*)fbInfo->addr, fbLength / PAGE_SIZE);
     lockPages((unsigned char*)(uint64_t)KENREL_MEM_START, ((uint64_t)KERNEL_MEM_END - (uint64_t)KENREL_MEM_START) / PAGE_SIZE + 1);
 
+	initGdt();
+
+	idt_init();
+
 
 	// prints and tests here:
+
+	//* test printing to screen
 	cls();
 	print("Welcome to Kibro!\n");
 	print(123456789);
@@ -46,7 +51,7 @@ extern "C" void kernel_main(void) {
 	print(',');
 	print((int)getCursur().y);
 
-
+	//* test memory map
 	print("\nfree memory: ");
 	print((uint64_t)getFreeMem() / 1024);
 	print("KB\n");
@@ -57,6 +62,7 @@ extern "C" void kernel_main(void) {
 	print((uint64_t)getUsedMem() / 1024);
 	print("KB\n");
 	
+	//* test page frame allocator
 	print("requesting pages...\naddresses at start of requested pages:\n");
 	for (int i = 0; i < 10; i++)
 	{
@@ -64,6 +70,9 @@ extern "C" void kernel_main(void) {
 		print((uint64_t)addr);
 		print('\n');
 	}
+
+	//* test IDT
+	__asm("int $0x0E"); // pagefault
 
 	while (true)
 	{

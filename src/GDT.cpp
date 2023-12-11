@@ -1,19 +1,19 @@
 #include "GDT.h"
 
-gdtEntry_t gdtTable[3];
-gdtPtr_t gdtPtr;
+GdtEntry gdtTable[3];
+GdtPtr gdtPtr;
 
-void gdtSet(uint32_t gdtTable)
+void gdtSet(uint32_t table)
 {
 	__asm("cli"); // ignore interrupts
 	__asm
 	(
 		"lgdt (%0)"   // Load the GDT using the lgdt instruction
 		:
-		: "r" (gdtTable)  // Input: Operand for the lgdt instruction
+		: "r" (table)  // Input: Operand for the lgdt instruction
 		: "memory"  // Clobber: Indicate that memory is being modified
 	);
-	__asm // reload code, data and other registries
+	__asm__ volatile // reload code, data and other registries
 	(
 		"movw $0x10, %ax\n\t"   // Load the data segment value into AX
 		"movw %ax, %ds\n\t"    // Move the value in AX to DS
@@ -21,8 +21,15 @@ void gdtSet(uint32_t gdtTable)
 		"movw %ax, %fs\n\t"    // Move the value in AX to FS
 		"movw %ax, %gs\n\t"    // Move the value in AX to GS
 		"movw %ax, %ss\n\t"    // Move the value in AX to SS
+
+		// add 0x08 to return address after this function
+		"pop %ebx\n\t" // remove return address
+		"movl $0x08, %eax\n\t" // add 0x08 return address
+		"push %eax\n\t" 
+		"push %ebx\n\t" // add original return address
 		"ret\n\t"             // Return
 	);
+	// TODO: check if need to set segment selector to 0x8 or something like that for kernel code segment
 	__asm("sti"); // allow intterupts
 }
 
@@ -42,12 +49,12 @@ void gdtSetGate(unsigned short index, uint32_t base, uint32_t limit, uint8_t acc
 
 void initGdt()
 {
-	gdtPtr.size = (sizeof(gdtTable[0]) * 3) - 1;
-	gdtPtr.base = (uint32_t)&gdtTable;
+	gdtPtr.size = (sizeof(GdtEntry) * 3) - 1;
+	gdtPtr.base = (uintptr_t)&gdtTable;
 
 	gdtSetGate(0, 0, 0, 0, 0);				// Null segment
 	gdtSetGate(1, 0, 0xFFFF, 0x9A, 0xCF);	// Code segment
 	gdtSetGate(2, 0, 0xFFFF, 0x92, 0xCF);	// Data segment
 
-	gdtSet((uint32_t)&gdtPtr);
+	gdtSet((uintptr_t)&gdtPtr);
 }

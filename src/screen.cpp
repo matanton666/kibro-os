@@ -34,7 +34,7 @@ void cls()
     clearScreen(COLOR_BLACK);
 }
 
-void print(char* str)
+void print(const char* str)
 {
     putsCurserPSF2((unsigned char*)str, COLOR_WHITE, COLOR_BLACK);
 }
