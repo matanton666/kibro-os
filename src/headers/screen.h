@@ -93,6 +93,7 @@ void print(const char* str);
 void print(char c);
 void print(int num);
 void print(uint64_t num);
+void printBinary(uint64_t num);
 
 
 

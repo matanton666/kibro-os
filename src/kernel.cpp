@@ -34,8 +34,10 @@ extern "C" void kernel_main(void) {
     lockPages((unsigned char*)(uint64_t)KENREL_MEM_START, ((uint64_t)KERNEL_MEM_END - (uint64_t)KENREL_MEM_START) / PAGE_SIZE + 1);
 
 	initGdt();
+	write_serial("init gdt");
 
 	idt_init();
+	write_serial("init idt");
 
 
 	// prints and tests here:
