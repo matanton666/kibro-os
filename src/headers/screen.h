@@ -1,6 +1,3 @@
-/*
-manage the output screen of the os
-*/
 #pragma once
 #include <stdint.h>
 #include "serial.h"
@@ -37,7 +34,7 @@ depth	how many bits of color you have
 bpp 	how many bytes of VRAM you should skip to go one pixel right.
 */
 
-struct FramebufferInfo {
+typedef struct  __attribute__((packed)) {
     uint32_t type; // should be 8
     uint32_t size; // should be around 32
     uint64_t addr; // address of the framebuffer
@@ -48,15 +45,15 @@ struct FramebufferInfo {
     uint8_t bufferType; // should be 1
     uint8_t reserved; // should be 0
 
-}__attribute__((packed));
+}FramebufferInfo;
 
-struct  PSF1_Header {
+typedef struct __attribute__((packed)) {
     uint16_t magic; // for identification
     uint8_t fontMode;
     uint8_t characterSize;
-} __attribute__((packed)) ;
+} PSF1_Header;
 
-struct PSF2_Header {
+typedef struct __attribute__((packed)) {
     uint32_t magic;         /* magic bytes to identify PSF */
     uint32_t version;       /* zero */
     uint32_t headerSize;    /* offset of bitmaps in file, 32 */
@@ -65,14 +62,12 @@ struct PSF2_Header {
     uint32_t bytesPerGlyph; /* size of each glyph */
     uint32_t height;        /* height in pixels */
     uint32_t width;         /* width in pixels */
-}__attribute__((packed));
+} PSF2_Header;
 
-struct Point {
+typedef struct __attribute__((packed)) {
     unsigned int x;
     unsigned int y;
-}__attribute__((packed));
-
-
+} Point;
 
 extern FramebufferInfo* fbInfo;
 
@@ -81,22 +76,18 @@ extern PSF2_Header* PSF2_font;
 
 extern uint16_t* unicode;
 extern Point curserPos;
-extern unsigned long fbLength;
-
-
-
 
 
 bool initializeScreen();
 void cls();
-void print(const char* str);
+void print(char* str);
 void print(char c);
 void print(int num);
-void print(uint64_t num);
-void printBinary(uint64_t num);
-void printHex(uint64_t num);
-void panic(const char* str);
 
+
+
+// get the framebuffer from the multiboot info
+void initFramebuffer();
 
 // draw a pixel on the screen
 // x, y - position in pixels from the top left corner (0,0)

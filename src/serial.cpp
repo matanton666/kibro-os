@@ -45,16 +45,3 @@ void write_serial_int(int num)
    itoa(num, asString, 10);
    write_serial(asString);
 }
-
-void write_serial_uint(uint64_t num)
-{
-   char asString[40] = {0};
-   uitoa(num, asString, 10);
-   write_serial(asString);
-}
-
-void write_serial_hex(uint64_t num) {
-   char asString[40] = {0};
-   uitoa(num, asString, 16);
-   write_serial(asString);
-}
