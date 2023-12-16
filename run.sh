@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# -c flag to clean before build
+if [ "$1" == "-c" ]; then
+    echo "Cleaning..."
+    sudo docker run --rm -t --privileged -v .:/root/env os-buildenv make clean
+fi
+
 sudo docker run --rm -t --privileged -v .:/root/env os-buildenv make
 # if - else clause for the exit status of the last command
 if [ $? -eq 0 ]; then

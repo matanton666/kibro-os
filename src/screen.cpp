@@ -65,6 +65,20 @@ void printBinary(uint64_t num)
     putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
 }
 
+void printHex(uint64_t num)
+{
+    char cnum[32];
+    uitoa(num, cnum, 16);
+    putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+}
+
+void panic(const char* str)
+{
+    putsCurserPSF2((unsigned char *)"\nPANIC:\n", COLOR_RED, COLOR_BLUE);
+    putsCurserPSF2((unsigned char*)str, COLOR_RED, COLOR_BLACK);
+    print('\n');
+}
+
 void drawPixel( int x, int y, uint32_t color)
 {
     // get the pixel location 					              
@@ -254,8 +268,8 @@ void putsCurserPSF2( unsigned char* str, uint32_t fgColor, uint32_t bgColor)
      int i = 0;
      while (str[i] != '\0')
      {
-         putcCurserPSF2(str[i], fgColor, bgColor);
-         i++;
+        putcCurserPSF2(str[i], fgColor, bgColor);
+        i++;
      }
  }
 

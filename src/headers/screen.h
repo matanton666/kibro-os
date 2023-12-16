@@ -94,7 +94,8 @@ void print(char c);
 void print(int num);
 void print(uint64_t num);
 void printBinary(uint64_t num);
-
+void printHex(uint64_t num);
+void panic(const char* str);
 
 
 // draw a pixel on the screen

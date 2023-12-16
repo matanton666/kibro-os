@@ -12,13 +12,14 @@ extern "C" void kernel_main(void) {
 	init_serial();
 	write_serial((char*)"kernel booted");
 
-
+	
 	if (initializeScreen()) {
 		write_serial((char*)"screen initialized");
 	}
 	else {
 		write_serial((char*)"screen failed to initialize");
 	}
+
 
 	if (initMemoryMap()) {
 		write_serial((char*)"memory map initialized");
@@ -39,6 +40,7 @@ extern "C" void kernel_main(void) {
 	idt_init();
 	write_serial("init idt");
 
+	
 
 	// prints and tests here:
 
@@ -66,19 +68,16 @@ extern "C" void kernel_main(void) {
 	
 	//* test page frame allocator
 	print("requesting pages...\naddresses at start of requested pages:\n");
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		unsigned char* addr = requestPage();
 		print((uint64_t)addr);
 		print('\n');
 	}
+	
+	
 
 	//* test IDT
-	__asm("int $0x0E"); // pagefault
-
-	while (true)
-	{
-		 
-	}
+	// __asm("int $0x0E"); // pagefault
 }
 
