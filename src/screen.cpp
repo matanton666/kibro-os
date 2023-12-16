@@ -8,9 +8,15 @@ PSF2_Header* PSF2_font = nullptr;
 uint16_t* unicode = nullptr;
 Point curserPos = { CURSER_PADDING, CURSER_PADDING };
 
+unsigned long fbLength = 0;
+
+
 bool initializeScreen()
 {
-    initFramebuffer();
+    
+    // init framebuffer - get the framebuffer from the multiboot info
+    fbInfo = getBootInfo<FramebufferInfo>(8);
+
     if (fbInfo == nullptr) {
         return false;
     }
@@ -18,7 +24,7 @@ bool initializeScreen()
     if (!initPSF()) {
         return false;
     }
-
+    fbLength = fbInfo->pitch * fbInfo->height;
     clearScreen(COLOR_BLACK);
     return true;
 }
@@ -28,7 +34,7 @@ void cls()
     clearScreen(COLOR_BLACK);
 }
 
-void print(char* str)
+void print(const char* str)
 {
     putsCurserPSF2((unsigned char*)str, COLOR_WHITE, COLOR_BLACK);
 }
@@ -45,35 +51,32 @@ void print(int num)
     putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
 }
 
-void initFramebuffer()
+void print(uint64_t num)
 {
-    struct BootTag
-    {
-        uint32_t type;
-        uint32_t size;
-    };
-    
-    // get boot info
-    // move the boot info location to the pointer from ebx
-    uint32_t* bootInfo = 0;
-    __asm("movl %%ebx, %0;" : "=r"(bootInfo));
+    char cnum[40];
+    uitoa(num, cnum, 10);
+    putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+}
 
-    // loop untill finds the framebuffer info
-    uint32_t* addr = bootInfo;
-    for (BootTag* tag = (BootTag *)(&addr[2]);
-       tag->type != 0;
-       tag = (BootTag *) ((uint8_t *) tag + ((tag->size + 7) & ~7))) // move to next tag (with padding)
-    {
-        switch (tag->type)
-        {
-        case 8: // framebuffer tag
-            fbInfo = (FramebufferInfo*)tag;
-            break;
+void printBinary(uint64_t num)
+{
+    char cnum[64];
+    uitoa(num, cnum, 2);
+    putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+}
 
-        default:
-            break;
-        }
-    }
+void printHex(uint64_t num)
+{
+    char cnum[32];
+    uitoa(num, cnum, 16);
+    putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+}
+
+void panic(const char* str)
+{
+    putsCurserPSF2((unsigned char *)"\nPANIC:\n", COLOR_RED, COLOR_BLUE);
+    putsCurserPSF2((unsigned char*)str, COLOR_RED, COLOR_BLACK);
+    print('\n');
 }
 
 void drawPixel( int x, int y, uint32_t color)
@@ -265,8 +268,8 @@ void putsCurserPSF2( unsigned char* str, uint32_t fgColor, uint32_t bgColor)
      int i = 0;
      while (str[i] != '\0')
      {
-         putcCurserPSF2(str[i], fgColor, bgColor);
-         i++;
+        putcCurserPSF2(str[i], fgColor, bgColor);
+        i++;
      }
  }
 
