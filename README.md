@@ -25,4 +25,13 @@ an operating system made by matan and yonatan
 
 ## or can also run with the bat script
 
-`.\run.bat`
+`.\run.bat`  
+
+<br>
+
+## debuging
+
+### check register info
+
+`ctrl + alt + 2`
+then type `info registers`
