@@ -21,7 +21,7 @@ extern "C" void kernel_main(void) {
 	}
 
 
-	if (initMemoryMap()) {
+	if (initPageFrameAllocator()) {
 		write_serial((char*)"memory map initialized");
 	}
 	else {
@@ -40,9 +40,11 @@ extern "C" void kernel_main(void) {
 	idt_init();
 	write_serial("init idt");
 
-	
 
-	// prints and tests here:
+
+	/*
+	* prints and tests here:
+	*/
 
 	//* test printing to screen
 	cls();
@@ -50,7 +52,7 @@ extern "C" void kernel_main(void) {
 	print(123456789);
 	print('\n');
 	print('A');
-	print('\n');
+	print("\ncursur position: ");
 	print((int)getCursur().x);
 	print(',');
 	print((int)getCursur().y);

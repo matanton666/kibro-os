@@ -49,7 +49,7 @@ unsigned char *requestPage()
     return nullptr; // todo: page frame swap when file system is available
 }
 
-bool initMemoryMap()
+bool initPageFrameAllocator()
 {
     if (isInitialized) {
         return true;

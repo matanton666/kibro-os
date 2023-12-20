@@ -29,7 +29,6 @@ void gdtSet(uint32_t table)
 		"push %ebx\n\t" // add original return address
 		"ret\n\t"             // Return
 	);
-	// TODO: check if need to set segment selector to 0x8 or something like that for kernel code segment
 	__asm("sti"); // allow intterupts
 }
 

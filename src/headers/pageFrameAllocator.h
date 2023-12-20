@@ -23,7 +23,7 @@ extern unsigned char* bitmapBuffer;
 
 extern bool isInitialized;
 
-bool initMemoryMap();
+bool initPageFrameAllocator();
 
 unsigned long getFreeMem();
 unsigned long getUsedMem();
