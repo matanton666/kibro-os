@@ -8,8 +8,10 @@
 
 #define IDT_SIZE 256
 
-#define IDT_INTERRUPT_GATE 0b10001110 // 32-bit interrupt gate
-#define IDT_TRAP_GATE 0b10001111 // 32-bit trap gate
+#define IDT_INTERRUPT_GATE 0b10001110 // hardware interrupts (no interrupts while in handler)
+#define IDT_TRAP_GATE 0b10001111 // software interrupts (interrupts enabled while in handler)
+#define IDT_TASK_GATE 0b10000101 // hardware task switching
+
 
 struct IdtEntry {
     uint16_t isrLow; // low 16 bits of ISR address

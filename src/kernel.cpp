@@ -34,6 +34,7 @@ extern "C" void kernel_main(void) {
 	lockPages((unsigned char*)fbInfo->addr, fbLength / PAGE_SIZE);
     lockPages((unsigned char*)(uint64_t)KENREL_MEM_START, ((uint64_t)KERNEL_MEM_END - (uint64_t)KENREL_MEM_START) / PAGE_SIZE + 1);
 
+
 	initGdt();
 	write_serial("init gdt");
 
@@ -80,6 +81,6 @@ extern "C" void kernel_main(void) {
 	
 
 	//* test IDT
-	// __asm("int $0x0E"); // pagefault
+	__asm("int $0x0E"); // pagefault
 }
 

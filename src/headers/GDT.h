@@ -19,6 +19,6 @@ struct GdtEntry
 } __attribute__((packed));
 
 
-void gdtSet(uint32_t table);
+void gdtSet(GdtPtr* table);
 void gdtSetGate(unsigned short index, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran);
 void initGdt();

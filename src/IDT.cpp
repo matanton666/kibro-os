@@ -24,8 +24,8 @@ void idt_init()
     idtSetEntry(0x01, (void *)generalFault, IDT_INTERRUPT_GATE);
     idtSetEntry(0x02, (void *)generalFault, IDT_INTERRUPT_GATE);
 
-    idtSetEntry(0x03, (void *)generalFault, IDT_TRAP_GATE);
-    idtSetEntry(0x04, (void *)overflowHandler, IDT_TRAP_GATE);
+    idtSetEntry(0x03, (void *)generalFault, IDT_INTERRUPT_GATE);
+    idtSetEntry(0x04, (void *)overflowHandler, IDT_INTERRUPT_GATE);
 
     idtSetEntry(0x05, (void *)boundRangeExceededHandler, IDT_INTERRUPT_GATE);
     idtSetEntry(0x06, (void *)invalidOpcodeHandler, IDT_INTERRUPT_GATE);

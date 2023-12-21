@@ -3,15 +3,15 @@
 GdtEntry gdtTable[3];
 GdtPtr gdtPtr;
 
-void gdtSet(uint32_t table)
+void gdtSet(GdtPtr* table)
 {
+	GdtPtr ptr = *table;
 	__asm("cli"); // ignore interrupts
-	__asm
+	__asm__ __volatile__
 	(
-		"lgdt (%0)"   // Load the GDT using the lgdt instruction
+		"lgdt %0"   // Load the GDT using the lgdt instruction
 		:
-		: "r" (table)  // Input: Operand for the lgdt instruction
-		: "memory"  // Clobber: Indicate that memory is being modified
+		: "m" (ptr)  // Input: Operand for the lgdt instruction
 	);
 	__asm__ volatile // reload code, data and other registries
 	(
@@ -52,8 +52,8 @@ void initGdt()
 	gdtPtr.base = (uintptr_t)&gdtTable;
 
 	gdtSetGate(0, 0, 0, 0, 0);				// Null segment
-	gdtSetGate(1, 0, 0xFFFF, 0x9A, 0xCF);	// Code segment
-	gdtSetGate(2, 0, 0xFFFF, 0x92, 0xCF);	// Data segment
+	gdtSetGate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);	// Code segment
+	gdtSetGate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);	// Data segment
 
-	gdtSet((uintptr_t)&gdtPtr);
+	gdtSet(&gdtPtr);
 }
