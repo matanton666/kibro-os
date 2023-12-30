@@ -21,13 +21,11 @@ extern "C" void kernel_main(void) {
 		write_serial((char*)"screen failed to initialize");
 	}
 
-	// TODO: gdt should load here
-
 
 	initGdt();
 	write_serial("init gdt");
 
-	// TODO: memory should be loded here
+
 	if (phys_mem.init()) {
 		write_serial((char*)"memory map initialized");
 	}
@@ -41,9 +39,6 @@ extern "C" void kernel_main(void) {
 	phys_mem.lockPages((unsigned char*)screen.getFbStartAddress(), screen.getFbLength() / PAGE_SIZE);
     phys_mem.lockPages((unsigned char*)(uint64_t)KENREL_MEM_START, ((uint64_t)KERNEL_MEM_END - (uint64_t)KENREL_MEM_START) / PAGE_SIZE + 1);
 
-
-
-	// TODO: interrupts should be loaded here
 
 	idt_init();
 	write_serial("init idt");

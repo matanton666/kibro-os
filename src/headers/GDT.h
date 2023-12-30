@@ -1,5 +1,6 @@
 #pragma once
 #include "std.h"
+#include "serial.h"
 
 struct GdtPtr
 {
@@ -19,6 +20,7 @@ struct GdtEntry
 } __attribute__((packed));
 
 
-void gdtSet(GdtPtr* table);
-void gdtSetGate(unsigned short index, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran);
 void initGdt();
+
+// Set the value of a GDT entry.
+void gdtSetGate(unsigned short index, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran);

@@ -227,7 +227,6 @@ __attribute__((interrupt)) void keyboardInputHandler(struct InterruptFrame *fram
 {
     uint8_t scancode = inb(KEYBOARD_INPUT_PORT);
     picEndMaster();
-    // FIXME: gdt is not properly initialized so keyboard input generates generalProtectionFault on gdt entry number 2
 
     // TODO: keyboard input handler
     print("scancode: ");
