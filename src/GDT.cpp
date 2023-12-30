@@ -5,15 +5,15 @@ GdtPtr gdtPtr;
 
 void gdtSet(GdtPtr* table)
 {
-	GdtPtr ptr = *table;
-	__asm("cli"); // ignore interrupts
-	__asm__ __volatile__
+	asm("cli"); // ignore interrupts
+	asm volatile
 	(
 		"lgdt %0"   // Load the GDT using the lgdt instruction
 		:
-		: "m" (ptr)  // Input: Operand for the lgdt instruction
+		: "m" (gdtPtr)  // Input: Operand for the lgdt instruction
 	);
-	__asm__ volatile // reload code, data and other registries
+
+	asm volatile // reload code, data and other registries
 	(
 		"movw $0x10, %ax\n\t"   // Load the data segment value into AX
 		"movw %ax, %ds\n\t"    // Move the value in AX to DS
@@ -29,7 +29,7 @@ void gdtSet(GdtPtr* table)
 		"push %ebx\n\t" // add original return address
 		"ret\n\t"             // Return
 	);
-	__asm("sti"); // allow intterupts
+	asm volatile("sti"); // allow intterupts
 }
 
 // Set the value of a GDT entry.

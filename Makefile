@@ -17,13 +17,13 @@ psf_object_files := $(patsubst res/%.psf, build/%.o, $(psf_object_files))
 # $< is dependency, $@ is target
 
 # add grub
-os_iso_file: os_bin_file
+$(os_iso_file): $(os_bin_file)
 	rm -f $(os_iso_file)
 	grub-mkrescue -o $(os_iso_file) dist/
 	@echo "compiled final iso $<"
 
 # link all object files
-os_bin_file: $(asm_object_files) $(cpp_object_files) $(psf_object_files) $(linker_file) build/interrupts.o
+$(os_bin_file): $(asm_object_files) $(cpp_object_files) $(psf_object_files) $(linker_file) build/interrupts.o
 	@mkdir -p dist
 	i686-elf-g++ -T $(linker_file) -o $(os_bin_file) -ffreestanding -O2 -nostdlib $(psf_object_files) $(asm_object_files) $(cpp_object_files) build/interrupts.o -lgcc
 	@echo "linked all object files"
@@ -32,18 +32,18 @@ os_bin_file: $(asm_object_files) $(cpp_object_files) $(psf_object_files) $(linke
 # compile interrupts with separate flags
 build/interrupts.o: src/interrupts/interrupts.cpp $(headers_folder)/interrupts.h
 	@mkdir -p build
-	i686-elf-g++ -mno-red-zone -mgeneral-regs-only -ffreestanding  -I $(headers_folder) -c  -o $@ $<
+	i686-elf-g++ -g -mno-red-zone -mgeneral-regs-only -ffreestanding  -I $(headers_folder) -c  -o $@ $<
 	@echo "compiled $<" 
 
 # compile when src files change
 $(asm_object_files): build/%.o: src/%.s
 	@mkdir -p build
-	i686-elf-as $< -o $@
+	i686-elf-as -g $< -o $@
 	@echo "compiled $<"
 
 $(cpp_object_files): build/%.o: src/%.cpp $(cpp_header_files)
 	@mkdir -p build
-	i686-elf-g++ -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -I $(headers_folder) -c  -o $@ $<
+	i686-elf-g++ -g -fshort-wchar -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -I $(headers_folder) -c  -o $@ $<
 	@echo "compiled $<"
 
 $(psf_object_files): build/%.o: res/%.psf
@@ -51,7 +51,7 @@ $(psf_object_files): build/%.o: res/%.psf
 	@echo "compiled $<"
 
 # other functions
-all: os_iso_file
+all: $(os_iso_file)
 	@echo "all done"
 
 clean:

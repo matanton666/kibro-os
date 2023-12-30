@@ -1,9 +1,6 @@
 #pragma once
 
 #include "std.h"
-#include "screen.h"
-#include "pageFrameAllocator.h"
-#include "serial.h"
 #include "interrupts.h"
 
 #define IDT_SIZE 256

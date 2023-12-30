@@ -50,14 +50,14 @@ void idt_init()
     idtSetEntry(0x1c, (void *)generalFault, IDT_INTERRUPT_GATE);
     idtSetEntry(0x1d, (void *)generalFaultWithErrCode, IDT_INTERRUPT_GATE);
     idtSetEntry(0x1e, (void *)generalFaultWithErrCode, IDT_INTERRUPT_GATE);
-    idtSetEntry(0x0E, (void*)pagefaultHandler, IDT_INTERRUPT_GATE);
 
-
-    __asm("cli");
-    __asm__ volatile(
+    
+    asm volatile("cli");
+    asm volatile(
         "lidt %0" // Load the IDT
         :
         : "m"(idtPtr) 
     );
-    __asm__ volatile("sti");
+    // asm volatile("sti");
+    // TODO: check why sti crashes idt
 }

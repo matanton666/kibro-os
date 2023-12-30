@@ -7,8 +7,8 @@ manage serial output from the os. (for debuging purposes)
 // send strings through the serial port to the serial.log file
 
 #include <stdint.h>
+#include "std.h"
 
-void outb(unsigned short port, unsigned char value);
 
 int init_serial();
 void write_serial_char(char a);
