@@ -75,49 +75,49 @@ __attribute__((no_caller_saved_registers)) void printSelectorError(SelectorError
 __attribute__((interrupt)) void generalFault(struct InterruptFrame *frame)
 {
     printException(EXCEPTION_COUNT, 0); // unknown exception
-    __asm("cli; hlt");
+    asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void generalFaultWithErrCode(struct InterruptFrame *frame, unsigned int errorCode)
 {
     printException(EXCEPTION_COUNT, errorCode); // unknown exception
 
-    __asm("cli; hlt");
+    asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void devideByZeroHandler(InterruptFrame *frame)
 {
     printException(0x00, 0);
 
-    __asm("cli; hlt");
+    asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void overflowHandler(InterruptFrame *frame)
 {
     printException(0x04, 0);
 
-    __asm("cli; hlt");
+    asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void boundRangeExceededHandler(InterruptFrame *frame)
 {
     printException(0x05, 0);
 
-    __asm("cli; hlt");
+    asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void invalidOpcodeHandler(InterruptFrame *frame)
 {
     printException(0x06, 0);
 
-    __asm("cli; hlt");
+    asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void deviceNotAvailableHandler(InterruptFrame *frame)
 {
     printException(0x07, 0);
 
-    __asm("cli; hlt");
+    asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void doubleFaultHandler(InterruptFrame *frame)
@@ -126,28 +126,28 @@ __attribute__((interrupt)) void doubleFaultHandler(InterruptFrame *frame)
 
     print("cannot recover from double fault... please restart os\n");
 
-    __asm("cli; hlt");
+    asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void invalidTSS_Handler(InterruptFrame *frame, unsigned int errorCode)
 {
     printException(0x0a, errorCode);
 
-    __asm("cli; hlt");
+    asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void segmentNotPresentHandler(InterruptFrame *frame, unsigned int errorCode)
 {
     printException(0x0b, errorCode);
 
-    __asm("cli; hlt");
+    asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void stackSegmentFaultHandler(InterruptFrame *frame, unsigned int errorCode)
 {
     printException(0x0c, errorCode);
 
-    __asm("cli; hlt");
+    asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void generalProtectionFaultHandler(InterruptFrame *frame, unsigned int errorCode)
@@ -157,7 +157,7 @@ __attribute__((interrupt)) void generalProtectionFaultHandler(InterruptFrame *fr
     SelectorError* error = (SelectorError*)&errorCode;
     printSelectorError(error);
 
-    __asm("cli; hlt");
+    asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void pagefaultHandler(struct InterruptFrame *frame, unsigned int errorCode)
@@ -166,7 +166,7 @@ __attribute__((interrupt)) void pagefaultHandler(struct InterruptFrame *frame, u
     PageFalutError* error = (PageFalutError*)&errorCode;
     //? can use error for more info on page fault      
     
-    __asm("cli; hlt");
+    asm("cli; hlt");
 }
 
 

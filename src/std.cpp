@@ -1,5 +1,7 @@
 #include "std.h"
 
+uint32_t* bootInfoPtr = nullptr;
+
 void* memcpy(void* dest, const void* src, size_t n) {
 	if (dest == src) {
 	// copying to the same location
@@ -22,7 +24,7 @@ int memcmp(const void* lhs, const void* rhs, size_t count)
 	unsigned char* x = (unsigned char*)lhs;
 	unsigned char* y = (unsigned char*)rhs;
 
-	if (lhs == rhs)
+	if (lhs == rhs) // check if same location
 	{
 		return 0;
 	}
@@ -96,4 +98,17 @@ char* uitoa(uint64_t num, char *str, int base)
 
 	str[i] = '\0';
 	return str;
+}
+
+void outb(unsigned short port, unsigned char value)
+{
+    asm("outb %b0, %w1"
+        :: "a"(value), "d"(port));
+}
+
+
+void getBootInfoAddressFromGrub() {
+	if (bootInfoPtr == nullptr) {
+		asm("movl %%ebx, %0;" : "=r"(bootInfoPtr));
+	}
 }

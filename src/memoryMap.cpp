@@ -1,43 +1,75 @@
 #include "memoryMap.h"
 
-MemoryMap* memMap = nullptr;
-BasicMemoryInfo* memInfo = nullptr;
-MemoryMapEntry* entrie = nullptr;
-
-uint64_t freeMemory = 0;
-uint64_t usedMemory = 0;
-uint64_t reservedMemory = 0;
-uint64_t largestFreeSegment = 0;
+MemoryMapApi mem_map_api;
 
 
-bool getMemoryMapFromBootloader()
+bool MemoryMapApi::getMemoryMapFromBootloader()
 {
-    memInfo = getBootInfo<BasicMemoryInfo>(4);
-    memMap = getBootInfo<MemoryMap>(6);
-    entrie = memMap->entries;
+    _mem_info = getBootInfo<BasicMemoryInfo>(4);
+    _mem_map = getBootInfo<MemoryMap>(6);
+    _entrie = _mem_map->entries;
 
-    if (memInfo == nullptr || memMap == nullptr || entrie == nullptr) {
+    if (_mem_info == nullptr || _mem_map == nullptr || _entrie == nullptr) {
         return false;
     }
     return true;
 }
 
 // sets the memory size variables (freeMemory, largestFreeSegment)
-void getMemorySizes()
+void MemoryMapApi::getMemorySizes()
 {
-    entrie = memMap->entries;
+    _entrie = _mem_map->entries;
     uint64_t largestSegment = 0;
 
-    while ((uint8_t*)entrie < (uint8_t*)memMap + memMap->size) // loop all entries
+    while ((uint8_t*)_entrie < (uint8_t*)_mem_map + _mem_map->size) // loop all entries
     {
-        if (entrie->type == MULTIBOOT_MEMORY_AVAILABLE) {
-            freeMemory += entrie->length;
+        if (_entrie->type == MULTIBOOT_MEMORY_AVAILABLE) {
+            _free_memory += _entrie->length;
             // get largest free segment
-            if (entrie->length > largestSegment) {
-                largestSegment = entrie->length;
-                largestFreeSegment = entrie->base_addr;
+            if (_entrie->length > largestSegment) {
+                largestSegment = _entrie->length;
+                _largest_free_segment = _entrie->base_addr;
             }
         }
-        entrie = (MemoryMapEntry*)((uint64_t)entrie + memMap->entry_size); // next entrie
+        _entrie = (MemoryMapEntry*)((uint64_t)_entrie + _mem_map->entry_size); // next entrie
     }
+}
+
+bool MemoryMapApi::init()
+{
+    if (!getMemoryMapFromBootloader()) {
+        return false;
+    }
+    getMemorySizes();
+    return true;
+}
+
+MemoryMap* MemoryMapApi::getMemoryMap()
+{
+    return _mem_map;
+}
+
+BasicMemoryInfo* MemoryMapApi::getMemoryInfo()
+{
+    return _mem_info;
+}
+
+uint64_t MemoryMapApi::getUsedMem()
+{
+    return _used_memory;
+}
+
+uint64_t MemoryMapApi::getFreeMem()
+{
+    return _free_memory;
+}
+
+uint64_t MemoryMapApi::getReservedMem()
+{
+    return _reserved_memory;
+}
+
+uint64_t MemoryMapApi::getLargestFreeSegment()
+{
+    return _largest_free_segment;
 }

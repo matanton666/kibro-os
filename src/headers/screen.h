@@ -13,7 +13,7 @@ extern char _binary_res_Tamsyn8x16b_psf_end;
 #define PSF1_FONT_MAGIC 0x0436
 #define PSF2_FONT_MAGIC 0x864ab572
 
-#define PSF1 1 
+#define PSF1 1
 #define PSF2 2
 
 #define PSF_START _binary_res_Tamsyn8x16b_psf_start
@@ -27,6 +27,7 @@ extern char _binary_res_Tamsyn8x16b_psf_end;
 #define COLOR_RED 0x00ff0000
 #define COLOR_GREEN 0x0000ff00
 #define COLOR_BLUE 0x000000ff
+
 
 
 /*
@@ -73,65 +74,85 @@ struct Point {
 }__attribute__((packed));
 
 
-
-extern FramebufferInfo* fbInfo;
-
-extern PSF1_Header* PSF1_font;
-extern PSF2_Header* PSF2_font;
-
-extern uint16_t* unicode;
-extern Point curserPos;
-extern unsigned long fbLength;
-
-
-
+class ScreenApi
+{
+private:
+    FramebufferInfo* _fbInfo = nullptr;
+    PSF1_Header* _PSF1_font = nullptr;
+    PSF2_Header* _PSF2_font = nullptr;
+    uint16_t* _unicode = nullptr;
+    Point _curserPos = { CURSER_PADDING, CURSER_PADDING };
+    unsigned long _fbLength = 0;
+    bool _is_initialized = false; 
 
 
-bool initializeScreen();
+    // draw a pixel on the screen
+    // x, y - position in pixels from the top left corner (0,0)
+    // color - 32 bit color (0xAARRGGBB)
+    void drawPixel( int x, int y, uint32_t color);
+
+    // check the version of the PSF font file
+    // return PSF1 or PSF2 or 0 if not found
+    unsigned int identifyPSFVersion();
+
+    // initialize the PSF font file and the unicode table
+    bool initPSF();
+
+    // add point to curser position (x + curserPos.x, y + curserPos.y)
+    void curserAdd(int x, int y);
+
+    // set curser position to correct position on the screen if it is out of bounds
+    void curserCheckBounds();
+
+    bool initializeScreen(FramebufferInfo* fbInfo);
+
+public:
+
+    bool init();
+
+    // draw char to screen with PSF2 at the curser position
+    void putcCurserPSF2( unsigned char c, uint32_t fgColor, uint32_t bgColor);
+
+    // draw string to screen with PSF2 at the curser position
+    void putsCurserPSF2( unsigned char* str, uint32_t fgColor, uint32_t bgColor);
+
+    // draw char to screen with PSF2 (without moving the curser)
+    // c - char to draw, cx, cy - position in pixels from the top left corner (0,0)
+    void putcPSF2( unsigned char c, int cx, int cy, uint32_t fgColor, uint32_t bgColor);
+
+    // draw string to screen with PSF2 (without moving the curser)
+    // str - string to draw, startx, starty - position in pixels from the top left corner (0,0)
+    void putsPSF2( unsigned char* str, int startx, int starty, uint32_t fgColor, uint32_t bgColor);
+    
+    // draw entire screen in color
+    void clearScreen(uint32_t color);
+
+    // set curser position (will set to bounds if out of bounds)
+    void setCursurPosition(int x, int y);
+
+
+    // get the starting address of the framebuffer (where the pixels start)
+    const uint64_t getFbStartAddress();
+
+    // get the x and y cordiantes of the curser
+    const Point& getCursur();
+
+    // get the length of the framebuffer in bytes
+    unsigned long getFbLength();
+};
+
+
+extern ScreenApi screen;
+
+// wraper functions
 void cls();
 void print(const char* str);
 void print(char c);
 void print(int num);
+void print(uint32_t num);
 void print(uint64_t num);
 void printBinary(uint64_t num);
 void printHex(uint64_t num);
 void panic(const char* str);
 
 
-// draw a pixel on the screen
-// x, y - position in pixels from the top left corner (0,0)
-// color - 32 bit color (0xAARRGGBB)
-void drawPixel( int x, int y, uint32_t color);
-
-// check the version of the PSF font file
-// return PSF1 or PSF2 or 0 if not found
-unsigned int identifyPSFVersion();
-
-// initialize the PSF font file and the unicode table
-bool initPSF();
-
-// draw char to screen with PSF2 (without moving the curser)
-// c - char to draw, cx, cy - position in pixels from the top left corner (0,0)
-void putcPSF2( unsigned char c, int cx, int cy, uint32_t fgColor, uint32_t bgColor);
-
-// draw string to screen with PSF2 (without moving the curser)
-// str - string to draw, startx, starty - position in pixels from the top left corner (0,0)
-void putsPSF2( unsigned char* str, int startx, int starty, uint32_t fgColor, uint32_t bgColor);
-
-// add point to curser position (x + curserPos.x, y + curserPos.y)
-void curserAdd(int x, int y);
-
-// set curser position to correct position on the screen if it is out of bounds
-void curserCheckBounds();
-
-// draw char to screen with PSF2 at the curser position
-void putcCurserPSF2( unsigned char c, uint32_t fgColor, uint32_t bgColor);
-
-// draw string to screen with PSF2 at the curser position
-void putsCurserPSF2( unsigned char* str, uint32_t fgColor, uint32_t bgColor);
-
-// draw entire screen in color
-void clearScreen(uint32_t color);
-
-
-const Point& getCursur();

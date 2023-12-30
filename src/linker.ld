@@ -39,21 +39,18 @@ SECTIONS
 	}
 
 	/* compiler components */
-	.comment BLOCK(4k) : ALIGN(4k)
+	/* .comment BLOCK(4k) : ALIGN(4k)
 	{
-		*(.comment)
-	}
-
-	_KernelEnd = .;
-	/* Exclude debug sections */
-    /DISCARD/ :
-    {
-        *(.debug_info)
-        *(.debug_abbrev)
-        *(.debug_loclists)
+		*(.comment) 
+		*(.debug_info)
+		*(.debug_abbrev)
+		*(.debug_loclists)
 		*(.debug_str)
 		*(.debug_line)
 		*(.debug_aranges)
 		*(.debug_line_str)
-    }
+	} */
+
+
+	_KernelEnd = .;
 }
