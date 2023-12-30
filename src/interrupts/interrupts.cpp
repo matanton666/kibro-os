@@ -40,6 +40,48 @@ const char *exceptions[] = {
 };
 
 
+void remapPIC()
+{
+    uint8_t p1, p2;
+
+    p1 = inb(PIC1_DATA); // save masks
+    ioWait();
+    p2 = inb(PIC2_DATA);
+    ioWait();
+
+    // init master pic chip
+    outb(PIC1_COMMAND, ICW1_INIT | ICW1_ICW4); // (in cascade mode)
+    ioWait();
+
+    // init slave pic chip
+    outb(PIC2_COMMAND, ICW1_INIT | ICW1_ICW4); // (in cascade mode)
+    ioWait();
+
+    // set offsets in interrupt table
+    outb(PIC1_DATA, 0x20); // master offset
+    ioWait();
+    outb(PIC2_DATA, 0x28); // slave offset
+    ioWait();
+
+    // tell master pic that there is a slave pic
+    outb(PIC1_DATA, 0x04);
+    ioWait();
+    // tell slave pic its cascade identity
+    outb(PIC2_DATA, 0x02);
+    ioWait();
+
+    // set 8086 mode
+    outb(PIC1_DATA, ICW4_8086);
+    ioWait();
+    outb(PIC2_DATA, ICW4_8086);
+    ioWait();
+
+    // restore saved masks
+    outb(PIC1_DATA, p1);
+    outb(PIC2_DATA, p2);
+}
+
+
 __attribute__((no_caller_saved_registers)) void printException(unsigned int exceptionNumber, unsigned int errorCode)
 {
     if (exceptionNumber < EXCEPTION_COUNT)

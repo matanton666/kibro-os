@@ -100,12 +100,27 @@ char* uitoa(uint64_t num, char *str, int base)
 	return str;
 }
 
-void outb(unsigned short port, unsigned char value)
+void outb(uint16_t port, uint8_t value)
 {
-    asm("outb %b0, %w1"
+    asm volatile("outb %b0, %w1"
         :: "a"(value), "d"(port));
 }
 
+uint8_t inb(uint16_t port)
+{
+	uint8_t ret;
+	asm volatile("inb %w1, %b0"
+		: "=a"(ret)
+		: "d"(port));
+	return ret;
+}
+
+void ioWait()
+{
+	asm volatile("outb %%al, $0x80"
+		:
+		: "a"(0));
+}
 
 void getBootInfoAddressFromGrub() {
 	if (bootInfoPtr == nullptr) {

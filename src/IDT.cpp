@@ -58,6 +58,5 @@ void idt_init()
         :
         : "m"(idtPtr) 
     );
-    // asm volatile("sti");
-    // TODO: check why sti crashes idt
+    remapPIC();
 }

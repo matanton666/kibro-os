@@ -1,6 +1,18 @@
 #pragma once
 /// these are the ISRs of the IDT
 #include "screen.h"
+#include "std.h"
+
+#define PIC1_COMMAND 0x20 // master pic chip
+#define PIC1_DATA 0x21 // data line of master pic chip
+#define PIC2_COMMAND 0xA0 // slave pic chip
+#define PIC2_DATA 0xA1 // data line of slave pic chip
+
+// pic data values
+#define ICW1_INIT 0x10 // initialize the pic
+#define ICW1_ICW4 0x01 // icw4 needed
+#define ICW4_8086 0x01 // 8086 mode
+
 
 typedef bool bit_t;
 
@@ -33,6 +45,10 @@ struct SelectorError {
     uint16_t reserved : 15;
 } __attribute__((packed));
 
+// remap interrupts so it wont collide with exceptions
+void remapPIC();
+
+
 // error code needs to be unsigned int because this is 32-bit os
 
 __attribute__((no_caller_saved_registers)) void printException(unsigned int exceptionNumber, unsigned int errorCode);
@@ -53,4 +69,5 @@ __attribute__((interrupt)) void segmentNotPresentHandler(struct InterruptFrame *
 __attribute__((interrupt)) void stackSegmentFaultHandler(struct InterruptFrame *frame, unsigned int errorCode);
 __attribute__((interrupt)) void generalProtectionFaultHandler(struct InterruptFrame *frame, unsigned int errorCode);
 __attribute__((interrupt)) void pagefaultHandler(struct InterruptFrame *frame, unsigned int errorCode);
+
 
