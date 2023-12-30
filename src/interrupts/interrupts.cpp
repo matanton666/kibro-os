@@ -81,6 +81,17 @@ void remapPIC()
     outb(PIC2_DATA, p2);
 }
 
+void picEndMaster()
+{
+    outb(PIC1_COMMAND, PIC_EOI);
+}
+
+void picEndSlave()
+{
+    outb(PIC2_COMMAND, PIC_EOI);
+    outb(PIC1_COMMAND, PIC_EOI);
+}
+
 
 __attribute__((no_caller_saved_registers)) void printException(unsigned int exceptionNumber, unsigned int errorCode)
 {
@@ -212,5 +223,16 @@ __attribute__((interrupt)) void pagefaultHandler(struct InterruptFrame *frame, u
 }
 
 
+__attribute__((interrupt)) void keyboardInputHandler(struct InterruptFrame *frame) 
+{
+    uint8_t scancode = inb(KEYBOARD_INPUT_PORT);
+    picEndMaster();
+    // FIXME: gdt is not properly initialized so keyboard input generates generalProtectionFault on gdt entry number 2
+
+    // TODO: keyboard input handler
+    print("scancode: ");
+    printBinary(scancode);
+    print('\n');
+}
 
 
