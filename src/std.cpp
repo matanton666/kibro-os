@@ -1,7 +1,5 @@
 #include "std.h"
 
-uint32_t* bootInfoPtr = nullptr;
-
 void* memcpy(void* dest, const void* src, size_t n) {
 	if (dest == src) {
 	// copying to the same location
@@ -24,7 +22,7 @@ int memcmp(const void* lhs, const void* rhs, size_t count)
 	unsigned char* x = (unsigned char*)lhs;
 	unsigned char* y = (unsigned char*)rhs;
 
-	if (lhs == rhs) // check if same location
+	if (lhs == rhs)
 	{
 		return 0;
 	}
@@ -44,7 +42,8 @@ int memcmp(const void* lhs, const void* rhs, size_t count)
 	return compare;
 }
 
-// convert from int to char* (ascii)
+
+// convert from int to char* (string)
 char* itoa(int num, char* str, int base) {
 	int i = 0;
 	bool isNegative = false;
@@ -75,55 +74,4 @@ char* itoa(int num, char* str, int base) {
 
 	str[i] = '\0';
 	return str;
-}
-
-char* uitoa(uint64_t num, char *str, int base)
-{
-	int i = 0;
-
-	// convert int to string in wanted base in reverse
-	do {
-		int digit = num % base;
-		str[i++] = (digit <= 9) ? digit + '0' : digit + 'A' - 10; // convert to hex if need
-	} while ((num /= base) != 0);
-
-
-	// reverse the string back
-	int k = i - 1;
-	for (int j = 0; j < k; ++j, --k) {
-		char temp = str[j]; // swap first and last char
-		str[j] = str[k];
-		str[k] = temp;
-	}
-
-	str[i] = '\0';
-	return str;
-}
-
-void outb(uint16_t port, uint8_t value)
-{
-    asm volatile("outb %b0, %w1"
-        :: "a"(value), "d"(port));
-}
-
-uint8_t inb(uint16_t port)
-{
-	uint8_t ret;
-	asm volatile("inb %w1, %b0"
-		: "=a"(ret)
-		: "d"(port));
-	return ret;
-}
-
-void ioWait()
-{
-	asm volatile("outb %%al, $0x80"
-		:
-		: "a"(0));
-}
-
-void getBootInfoAddressFromGrub() {
-	if (bootInfoPtr == nullptr) {
-		asm("movl %%ebx, %0;" : "=r"(bootInfoPtr));
-	}
 }

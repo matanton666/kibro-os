@@ -1,10 +1,14 @@
 #include "headers/serial.h"
-
+#include "headers/std.h"
 
 
 #define PORT 0x3f8          // COM1
 
-
+void outb(unsigned short port, unsigned char value)
+{
+    __asm("outb %b0, %w1"
+        :: "a"(value), "d"(port));
+}
  
 int init_serial() {
    outb(PORT + 1, 0x00);    // Disable all interrupts
@@ -39,18 +43,5 @@ void write_serial_int(int num)
 {
    char asString[20] = {0};
    itoa(num, asString, 10);
-   write_serial(asString);
-}
-
-void write_serial_uint(uint64_t num)
-{
-   char asString[40] = {0};
-   uitoa(num, asString, 10);
-   write_serial(asString);
-}
-
-void write_serial_hex(uint64_t num) {
-   char asString[40] = {0};
-   uitoa(num, asString, 16);
    write_serial(asString);
 }
