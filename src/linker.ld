@@ -5,7 +5,8 @@ SECTIONS
 {
 	/* one mb shift for convention */
 	. = 1M;
- 
+
+	_KernelStart = .;
     /* put everything in 4k blocks for paging */
 	.text BLOCK(4K) : ALIGN(4K)
 	{
@@ -17,6 +18,11 @@ SECTIONS
 	.rodata BLOCK(4K) : ALIGN(4K)
 	{
 		*(.rodata)
+	}
+
+	.eh_frame BLOCK(4K) : ALIGN(4K)
+	{
+		KEEP(*(.eh_frame))
 	}
  
 	/* Read-write data (initialized) */
@@ -31,4 +37,20 @@ SECTIONS
 		*(COMMON)
 		*(.bss)
 	}
+
+	/* compiler components */
+	/* .comment BLOCK(4k) : ALIGN(4k)
+	{
+		*(.comment) 
+		*(.debug_info)
+		*(.debug_abbrev)
+		*(.debug_loclists)
+		*(.debug_str)
+		*(.debug_line)
+		*(.debug_aranges)
+		*(.debug_line_str)
+	} */
+
+
+	_KernelEnd = .;
 }
