@@ -1,91 +1,79 @@
 #include "screen.h"
 
-FramebufferInfo* fbInfo = nullptr;
-
-PSF1_Header* PSF1_font = nullptr;
-PSF2_Header* PSF2_font = nullptr;
-
-uint16_t* unicode = nullptr;
-Point curserPos = { CURSER_PADDING, CURSER_PADDING };
-
-bool initializeScreen()
-{
-    initFramebuffer();
-    if (fbInfo == nullptr) {
-        return false;
-    }
-
-    if (!initPSF()) {
-        return false;
-    }
-
-    clearScreen(COLOR_BLACK);
-    return true;
-}
+ScreenApi screen;
 
 void cls()
 {
-    clearScreen(COLOR_BLACK);
+    screen.clearScreen(COLOR_BLACK);
 }
 
-void print(char* str)
+void print(const char* str)
 {
-    putsCurserPSF2((unsigned char*)str, COLOR_WHITE, COLOR_BLACK);
+    screen.putsCurserPSF2((unsigned char*)str, COLOR_WHITE, COLOR_BLACK);
 }
 
 void print(char c)
 {
-    putcCurserPSF2(c, COLOR_WHITE, COLOR_BLACK);
+    screen.putcCurserPSF2(c, COLOR_WHITE, COLOR_BLACK);
 }
 
 void print(int num)
 {
     char cnum[32];
     itoa(num, cnum, 10);
-    putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+    screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
 }
 
-void initFramebuffer()
+void print(uint32_t num)
 {
-    struct BootTag
-    {
-        uint32_t type;
-        uint32_t size;
-    };
-    
-    // get boot info
-    // move the boot info location to the pointer from ebx
-    uint32_t* bootInfo = 0;
-    __asm("movl %%ebx, %0;" : "=r"(bootInfo));
-
-    // loop untill finds the framebuffer info
-    uint32_t* addr = bootInfo;
-    for (BootTag* tag = (BootTag *)(&addr[2]);
-       tag->type != 0;
-       tag = (BootTag *) ((uint8_t *) tag + ((tag->size + 7) & ~7))) // move to next tag (with padding)
-    {
-        switch (tag->type)
-        {
-        case 8: // framebuffer tag
-            fbInfo = (FramebufferInfo*)tag;
-            break;
-
-        default:
-            break;
-        }
-    }
+    print((uint64_t)num);
 }
 
-void drawPixel( int x, int y, uint32_t color)
+void print(uint64_t num)
+{
+    char cnum[40];
+    uitoa(num, cnum, 10);
+    screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+}
+
+void printBinary(uint64_t num)
+{
+    char cnum[64];
+    uitoa(num, cnum, 2);
+    screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+}
+
+void printHex(uint64_t num)
+{
+    char cnum[32];
+    uitoa(num, cnum, 16);
+    screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+}
+
+void panic(const char* str)
+{
+    screen.putsCurserPSF2((unsigned char *)"\nPANIC:\n", COLOR_RED, COLOR_BLUE);
+    screen.putsCurserPSF2((unsigned char*)str, COLOR_RED, COLOR_BLACK);
+    print('\n');
+}
+
+
+
+bool ScreenApi::init()
+{
+    return initializeScreen(getBootInfo<FramebufferInfo>(8));
+}
+
+void ScreenApi::drawPixel( int x, int y, uint32_t color)
 {
     // get the pixel location 					              
-    uint8_t* pixel = ((uint8_t*)fbInfo->addr) + (fbInfo->pitch * y) + (x * fbInfo->bpp / 8); // divide by 8 because bpp is in bits and not bytes
+    uint8_t* pixel = ((uint8_t*)_fbInfo->addr) + (_fbInfo->pitch * y) + (x * _fbInfo->bpp / 8); // divide by 8 because bpp is in bits and not bytes
     *pixel = color & 255; // blue color
     *(pixel + 1) = (color >> 8) & 255; // green color (shift 8 to get to it)
     *(pixel + 2) = (color >> 16) & 255; // red color (shift 16 to get to it)
 }
 
-unsigned int identifyPSFVersion()
+unsigned int ScreenApi::identifyPSFVersion()
 {
     PSF1_Header* font1 = (PSF1_Header*)&PSF_START;
     PSF2_Header* font2 = (PSF2_Header*)&PSF_START;
@@ -100,7 +88,7 @@ unsigned int identifyPSFVersion()
     return 0;
 }
 
-bool initPSF()
+bool ScreenApi::initPSF()
 {
     unsigned int ver = identifyPSFVersion();
 
@@ -111,10 +99,10 @@ bool initPSF()
     }
     else if (ver == PSF2)
     {
-        PSF2_font = (PSF2_Header*)&PSF_START;
+        _PSF2_font = (PSF2_Header*)&PSF_START;
 
-        if (PSF2_font->flags == 0) {
-            unicode = NULL;
+        if (_PSF2_font->flags == 0) {
+            _unicode = NULL;
             return false;
         }
         // initialize the unicode table
@@ -125,45 +113,45 @@ bool initPSF()
 }
 
 // ! does not move curser!! use with caution
-void putcPSF2( unsigned char c, int cx, int cy, uint32_t fgColor, uint32_t bgColor)
+void ScreenApi::putcPSF2( unsigned char c, int cx, int cy, uint32_t fgColor, uint32_t bgColor)
 {
-    int bytesPerLine = (PSF2_font->width + 7) / 8;
+    int bytesPerLine = (_PSF2_font->width + 7) / 8;
 
     // if (unicode != NULL) { // translate unicode to ascii
     //     c = unicode[c];
     // }
 
     // check if the char is legal
-    if (!(c > 0 && c < PSF2_font->numGlyph)) {
+    if (!(c > 0 && c < _PSF2_font->numGlyph)) {
         c = 0;
     }
 
     // get the chars glyph position in the font file
-    unsigned char* glyph = (unsigned char*)&PSF_START + PSF2_font->headerSize + c * PSF2_font->bytesPerGlyph;
+    unsigned char* glyph = (unsigned char*)&PSF_START + _PSF2_font->headerSize + c * _PSF2_font->bytesPerGlyph;
 
     // get offset to the top left corner of the current charicter
-    uint32_t offs = (cy * PSF2_font->height * fbInfo->pitch) + (cx * (PSF2_font->width + 1) * fbInfo->bpp / 8);
+    uint32_t offs = (cy * _PSF2_font->height * _fbInfo->pitch) + (cx * (_PSF2_font->width + 1) * _fbInfo->bpp / 8);
     uint32_t x, y, line, mask;
     
     // print the char
-    for (y = 0; y < PSF2_font->height; y++) {
+    for (y = 0; y < _PSF2_font->height; y++) {
         line = offs;
-        mask = 1 << (PSF2_font->width - 1); // set mask to the left most bit (for deciding the color of the pixel)
-        for (x = 0; x < PSF2_font->width; x++) {
+        mask = 1 << (_PSF2_font->width - 1); // set mask to the left most bit (for deciding the color of the pixel)
+        for (x = 0; x < _PSF2_font->width; x++) {
             drawPixel(x + cx, y + cy, *((unsigned int*)glyph) & mask ? fgColor : bgColor);
             // next pixel
             mask >>= 1;
-            line += fbInfo->bpp / 8;
+            line += _fbInfo->bpp / 8;
         }
         // next row
         glyph += bytesPerLine;
-        offs += fbInfo->pitch;
+        offs += _fbInfo->pitch;
     }
 }
 
 
 // ! does not move curser!! use with caution
-void putsPSF2(unsigned char* str, int startx, int starty, uint32_t fgColor, uint32_t bgColor)
+void ScreenApi::putsPSF2(unsigned char* str, int startx, int starty, uint32_t fgColor, uint32_t bgColor)
 {
     int i = 0;
     int x = startx, y = starty;
@@ -175,115 +163,154 @@ void putsPSF2(unsigned char* str, int startx, int starty, uint32_t fgColor, uint
         if (str[i] == '\n')
         {
             x = startx;
-            y += PSF2_font->height;
+            y += _PSF2_font->height;
         }
         else {
-            x += PSF2_font->width;
+            x += _PSF2_font->width;
         }
         i++;
     }
 }
 
-void curserAdd(int x, int y)
+void ScreenApi::curserAdd(int x, int y)
 {
-    curserPos.x += x;
-    curserPos.y += y;
+    _curserPos.x += x;
+    _curserPos.y += y;
     curserCheckBounds();
 }
 
-void curserCheckBounds()
+void ScreenApi::curserCheckBounds()
 {
     // x after right of screen
-    if (curserPos.x >= fbInfo->width - (CURSER_PADDING + PSF2_font->width)) // padding
+    if (_curserPos.x >= _fbInfo->width - (CURSER_PADDING + _PSF2_font->width)) // padding
     {
-        curserPos.x = CURSER_PADDING;
-        curserPos.y += PSF2_font->height;
+        _curserPos.x = CURSER_PADDING;
+        _curserPos.y += _PSF2_font->height;
     }
     // x before left of screen
-    else if (curserPos.x <= CURSER_PADDING)
+    else if (_curserPos.x <= CURSER_PADDING)
     {
-        curserPos.x = CURSER_PADDING;
+        _curserPos.x = CURSER_PADDING;
     }
 
     // y below bottom of screen
-    if (curserPos.y >= fbInfo->height - (CURSER_PADDING + PSF2_font->height)) // padding
+    if (_curserPos.y >= _fbInfo->height - (CURSER_PADDING + _PSF2_font->height)) // padding
     {
         cls(); // clear screen if goten to the bottom
-        curserPos.y = CURSER_PADDING;
+        _curserPos.y = CURSER_PADDING;
     }
     // y above top of screen
-    else if (curserPos.y < CURSER_PADDING)
+    else if (_curserPos.y < CURSER_PADDING)
     {
-        curserPos.y = CURSER_PADDING;
+        _curserPos.y = CURSER_PADDING;
     }
 }
 
-void putcCurserPSF2( unsigned char c,uint32_t fgColor, uint32_t bgColor)
+bool ScreenApi::initializeScreen(FramebufferInfo* fbInfo)
+{
+    if (_is_initialized) {
+        return true;
+    }
+    _is_initialized = true;
+
+    _fbInfo = fbInfo;
+
+    if (_fbInfo == nullptr) {
+        return false;
+    }
+
+    if (!initPSF()) {
+        return false;
+    }
+    _fbLength = _fbInfo->pitch * _fbInfo->height;
+    clearScreen(COLOR_BLACK);
+    return true;
+}
+
+void ScreenApi::putcCurserPSF2( unsigned char c,uint32_t fgColor, uint32_t bgColor)
  {
     if (c == '\n')
     {
-        curserAdd(-curserPos.x + CURSER_PADDING, PSF2_font->height);
+        curserAdd(-_curserPos.x + CURSER_PADDING, _PSF2_font->height);
     }
     else
     {
-        int bytesPerLine = (PSF2_font->width + 7) / 8;
+        int bytesPerLine = (_PSF2_font->width + 7) / 8;
 
         // if (unicode != NULL) { // translate unicode to ascii
         //     c = unicode[c];
         // }
         // check if the char is legal
-        if (!(c > 0 && c < PSF2_font->numGlyph)) {
+        if (!(c > 0 && c < _PSF2_font->numGlyph)) {
             c = 0;
         }
         // get the chars glyph position in the font file
-        unsigned char* glyph = (unsigned char*)&PSF_START + PSF2_font->headerSize + c * PSF2_font->bytesPerGlyph;
+        unsigned char* glyph = (unsigned char*)&PSF_START + _PSF2_font->headerSize + c * _PSF2_font->bytesPerGlyph;
 
         // get offset to the top left corner of the current charicter
-        uint32_t offs = (curserPos.y * PSF2_font->height * fbInfo->pitch) + (curserPos.x * (PSF2_font->width + 1) * fbInfo->bpp / 8);
+        uint32_t offs = (_curserPos.y * _PSF2_font->height * _fbInfo->pitch) + (_curserPos.x * (_PSF2_font->width + 1) * _fbInfo->bpp / 8);
         uint32_t x, y, line, mask;
 
-        for (y = 0; y < PSF2_font->height; y++) {
+        for (y = 0; y < _PSF2_font->height; y++) {
             line = offs;
-            mask = 1 << (PSF2_font->width - 1); // set mask to the left most bit (for deciding the color of the pixel)
-            for (x = 0; x < PSF2_font->width; x++) {
+            mask = 1 << (_PSF2_font->width - 1); // set mask to the left most bit (for deciding the color of the pixel)
+            for (x = 0; x < _PSF2_font->width; x++) {
                 curserCheckBounds();
-                drawPixel(curserPos.x + x, curserPos.y + y, *((unsigned int*)glyph) & mask ? fgColor : bgColor);
+                drawPixel(_curserPos.x + x, _curserPos.y + y, *((unsigned int*)glyph) & mask ? fgColor : bgColor);
                 // next pixel
                 mask >>= 1;
-                line += fbInfo->bpp / 8;
+                line += _fbInfo->bpp / 8;
             }
             // next row
             glyph += bytesPerLine;
-            offs += fbInfo->pitch;
+            offs += _fbInfo->pitch;
         }
-        curserAdd(PSF2_font->width, 0);
+        curserAdd(_PSF2_font->width, 0);
     }
  }
 
-void putsCurserPSF2( unsigned char* str, uint32_t fgColor, uint32_t bgColor)
+void ScreenApi::putsCurserPSF2( unsigned char* str, uint32_t fgColor, uint32_t bgColor)
  {
      int i = 0;
      while (str[i] != '\0')
      {
-         putcCurserPSF2(str[i], fgColor, bgColor);
-         i++;
+        putcCurserPSF2(str[i], fgColor, bgColor);
+        i++;
      }
  }
 
-void clearScreen(uint32_t color)
+void ScreenApi::clearScreen(uint32_t color)
 {
-    for (unsigned int y = 0; y < fbInfo->height; y++)
+    for (unsigned int y = 0; y < _fbInfo->height; y++)
     {
-        for (unsigned int x = 0; x < fbInfo->width; x++)
+        for (unsigned int x = 0; x < _fbInfo->width; x++)
         {
             drawPixel(x, y, color);
         }
     }
-    curserPos.x = CURSER_PADDING;
-    curserPos.y = CURSER_PADDING;
+    _curserPos.x = CURSER_PADDING;
+    _curserPos.y = CURSER_PADDING;
 }
 
-const Point& getCursur()
+void ScreenApi::setCursurPosition(int x, int y)
 {
-    return curserPos;
+    _curserPos.x = x;
+    _curserPos.y = y;
+    curserCheckBounds();
 }
+
+const uint64_t ScreenApi::getFbStartAddress()
+{
+    return _fbInfo->addr;
+}
+
+const Point& ScreenApi::getCursur()
+{
+    return _curserPos;
+}
+
+unsigned long ScreenApi::getFbLength()
+{
+    return _fbLength;
+}
+
