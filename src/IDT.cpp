@@ -4,6 +4,7 @@
 IdtPtr idtPtr; 
 IdtEntry idtEntries[IDT_SIZE];
 
+
 void idtSetEntry(uint8_t vector, void *isr, uint8_t flags)
 {
     IdtEntry* descriptor = (IdtEntry *)(idtPtr.base + vector * sizeof(IdtEntry));
@@ -51,13 +52,21 @@ void idt_init()
     idtSetEntry(0x1d, (void *)generalFaultWithErrCode, IDT_INTERRUPT_GATE);
     idtSetEntry(0x1e, (void *)generalFaultWithErrCode, IDT_INTERRUPT_GATE);
 
-    
-    asm volatile("cli");
+
+    idtSetEntry(0x21, (void *)keyboardInputHandler, IDT_INTERRUPT_GATE);
+
+
     asm volatile(
         "lidt %0" // Load the IDT
         :
         : "m"(idtPtr) 
     );
-    // asm volatile("sti");
-    // TODO: check why sti crashes idt
+    
+    // enable hardware interrupts
+    remapPIC();
+
+    outb(PIC1_DATA, 0b11111101); // unmask second interrupt 
+    outb(PIC2_DATA, 0b11111111); // mask all interrupts
+
+    asm ("sti");
 }

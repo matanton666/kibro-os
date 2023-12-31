@@ -12,6 +12,7 @@ extern "C" void kernel_main(void) {
 	getBootInfoAddressFromGrub();
 	init_serial();
 	write_serial((char*)"kernel booted");
+
 	
 	if (screen.init()) {
 		write_serial((char*)"screen initialized");
@@ -19,6 +20,10 @@ extern "C" void kernel_main(void) {
 	else {
 		write_serial((char*)"screen failed to initialize");
 	}
+
+
+	initGdt();
+	write_serial("init gdt");
 
 
 	if (phys_mem.init()) {
@@ -35,12 +40,8 @@ extern "C" void kernel_main(void) {
     phys_mem.lockPages((unsigned char*)(uint64_t)KENREL_MEM_START, ((uint64_t)KERNEL_MEM_END - (uint64_t)KENREL_MEM_START) / PAGE_SIZE + 1);
 
 
-	initGdt();
-	write_serial("init gdt");
-
 	idt_init();
 	write_serial("init idt");
-
 
 	/*
 	* prints and tests here:
@@ -83,8 +84,12 @@ extern "C" void kernel_main(void) {
 	
 
 	//* test IDT
-	asm("int $0x0E"); // pagefault
+	// asm("int $0x0E"); // pagefault
 
+	while (true)
+	{
+	}
 	write_serial("kernel finished\n");
+	
 }
 
