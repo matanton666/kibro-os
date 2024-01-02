@@ -84,12 +84,15 @@ private:
     Point _curserPos = { CURSER_PADDING, CURSER_PADDING };
     unsigned long _fbLength = 0;
     bool _is_initialized = false; 
-
+    bool _cursorShow = false;
 
     // draw a pixel on the screen
     // x, y - position in pixels from the top left corner (0,0)
     // color - 32 bit color (0xAARRGGBB)
     void drawPixel( int x, int y, uint32_t color);
+
+    // clear the last amount of pixel (need to define size of row)
+    void clearLastPixels(int rows, int amount);
 
     // check the version of the PSF font file
     // return PSF1 or PSF2 or 0 if not found
@@ -107,7 +110,6 @@ private:
     bool initializeScreen(FramebufferInfo* fbInfo);
 
 public:
-
     bool init();
 
     // draw char to screen with PSF2 at the curser position
@@ -127,15 +129,22 @@ public:
     // draw entire screen in color
     void clearScreen(uint32_t color);
 
+    void clearLastChars(int n);
+
     // set curser position (will set to bounds if out of bounds)
     void setCursurPosition(int x, int y);
 
+    // show and clear the cursor
+    void showCursor();
+    void clearCursor();
 
     // get the starting address of the framebuffer (where the pixels start)
     const uint64_t getFbStartAddress();
 
     // get the x and y cordiantes of the curser
     const Point& getCursur();
+
+    bool isCursorShow();
 
     // get the length of the framebuffer in bytes
     unsigned long getFbLength();
@@ -154,5 +163,6 @@ void print(uint64_t num);
 void printBinary(uint64_t num);
 void printHex(uint64_t num);
 void panic(const char* str);
+void clearLastChar();
 
 

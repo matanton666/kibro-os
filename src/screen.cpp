@@ -57,7 +57,12 @@ void panic(const char* str)
     print('\n');
 }
 
-
+void clearLastChar()
+{
+    screen.clearCursor();
+    screen.clearLastChars(1);
+    screen.showCursor();
+}
 
 bool ScreenApi::init()
 {
@@ -71,6 +76,40 @@ void ScreenApi::drawPixel( int x, int y, uint32_t color)
     *pixel = color & 255; // blue color
     *(pixel + 1) = (color >> 8) & 255; // green color (shift 8 to get to it)
     *(pixel + 2) = (color >> 16) & 255; // red color (shift 16 to get to it)
+}
+
+void ScreenApi::clearLastPixels(int rows, int amount) {
+    int x = getCursur().x - 1;
+    int y = getCursur().y;
+
+    for(int i = 0; i < rows; i++)
+    {
+        if (x <= CURSER_PADDING)
+        {
+            y -= amount;
+            x = _fbInfo->width - CURSER_PADDING -1;
+            _curserPos.x = x;
+            _curserPos.y = y;
+            return;
+        }
+        for (int j = 0; j < amount; j++)
+        {
+            drawPixel(x, y, COLOR_BLACK);
+            y++;
+        }
+
+        y = getCursur().y;
+        x--;
+    }
+    curserAdd(-1 * rows,0);
+}
+
+void ScreenApi::clearLastChars(int n)
+{
+    for(int i = 0; i < n; i++)
+    {
+        clearLastPixels(_PSF2_font->width, _PSF2_font->height);
+    }
 }
 
 unsigned int ScreenApi::identifyPSFVersion()
@@ -229,6 +268,8 @@ bool ScreenApi::initializeScreen(FramebufferInfo* fbInfo)
 
 void ScreenApi::putcCurserPSF2( unsigned char c,uint32_t fgColor, uint32_t bgColor)
  {
+    if (isCursorShow())
+        clearCursor();
     if (c == '\n')
     {
         curserAdd(-_curserPos.x + CURSER_PADDING, _PSF2_font->height);
@@ -267,6 +308,7 @@ void ScreenApi::putcCurserPSF2( unsigned char c,uint32_t fgColor, uint32_t bgCol
         }
         curserAdd(_PSF2_font->width, 0);
     }
+    showCursor();
  }
 
 void ScreenApi::putsCurserPSF2( unsigned char* str, uint32_t fgColor, uint32_t bgColor)
@@ -297,6 +339,46 @@ void ScreenApi::setCursurPosition(int x, int y)
     _curserPos.x = x;
     _curserPos.y = y;
     curserCheckBounds();
+}
+
+bool ScreenApi::isCursorShow()
+{
+    return _cursorShow;
+}
+
+void ScreenApi::showCursor()
+{
+    int x = _curserPos.x + 1;
+    int y = _curserPos.y - 1;
+    for (int i = 0; i < 1; i++)
+    {
+        for (int j = 0; j < _PSF2_font->height + 2; j++)
+        {
+            drawPixel(x, y, COLOR_WHITE);
+            y++;
+        }
+
+        y = _curserPos.y - 1;
+        x++;
+    }
+    _cursorShow = true;
+}
+void ScreenApi::clearCursor()
+{
+    int x = _curserPos.x + 1;
+    int y = _curserPos.y - 2;
+    for (int i = 0; i < 1; i++)
+    {
+        for (int j = 0; j < _PSF2_font->height + 4; j++)
+        {
+            drawPixel(x, y, COLOR_BLACK);
+            y++;
+        }
+
+        y = _curserPos.y - 2;
+        x++;
+    }
+    _cursorShow = false;
 }
 
 const uint64_t ScreenApi::getFbStartAddress()
