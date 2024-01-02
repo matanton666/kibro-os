@@ -81,8 +81,6 @@ extern "C" void kernel_main(void) {
 		print('\n');
 	}
 	
-	
-
 	//* test IDT
 	// asm("int $0x0E"); // pagefault
 
