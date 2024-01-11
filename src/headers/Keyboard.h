@@ -5,6 +5,7 @@
 #include "screen.h"
 #include "ctype.h"
 
+// special keys scancodes
 #define L_SHIFT 0x2A
 #define R_SHIFT 0x36
 #define CAPS_LOCK 0x3A
@@ -25,13 +26,17 @@ class Keyboard
 private:
 	bool leftShift, rightShift, capsLock = false, alt, ctrl;
 public:
+	// translate scancode and print it to the screen with charicter manipulation (shift, capslock, ect.)
 	void handleKeyboard(uint8_t scancode);
+
+	// translate a scancode to the coresponding charicter
 	char translateScanCode(uint8_t scanCode, bool shift, bool capsLock);
 
 };
 
 extern Keyboard keyboard;
 
+// wrapper function for keyboard.handleKeyboard
 void keyboardHandler(uint8_t scancode);
 
 

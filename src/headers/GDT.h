@@ -2,6 +2,8 @@
 #include "std.h"
 #include "serial.h"
 
+#define GDT_SIZE 6
+
 struct GdtPtr
 {
     uint16_t size;               // The upper 16 bits of all selector limits.

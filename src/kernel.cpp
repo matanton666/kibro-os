@@ -6,6 +6,7 @@
 #include "pageFrameAllocator.h"
 #include "GDT.h"
 #include "IDT.h"
+#include "processManager.h"
 
 
 extern "C" void kernel_main(void) {
@@ -24,6 +25,7 @@ extern "C" void kernel_main(void) {
 
 	initGdt();
 	write_serial("init gdt");
+	initMultitasking();
 
 
 	if (phys_mem.init()) {
@@ -42,6 +44,7 @@ extern "C" void kernel_main(void) {
 
 	idt_init();
 	write_serial("init idt");
+
 
 	/*
 	* prints and tests here:
