@@ -42,6 +42,15 @@ int memcmp(const void* lhs, const void* rhs, size_t count)
 	return compare;
 }
 
+void memset(void* dest, int ch, uint32_t count)
+{
+	char* addr = (char*)dest;
+	for (int i = 0; i < count; i++)
+	{
+		addr[i] = ch;
+	}
+}
+
 // convert from int to char* (ascii)
 char* itoa(int num, char* str, int base) {
 	int i = 0;

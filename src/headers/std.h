@@ -17,6 +17,7 @@ char* itoa(int num, char *str, int base);
 char* uitoa(uint64_t num, char *str, int base);
 void* memcpy(void *dest, const void *src, size_t n);
 int memcmp(const void* lhs, const void* rhs, size_t count);
+void memset(void* dest, int ch, uint32_t count);
 
 
 template <typename T>

@@ -45,15 +45,4 @@ SECTIONS
 	}
 
 	_KernelEnd = .;
-	/* Exclude debug sections */
-    /DISCARD/ :
-    {
-        *(.debug_info)
-        *(.debug_abbrev)
-        *(.debug_loclists)
-		*(.debug_str)
-		*(.debug_line)
-		*(.debug_aranges)
-		*(.debug_line_str)
-    }
 }

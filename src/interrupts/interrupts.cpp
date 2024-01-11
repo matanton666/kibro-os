@@ -74,13 +74,13 @@ __attribute__((no_caller_saved_registers)) void printSelectorError(SelectorError
 
 __attribute__((interrupt)) void generalFault(struct InterruptFrame *frame)
 {
-    printException(EXCEPTION_COUNT, 0); // unknown exception
+    //printException(EXCEPTION_COUNT, 0); // unknown exception
     __asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void generalFaultWithErrCode(struct InterruptFrame *frame, unsigned int errorCode)
 {
-    printException(EXCEPTION_COUNT, errorCode); // unknown exception
+   // printException(EXCEPTION_COUNT, errorCode); // unknown exception
 
     __asm("cli; hlt");
 }
@@ -122,9 +122,9 @@ __attribute__((interrupt)) void deviceNotAvailableHandler(InterruptFrame *frame)
 
 __attribute__((interrupt)) void doubleFaultHandler(InterruptFrame *frame)
 {
-    printException(0x08, 0);
+    //printException(0x08, 0);
 
-    print("cannot recover from double fault... please restart os\n");
+    //print("cannot recover from double fault... please restart os\n");
 
     __asm("cli; hlt");
 }
@@ -152,17 +152,17 @@ __attribute__((interrupt)) void stackSegmentFaultHandler(InterruptFrame *frame, 
 
 __attribute__((interrupt)) void generalProtectionFaultHandler(InterruptFrame *frame, unsigned int errorCode)
 {
-    printException(0x0d, errorCode);
+    //printException(0x0d, errorCode);
 
     SelectorError* error = (SelectorError*)&errorCode;
-    printSelectorError(error);
+    //printSelectorError(error);
 
     __asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void pagefaultHandler(struct InterruptFrame *frame, unsigned int errorCode)
 {
-    printException(0x0e, errorCode);
+    //printException(0x0e, errorCode);
     PageFalutError* error = (PageFalutError*)&errorCode;
     //? can use error for more info on page fault      
     

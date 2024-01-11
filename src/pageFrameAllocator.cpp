@@ -36,7 +36,7 @@ bool bitmapGet(unsigned long index)
 
 unsigned char *requestPage()
 {
-    // loop all indexes in bitmap untill find free page
+    // loop all indexes in bitmap until find free page
     for (unsigned long i = 0; i < bitmapBufferSize * 8; i++)
     {
         if (bitmapGet(i) == PAGE_FREE) {
@@ -63,12 +63,14 @@ bool initPageFrameAllocator()
 
     // 4kib memory per page and one bit representing each page, plus one just in case
     bitmapBufferSize = (freeMemory / PAGE_SIZE / 8) + 1; // in bytes
-    bitmapBuffer = (unsigned char*)largestFreeSegment;// begins at the start of the largest memroy segment
+    bitmapBuffer = (unsigned char*)largestFreeSegment;// begins at the start of the largest memory segment
 
     // make sure bitmap is after kernel code and not overwriting it
     if ((uint64_t)KERNEL_MEM_END > (uint64_t)bitmapBuffer) {
         bitmapBuffer = (unsigned char*)(uint64_t)KERNEL_MEM_END;
     }
+
+    setPlacementAddr((uintptr_t)bitmapBuffer + bitmapBufferSize); // set the addr after the bitmap
 
     for (unsigned long i = 0; i < bitmapBufferSize; i++) // zero out memory
     {
@@ -83,11 +85,10 @@ bool initPageFrameAllocator()
     while ((uint8_t*)entrie < (uint8_t*)memMap + memMap->size) // loop all entries
     {
         if (entrie->type != MULTIBOOT_MEMORY_AVAILABLE) {
-            reservePages((unsigned char*)entrie->base_addr, entrie->length / PAGE_SIZE + 1);
+            reservePages((unsigned char*)entrie->base_addr, entrie->length / PAGE_SIZE);
         }
-        entrie = (MemoryMapEntry*)((uint64_t)entrie + memMap->entry_size); // next entrie
+        entrie = (MemoryMapEntry*)((uint64_t)entrie + memMap->entry_size); // next entry
     }
-
     return true;
 }
 

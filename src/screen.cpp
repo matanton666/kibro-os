@@ -1,4 +1,5 @@
 #include "screen.h"
+#include "virtualMemory.h"
 
 FramebufferInfo* fbInfo = nullptr;
 
@@ -9,6 +10,8 @@ uint16_t* unicode = nullptr;
 Point curserPos = { CURSER_PADDING, CURSER_PADDING };
 
 unsigned long fbLength = 0;
+
+extern PageDirectory* currentDirectory;
 
 
 bool initializeScreen()
@@ -21,10 +24,11 @@ bool initializeScreen()
         return false;
     }
 
+    fbLength = fbInfo->pitch * fbInfo->height;
+
     if (!initPSF()) {
         return false;
     }
-    fbLength = fbInfo->pitch * fbInfo->height;
     clearScreen(COLOR_BLACK);
     return true;
 }
