@@ -4,6 +4,7 @@ Keyboard keyboard;
 
 void Keyboard::handleKeyboard(uint8_t scancode) {
 
+    // check if scancode has special key
     switch (scancode) {
     case L_SHIFT:
         leftShift = true;
@@ -55,6 +56,7 @@ void Keyboard::handleKeyboard(uint8_t scancode) {
 
 char Keyboard::translateScanCode(uint8_t scancode, bool shift, bool capsLock)
 {
+    // TODO: add support for more keys (ex. '{', '?', ...)
     if (scancode > 58) 
         return 0;
   

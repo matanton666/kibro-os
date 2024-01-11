@@ -16,7 +16,7 @@ if [ $? -eq 0 ]; then
         exit 0
     fi
     echo "Build succeeded"
-    qemu-system-i386 -cdrom ./dist/os.iso -serial file:serial.log -m 256M -D log.txt -d cpu_reset
+    qemu-system-i386 -cdrom ./dist/os.iso -serial file:serial.log -m 256M -D log.txt -d cpu_reset,int,mmu
     exit 0
 else
     echo "*Build failed*"

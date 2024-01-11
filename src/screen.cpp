@@ -84,7 +84,7 @@ void ScreenApi::clearLastPixels(int rows, int amount) {
 
     for(int i = 0; i < rows; i++)
     {
-        if (x <= CURSER_PADDING)
+        if (x <= CURSER_PADDING) // got to the left of the screen
         {
             y -= amount;
             x = _fbInfo->width - CURSER_PADDING -1;
