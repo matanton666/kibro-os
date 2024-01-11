@@ -32,18 +32,18 @@ os_bin_file: $(asm_object_files) $(cpp_object_files) $(psf_object_files) $(linke
 # compile interrupts with separate flags
 build/interrupts.o: src/interrupts/interrupts.cpp $(headers_folder)/interrupts.h
 	@mkdir -p build
-	i686-elf-g++ -mno-red-zone -mgeneral-regs-only -ffreestanding  -I $(headers_folder) -c  -o $@ $<
+	i686-elf-g++ -mno-red-zone -mgeneral-regs-only -ffreestanding  -I $(headers_folder) -g -c  -o $@ $<
 	@echo "compiled $<" 
 
 # compile when src files change
 $(asm_object_files): build/%.o: src/%.s
 	@mkdir -p build
-	i686-elf-as $< -o $@
+	i686-elf-as -g $< -o $@
 	@echo "compiled $<"
 
 $(cpp_object_files): build/%.o: src/%.cpp $(cpp_header_files)
 	@mkdir -p build
-	i686-elf-g++ -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -I $(headers_folder) -c  -o $@ $<
+	i686-elf-g++ -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -I $(headers_folder) -g -c -o $@ $<
 	@echo "compiled $<"
 
 $(psf_object_files): build/%.o: res/%.psf
