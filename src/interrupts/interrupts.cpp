@@ -133,7 +133,7 @@ __attribute__((interrupt)) void generalFault(struct InterruptFrame *frame)
 
 __attribute__((interrupt)) void generalFaultWithErrCode(struct InterruptFrame *frame, unsigned int errorCode)
 {
-    printException(EXCEPTION_COUNT, errorCode); // unknown exception
+   printException(EXCEPTION_COUNT, errorCode); // unknown exception
 
     asm("cli; hlt");
 }
@@ -142,7 +142,7 @@ __attribute__((interrupt)) void devideByZeroHandler(InterruptFrame *frame)
 {
     printException(0x00, 0);
 
-    asm("cli; hlt");
+    // asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void overflowHandler(InterruptFrame *frame)
@@ -216,9 +216,20 @@ __attribute__((interrupt)) void generalProtectionFaultHandler(InterruptFrame *fr
 __attribute__((interrupt)) void pagefaultHandler(struct InterruptFrame *frame, unsigned int errorCode)
 {
     printException(0x0e, errorCode);
-    PageFalutError* error = (PageFalutError*)&errorCode;
-    //? can use error for more info on page fault      
+    PageFaultError* error = (PageFaultError*)&errorCode;
+
     
+    uintptr_t faultAddr; // The faulting address is stored in the CR2 register.
+    asm volatile("mov %%cr2, %0" : "=r" (faultAddr));
+
+    print("error at address: ");
+    printHex(faultAddr);
+    print((error->present ? "\npresent" : "\nnot present"));
+    print((error->write ? "\nread only" : "\nread-write"));
+    print((error->user ? "\nuser" : "\nsupervisor"));
+    print((error->reserved_write ? "\nreserved" : "\nnot reserved"));
+    print((error->instruction_fetch ? "\ninstruction fetch" : "\nnot instruction fetch"));
+
     asm("cli; hlt");
 }
 

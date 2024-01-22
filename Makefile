@@ -32,7 +32,7 @@ $(os_bin_file): $(asm_object_files) $(cpp_object_files) $(psf_object_files) $(li
 # compile interrupts with separate flags
 build/interrupts.o: src/interrupts/interrupts.cpp $(headers_folder)/interrupts.h
 	@mkdir -p build
-	i686-elf-g++ -g -mno-red-zone -mgeneral-regs-only -ffreestanding  -I $(headers_folder) -c  -o $@ $<
+	i686-elf-g++ -mno-red-zone -mgeneral-regs-only -ffreestanding  -I $(headers_folder) -g -c  -o $@ $<
 	@echo "compiled $<" 
 
 # compile when src files change

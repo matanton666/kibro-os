@@ -7,6 +7,7 @@ used to maintain in-use and free pages of the system.
 
 #include "bitmap.h"
 #include "memoryMap.h"
+#include "kheap.h"
 
 
 class PageFrameAllocator

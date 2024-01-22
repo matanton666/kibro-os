@@ -4,13 +4,15 @@
 
 #define GDT_SIZE 6
 
+//gdt pointer
 struct GdtPtr
 {
     uint16_t size;               // The upper 16 bits of all selector limits.
-    uint32_t base;                // The address of the first GdtEntry struct.
+    uintptr_t base;                // The address of the first GdtEntry struct.
 }
 __attribute__((packed));
 
+//gdt entry
 struct GdtEntry
 {
     uint16_t limit_low;           // The lower 16 bits of the limit.

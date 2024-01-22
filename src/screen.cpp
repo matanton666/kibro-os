@@ -1,4 +1,5 @@
 #include "screen.h"
+#include "virtualMemory.h"
 
 ScreenApi screen;
 
