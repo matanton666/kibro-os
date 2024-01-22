@@ -2,7 +2,7 @@
 
 GdtEntry gdtTable[GDT_SIZE];
 GdtPtr gdtPtr;
-extern "C" void load_gdt(GdtEntry*);
+extern "C" void load_gdt(GdtPtr*);
 
 
 void gdtSetGate(unsigned short index, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran)
@@ -18,6 +18,11 @@ void gdtSetGate(unsigned short index, uint32_t base, uint32_t limit, uint8_t acc
 	gdtTable[index].access = access;
 }
 
+void reloadGDT()
+{
+	load_gdt(&gdtPtr);
+}
+
 void initGdt()
 {
 	gdtPtr.size = (sizeof(GdtEntry) * GDT_SIZE) - 1;
@@ -30,5 +35,5 @@ void initGdt()
 	gdtSetGate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);	// user data segment
 	gdtSetGate(5, 0, 0, 0, 0); // tss segment
 
-	load_gdt((GdtEntry*) &gdtPtr);
+	load_gdt(&gdtPtr);
 }
