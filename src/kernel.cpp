@@ -46,6 +46,8 @@ extern "C" void kernel_main(void) {
 	write_serial("init idt");
 
 
+	process_manager.initMultitasking();
+
 	/*
 	* prints and tests here:
 	*/
@@ -87,6 +89,23 @@ extern "C" void kernel_main(void) {
 	//* test IDT
 	// asm("int $0x0E"); // pagefault
 
+
+	//* test context switch
+	PCB* task1 = process_manager.newKernelTask((void*)testTask);
+    print("\ntask created, id: ");
+    print(task1->id);
+    print("\nswitching to task\n");
+    process_manager.contextSwitch();
+    print("returned from task and testing switch again\n");
+	
+	write_serial("running task again");
+    process_manager.contextSwitch();
+    print("returned and finished switches\n");
+
+
+
+
+	print("> ");
 	while (true)
 	{
 	}
