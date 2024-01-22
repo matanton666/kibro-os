@@ -2,7 +2,6 @@
 
 PageFrameAllocator phys_mem;
 
-
 unsigned char* PageFrameAllocator::requestPage()
 {
     return requestPages(1);
@@ -68,11 +67,10 @@ bool PageFrameAllocator::init()
     while ((uint8_t*)entry < (uint8_t*)mem_map + mem_map->size) // loop all entries
     {
         if (entry->type != MULTIBOOT_MEMORY_AVAILABLE) {
-            reservePages((unsigned char*)entry->base_addr, entry->length / PAGE_SIZE + 1);
+            reservePages((unsigned char*)entry->base_addr, entry->length / PAGE_SIZE);
         }
         entry = (MemoryMapEntry*)((uint64_t)entry + mem_map->entry_size); // next entrie
     }
-
     return true;
 }
 

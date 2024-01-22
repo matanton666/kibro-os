@@ -3,6 +3,7 @@
 #include "screen.h"
 #include "std.h"
 #include "Keyboard.h"
+#include "virtualMemory.h"
 
 #define PIC1_COMMAND 0x20 // master pic chip
 #define PIC1_DATA 0x21 // data line of master pic chip
@@ -27,7 +28,7 @@ struct InterruptFrame {
     unsigned int ss;
 } __attribute__((packed));
 
-struct PageFalutError { // make sure its alligned correctly and has right size
+struct PageFaultError { // make sure its alligned correctly and has right size
     bit_t present : 1;
     bit_t write : 1;
     bit_t user : 1;

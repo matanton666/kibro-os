@@ -29,6 +29,7 @@ void* memcpy(void *dest, const void *src, size_t n);
 
 // compare n bytes from lhs to rhs
 int memcmp(const void* lhs, const void* rhs, size_t count);
+void memset(void* dest, int ch, uint32_t count);
 
 
 // ** serial port communication **
