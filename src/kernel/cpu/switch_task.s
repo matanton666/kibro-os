@@ -7,17 +7,19 @@
 // 0: eip
 // 4: esp
 // 8: cr3
-.set EIP_OFFSET_IN_PCB, 0
+
+// offsets of fileds in the PCB struct
+.set EIP_OFFSET_IN_PCB, 0 
 .set ESP_OFFSET_IN_PCB, 4
 .set CR3_OFFSET_IN_PCB, 8
 
 .text
-.global switchTask
+.global switch_task
 
 
 // function saves cpu state of current task in the stack and in the given pcb
 // then swaps stack pointers of current and next task and calls next tasks ip
-switchTask:
+switch_task:
     // (%esp) = return address
 	// 4(%esp) = current pcb
     // 8(%esp) = next pcb

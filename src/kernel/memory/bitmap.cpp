@@ -1,4 +1,4 @@
-#include "bitmap.h"
+#include "../../headers/bitmap.h"
 
 
 void BitMap::set(unsigned long index, bool value)

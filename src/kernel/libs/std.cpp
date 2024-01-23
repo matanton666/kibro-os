@@ -1,4 +1,4 @@
-#include "std.h"
+#include "../../headers/std.h"
 
 uint32_t* bootInfoPtr = nullptr;
 

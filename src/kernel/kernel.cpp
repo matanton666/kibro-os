@@ -1,13 +1,13 @@
 #include <stdint.h>
-#include "serial.h"
-#include "screen.h"
-#include "headers/virtualMemory.h"
-#include "std.h"
-#include "memoryMap.h"
-#include "pageFrameAllocator.h"
-#include "GDT.h"
-#include "IDT.h"
-#include "processManager.h"
+#include "../headers/serial.h"
+#include "../headers/screen.h"
+#include "../headers/virtualMemory.h"
+#include "../headers/std.h"
+#include "../headers/memoryMap.h"
+#include "../headers/pageFrameAllocator.h"
+#include "../headers/GDT.h"
+#include "../headers/IDT.h"
+#include "../headers/processManager.h"
 
 
 extern "C" void kernel_main(void) {
@@ -24,14 +24,14 @@ extern "C" void kernel_main(void) {
 		print("Welcome to Kibro!\n");
 		print(123456789);
 		print('\n');
-		print('A');
 		print("\ncursur position: ");
 		print((int)screen.getCursur().x);
 		print(',');
 		print((int)screen.getCursur().y);
+		print('\n');
 	}
 	else {
-		write_serial((char*)"screen failed to initialize");
+		write_serial("**** screen failed to initialize");
 	}
 
 	initGdt();
@@ -39,7 +39,7 @@ extern "C" void kernel_main(void) {
 
 
 	if (phys_mem.init()) {
-		write_serial((char*)"memory map initialized");
+		write_serial("memory map initialized");
 
 		//* test memory map
 		print("\nfree memory: ");
@@ -53,7 +53,7 @@ extern "C" void kernel_main(void) {
 		print("KB\n\n");
 	}
 	else {
-		write_serial((char*)"memory map failed to initialize");
+		write_serial((char*)"**** memory map failed to initialize");
 	}
 
 	idt_init();
@@ -61,36 +61,22 @@ extern "C" void kernel_main(void) {
 
 	MemoryManager::PagingSystem kernelPaging;
 	kernelPaging.initPaging(true);
-	// TODO: test paging
 	write_serial("init paging");
 
 	process_manager.initMultitasking();
+	write_serial("init multitasking");
 
 	/*
 	* prints and tests here:
 	*/
 
-	
-	//* test page frame allocator
-	print("kernel end address: ");
-	print((uint64_t)KERNEL_MEM_END);
-	print("\nrequesting pages with page frame allocator...\naddresses at start of requested pages ");
-	print("(should start with 0):\n");
-	for (int i = 0; i < 4; i++)
-	{
-		unsigned char* addr = phys_mem.requestPages(i);
-		print((uint64_t)addr);
-		print('\n');
-	}
-	
-	//* test IDT
-	// asm("int $0x0E"); // pagefault
-
-
 	//* test context switch
 	PCB* task1 = process_manager.newKernelTask((void*)testTask);
-    print("\ntask created, id: ");
+    print("task created, id: ");
     print(task1->id);
+	print(", entry: 0x");
+	printHex(task1->regs.eip);
+
     print("\nswitching to task\n");
     process_manager.contextSwitch();
     print("returned from task and testing switch again\n");
@@ -102,11 +88,10 @@ extern "C" void kernel_main(void) {
 
 
 
-	print("> ");
+	print("\n> ");
 	while (true)
 	{
 	}
 	write_serial("kernel finished!\n");
 	
 }
-

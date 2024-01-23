@@ -1,4 +1,4 @@
-#include "Keyboard.h"
+#include "../../headers/keyboard.h"
 
 Keyboard keyboard;
 
@@ -7,16 +7,16 @@ void Keyboard::handleKeyboard(uint8_t scancode) {
     // check if scancode has special key
     switch (scancode) {
     case L_SHIFT:
-        leftShift = true;
+        _leftShift = true;
         return;
     case L_SHIFT + 0x80:
-        leftShift = false;
+        _leftShift = false;
         return;
     case R_SHIFT:
-        rightShift = true;
+        _rightShift = true;
         return;
     case R_SHIFT + 0x80:
-        rightShift = false;
+        _rightShift = false;
         return;
     case CTRL:
         ctrl = true;
@@ -31,7 +31,7 @@ void Keyboard::handleKeyboard(uint8_t scancode) {
         alt = false;
         return;
     case CAPS_LOCK:
-        capsLock = !capsLock;
+        _capsLock = !_capsLock;
         return;
     case BACKSPACE:
         clearLastChar();
@@ -47,7 +47,7 @@ void Keyboard::handleKeyboard(uint8_t scancode) {
         return;
     }
 
-    char ch = translateScanCode(scancode, rightShift || leftShift, capsLock);
+    char ch = translateScanCode(scancode, _rightShift || _leftShift, _capsLock);
     if (ch != 0) {
         print(ch);
     }

@@ -1,4 +1,4 @@
-#include "ctype.h"
+#include "../../headers/ctype.h"
 
 bool isAlNum(char ch)
 {

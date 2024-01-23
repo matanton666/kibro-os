@@ -2,7 +2,7 @@
 /// these are the ISRs of the IDT
 #include "screen.h"
 #include "std.h"
-#include "Keyboard.h"
+#include "keyboard.h"
 #include "virtualMemory.h"
 
 #define PIC1_COMMAND 0x20 // master pic chip

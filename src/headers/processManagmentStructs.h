@@ -1,3 +1,6 @@
+/*
+strucures used for process managment
+*/
 #pragma once
 
 #include "std.h"

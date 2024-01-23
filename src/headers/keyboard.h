@@ -1,3 +1,7 @@
+/*
+handel keyboard input, translate scancodes to charicters
+*/
+
 #pragma once
 #include <stdint.h>
 #include "serial.h"
@@ -24,7 +28,8 @@ const char ASCIITable[] = { 0 ,  0 , '1', '2','3', '4', '5', '6','7', '8', '9', 
 class Keyboard
 {
 private:
-	bool leftShift, rightShift, capsLock = false, alt, ctrl;
+	bool _leftShift, _rightShift, _capsLock = false, alt, ctrl;
+
 public:
 	// translate scancode and print it to the screen with charicter manipulation (shift, capslock, ect.)
 	void handleKeyboard(uint8_t scancode);

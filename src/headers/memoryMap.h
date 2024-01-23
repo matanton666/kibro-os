@@ -1,5 +1,5 @@
 /*
-map of all the memory in the system devided into parts 
+gets the memory map of all the memory in the system 
 */
 #pragma once
 #include "std.h"
@@ -49,6 +49,8 @@ private:
     uint64_t _free_memory = 0;
     uint64_t _reserved_memory = 0;
     uint64_t _largest_free_segment = 0;// pointer to largest memory segment
+
+    bool _is_initialized = false;
 
     bool getMemoryMapFromBootloader();
     void getMemorySizes();
