@@ -1,3 +1,6 @@
+/*
+manage process creation and context switching
+*/
 #pragma once
 
 #include "GDT.h"
@@ -5,12 +8,13 @@
 #include "pageFrameAllocator.h"
 #include "processManagmentStructs.h"
 
-class ProcessManagerAPI
+class ProcessManagerApi
 {
 private:
     PCB* _current_task_PCB = nullptr;
     PCB* _last_task_PCB = nullptr;
-    PCB _kernel_pcb = {0};
+    PCB _kernel_pcb;
+    TSS _kernel_tss;
     unsigned int _next_task_id = 1;
 
     bool _is_initialized = false;
@@ -37,4 +41,4 @@ public:
 // test functions for testing multitasking
 void testTask();
 
-extern ProcessManagerAPI process_manager;
+extern ProcessManagerApi process_manager;

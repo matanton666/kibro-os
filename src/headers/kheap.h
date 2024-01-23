@@ -1,14 +1,27 @@
+/*
+basic heap for kernel for before paging heap is created, it is located in the first 4 MB of memory after the kernel end.
+*/
 #pragma once
 #include "std.h"
 #include "pageFrameAllocator.h"
 
-//basic heap of kernel cuurently using a placement address
 
-extern uintptr_t placementAddr;
 
-//allocate memory
+
+// kernel allocate memory of size (in bytes) (from the first 4 MB of memory after the kernel end) 
+// returns the virtual address of the memory
 uintptr_t kmalloc(uint32_t size, bool align, uint32_t* phys);
-uintptr_t kmalloc_a(uint32_t size);  // page aligned.
-uintptr_t kmalloc_p(uint32_t size, uint32_t* phys); // returns a physical address.
-uintptr_t kmalloc_ap(uint32_t size, uint32_t* phys); // page aligned and returns a physical address.
+
+// kernel malloc a size of memory (aligned)
+// return the virtual address of the memory
+uintptr_t kmallocAligned(uint32_t size);
+
+// kernel malloc a size of mem and insert the physical address in phys  (not aligned)
+// return the virtual address of the memory
+uintptr_t kmallocPhys(uint32_t size, uint32_t* phys); 
+
+// kernel malloc a size of mem and insert the physical address in phys  (aligned)
+// return the virtual address of the memory
+uintptr_t kmallocAlignedPhys(uint32_t size, uint32_t* phys);
+
 void setPlacementAddr(uintptr_t addr);

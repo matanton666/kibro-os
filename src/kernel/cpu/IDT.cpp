@@ -1,5 +1,4 @@
-#include "headers/IDT.h"
-#include "IDT.h"
+#include "../../headers/IDT.h"
 
 extern "C" void load_idt(IdtEntry*);
 
@@ -23,11 +22,6 @@ void idt_init()
     //setting the idt pointer
     idtPtr.base = (uintptr_t)&idtEntries;
     idtPtr.limit = (uint16_t)(sizeof(IdtEntry) * IDT_SIZE - 1);
-    write_serial("IDT PTR at: ");
-    write_serial_hex((uint64_t)&idtPtr);
-    write_serial("IDT at: ");
-    write_serial_hex((uint64_t)idtPtr.base);
-    write_serial_hex((uint64_t)pagefaultHandler);
 
     //cleaning the memory
     memset(&idtEntries, 0, sizeof(IdtEntry) * 256);

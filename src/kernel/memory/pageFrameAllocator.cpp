@@ -1,4 +1,4 @@
-#include "pageFrameAllocator.h"
+#include "../../headers/pageFrameAllocator.h"
 
 PageFrameAllocator phys_mem;
 
@@ -47,9 +47,8 @@ bool PageFrameAllocator::init()
     if (_is_initialized) {
         return true;
     }
-    _is_initialized = true;
 
-    if (!_bitmap.init()) {
+    if (!_bitmap.init()) { // bitmap fail to init
         return false;
     }
 
@@ -59,6 +58,9 @@ bool PageFrameAllocator::init()
 
     // lock bitmap pages
     lockPages(_bitmap.getBufferStartAddress(), _bitmap.getBufferSize() / PAGE_SIZE + 1);
+
+    //! set placementAddr after bitmap for kmalloc
+    setPlacementAddr((uintptr_t)_bitmap.getBufferStartAddress() + _bitmap.getBufferSize() + 1);
 
     // reserve reserved memory
     MemoryMap* mem_map = _bitmap.getMemMapApi()->getMemoryMap();
@@ -71,6 +73,8 @@ bool PageFrameAllocator::init()
         }
         entry = (MemoryMapEntry*)((uint64_t)entry + mem_map->entry_size); // next entrie
     }
+    
+    _is_initialized = true;
     return true;
 }
 

@@ -1,5 +1,4 @@
 #include "../headers/interrupts.h"
-#include "interrupts.h"
 
 const unsigned int EXCEPTION_COUNT = 32;
 const char *exceptions[] = {
@@ -142,7 +141,7 @@ __attribute__((interrupt)) void devideByZeroHandler(InterruptFrame *frame)
 {
     printException(0x00, 0);
 
-    // asm("cli; hlt");
+    asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void overflowHandler(InterruptFrame *frame)

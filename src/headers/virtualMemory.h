@@ -1,3 +1,6 @@
+/*
+manages the virtual memory of the system, used to set up paging and identity paging
+*/
 #pragma once
 #include "std.h"
 #include "serial.h"
@@ -43,19 +46,21 @@ namespace MemoryManager // namespace of memory managment
 	class PagingSystem
 	{
 	private:
-		PageDirectory* currentDirectory; // current process pageDirectory struct
+		PageDirectory* _currentDirectory; // current process pageDirectory struct
+		bool _is_initialized = false;
 
-		//returns the page using the virtual address and the page directory, creates the page if "make" is true
+		// returns the page using the virtual address and the page directory, creates the page if "make" is true
 		Page* getPage(uintptr_t address, bool make, PageDirectory* dir);
 
-		//allocates a frame to the provided page (using pageFrameAllocator)
+		// allocates a frame to the provided page (using pageFrameAllocator)
 		void allocFrame(Page* page, bool user_supervisor, bool read_write);
 
-		//frees the frame of a page
+		// frees the frame of a page
 		void freeFrame(Page* page);
 
-		//identity paging
+		// map a virtual address to the same physical address
 		void identityPaging(PageDirectory* directory, uintptr_t start, uintptr_t end);
+
 	public:
 		//initializes paging
 		void initPaging(bool isKernel);

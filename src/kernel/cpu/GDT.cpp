@@ -1,4 +1,4 @@
-#include "GDT.h"
+#include "../../headers/GDT.h"
 
 GdtEntry gdtTable[GDT_SIZE];
 GdtPtr gdtPtr;

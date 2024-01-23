@@ -1,4 +1,4 @@
-#include "headers/virtualMemory.h"
+#include "../../headers/virtualMemory.h"
 
 using MemoryManager::PagingSystem;
 
@@ -16,7 +16,7 @@ MemoryManager::Page* PagingSystem::getPage(uintptr_t address, bool make, PageDir
     {
         //create pageTable and return page
         uintptr_t addr;
-        dir->pageTables[table_idx] = (PageTable*)kmalloc_ap(sizeof(PageTable), (uint32_t*)&addr);
+        dir->pageTables[table_idx] = (PageTable*)kmallocAlignedPhys(sizeof(PageTable), (uint32_t*)&addr);
         memset(dir->pageTables[table_idx], 0, PAGE_SIZE); // clean the memory
         dir->pageDirectoryEntries[table_idx] = addr | 0x3; // setting the permissions PRESENT, RW, SV.
         return &dir->pageTables[table_idx]->pages[address % PAGE_COUNT]; // return the page (get the right most 10 bits)
@@ -80,14 +80,16 @@ void PagingSystem::identityPaging(PageDirectory* directory, uintptr_t start, uin
     }
 }
 
-void PagingSystem::initPaging(bool isKernel)
+void PagingSystem::initPaging(bool is_kernel)
 {
+    if (_is_initialized) return;
+
     // create page directory table and page table for the kernel
-    PageDirectory* directory = (PageDirectory*)kmalloc_a(sizeof(PageDirectory));
-    currentDirectory = directory;
+    PageDirectory* directory = (PageDirectory*)kmallocAligned(sizeof(PageDirectory));
+    _currentDirectory = directory;
     memset(directory, 0, sizeof(PageDirectory));
 
-    if(isKernel)
+    if(is_kernel)
     {
         //identity paging for kernel + 4MB
         identityPaging(directory, 0, (uintptr_t)(IDENTITY_PAGING_SIZE + KERNEL_MEM_END));
@@ -96,4 +98,5 @@ void PagingSystem::initPaging(bool isKernel)
     }
     
     enable_paging(directory->pageDirectoryEntries);
+    _is_initialized = true;
 }

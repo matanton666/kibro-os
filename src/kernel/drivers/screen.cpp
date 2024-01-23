@@ -1,5 +1,4 @@
-#include "screen.h"
-#include "virtualMemory.h"
+#include "../../headers/screen.h"
 
 ScreenApi screen;
 
@@ -251,7 +250,6 @@ bool ScreenApi::initializeScreen(FramebufferInfo* fbInfo)
     if (_is_initialized) {
         return true;
     }
-    _is_initialized = true;
 
     _fbInfo = fbInfo;
 
@@ -264,6 +262,8 @@ bool ScreenApi::initializeScreen(FramebufferInfo* fbInfo)
     }
     _fbLength = _fbInfo->pitch * _fbInfo->height;
     clearScreen(COLOR_BLACK);
+    
+    _is_initialized = true;
     return true;
 }
 

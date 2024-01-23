@@ -4,7 +4,6 @@
 
 #define GDT_SIZE 6
 
-//gdt pointer
 struct GdtPtr
 {
     uint16_t size;               // The upper 16 bits of all selector limits.
@@ -12,7 +11,7 @@ struct GdtPtr
 }
 __attribute__((packed));
 
-//gdt entry
+
 struct GdtEntry
 {
     uint16_t limit_low;           // The lower 16 bits of the limit.
@@ -25,6 +24,7 @@ struct GdtEntry
 
 
 void initGdt();
+
 // Set the value of a GDT entry.
 void gdtSetGate(unsigned short index, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran);
 

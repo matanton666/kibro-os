@@ -1,4 +1,4 @@
-#include "memoryMap.h"
+#include "../../headers/memoryMap.h"
 
 MemoryMapApi mem_map_api;
 
@@ -37,10 +37,16 @@ void MemoryMapApi::getMemorySizes()
 
 bool MemoryMapApi::init()
 {
+    if (_is_initialized) {
+        return true;
+    }
+
     if (!getMemoryMapFromBootloader()) {
         return false;
     }
     getMemorySizes();
+    
+    _is_initialized = true;
     return true;
 }
 
