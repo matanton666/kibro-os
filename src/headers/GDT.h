@@ -4,6 +4,7 @@
 
 #define GDT_SIZE 6
 
+//gdt pointer
 struct GdtPtr
 {
     uint16_t size;               // The upper 16 bits of all selector limits.
