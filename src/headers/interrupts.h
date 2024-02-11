@@ -1,9 +1,12 @@
+/*
+ these are the ISRs of the IDT
+*/
 #pragma once
-/// these are the ISRs of the IDT
 #include "screen.h"
 #include "std.h"
 #include "keyboard.h"
 #include "virtualMemory.h"
+#include "PIT.h"
 
 #define PIC1_COMMAND 0x20 // master pic chip
 #define PIC1_DATA 0x21 // data line of master pic chip
@@ -75,5 +78,6 @@ __attribute__((interrupt)) void stackSegmentFaultHandler(struct InterruptFrame *
 __attribute__((interrupt)) void generalProtectionFaultHandler(struct InterruptFrame *frame, unsigned int errorCode);
 __attribute__((interrupt)) void pagefaultHandler(struct InterruptFrame *frame, unsigned int errorCode);
 __attribute__((interrupt)) void keyboardInputHandler(struct InterruptFrame *frame);
+__attribute__((interrupt)) void PIT_InputHandler(struct InterruptFrame *frame);
 
 

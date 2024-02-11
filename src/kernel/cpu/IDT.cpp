@@ -59,15 +59,19 @@ void idt_init()
     idtSetEntry(0x1e, (void *)generalFaultWithErrCode, IDT_INTERRUPT_GATE);
 
 
+    idtSetEntry(0x20, (void *)PIT_InputHandler, IDT_INTERRUPT_GATE);
     idtSetEntry(0x21, (void *)keyboardInputHandler, IDT_INTERRUPT_GATE);
+
 
     //loading idt to cpu
     load_idt((IdtEntry *)&idtPtr);
 
+    pit.init(); // init timer functionality
+
     // enable hardware interrupts
     remapPIC();
 
-    outb(PIC1_DATA, 0b11111101); // unmask second interrupt 
+    outb(PIC1_DATA, 0b11111100); // unmask second interrupt 
     outb(PIC2_DATA, 0b11111111); // mask all interrupts
 
     asm ("sti");
