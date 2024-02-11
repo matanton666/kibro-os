@@ -7,6 +7,7 @@
 // 0: eip
 // 4: esp
 // 8: cr3
+// 12: entry function pointer
 
 // offsets of fileds in the PCB struct
 .set EIP_OFFSET_IN_PCB, 0 
@@ -71,7 +72,4 @@ switch_task:
 
     sti
     ret // jump to EIP meaning finishing the task switch
-
-
-
 

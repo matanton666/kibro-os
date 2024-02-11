@@ -7,6 +7,7 @@
 #include "keyboard.h"
 #include "virtualMemory.h"
 #include "PIT.h"
+#include "processManager.h"
 
 #define PIC1_COMMAND 0x20 // master pic chip
 #define PIC1_DATA 0x21 // data line of master pic chip
@@ -20,6 +21,8 @@
 #define ICW4_8086 0x01 // 8086 mode
 
 #define KEYBOARD_INPUT_PORT 0x60
+
+#define PROCESS_TIME 40 // time in ms each process gets
 
 typedef bool bit_t;
 

@@ -19,24 +19,23 @@ void PIT::setDivisor(uint16_t divisor)
 
 void PIT::init()
 {
-    setFrequency(10000); // tick once every 10 miliseconds
-    write_serial_int(_divisor);
+    setFrequency(_MS_IN_SEC / 10); // tick once every 10 miliseconds
 }
 
 
 void PIT::sleepS(float seconds)
 {
-    float start_time = _time_since_boot;
-    while (_time_since_boot < start_time + seconds)
-    {
-        asm volatile("hlt");
-    }
+    sleepMS((float)seconds * _MS_IN_SEC);
 }
 
 
 void PIT::sleepMS(uint32_t miliseconds)
 {
-    sleepS((float)miliseconds / 1000);
+    uint32_t start_time = _time_since_boot;
+    while (_time_since_boot < start_time + miliseconds)
+    {
+        asm volatile("hlt");
+    }
 }
 
 
@@ -55,10 +54,10 @@ void PIT::setFrequency(uint32_t frequency)
 
 void PIT::tick() 
 {
-    _time_since_boot += 1 / (float)_running_frequency;
+    _time_since_boot += _MS_IN_SEC / _running_frequency; // add amount of ms passed
 }
 
-float PIT::getTimeSinceBoot()
+uint32_t PIT::getTimeSinceBoot()
 {
     return _time_since_boot;
 }

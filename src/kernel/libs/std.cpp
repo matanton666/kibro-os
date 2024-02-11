@@ -109,6 +109,36 @@ char* uitoa(uint64_t num, char *str, int base)
 	return str;
 }
 
+char* ftoa(float num, char* str, int base) 
+{
+    // Extract integer and fractional parts
+    int ipart = (int)num;
+    float fpart = num - (float)ipart;
+
+    // Convert integer part to string
+    itoa(ipart, str, base);
+
+    // If decimal places are required
+	str[strlen(str)] = '.';  // Add decimal point
+
+	for (int i = 0; i < 8; i++)
+	{
+		fpart *= base;
+	}
+
+	itoa((int)fpart, str + strlen(str), base);
+
+	return str;
+}
+
+unsigned int strlen(const char* str)
+{
+	int i = 0;
+	for(i = 0; str[i] != '\0'; i++) {
+	}
+	return i;
+}
+
 void outb(uint16_t port, uint8_t value)
 {
     asm volatile("outb %b0, %w1"
@@ -129,6 +159,16 @@ void ioWait()
 	asm volatile("outb %%al, $0x80"
 		:
 		: "a"(0));
+}
+
+void cli()
+{
+	asm volatile("cli");
+}
+
+void sti()
+{
+	asm volatile("sti");
 }
 
 void getBootInfoAddressFromGrub() {

@@ -16,6 +16,12 @@ enum ProcessState
     TERMINATED, // has finished running
 };
 
+enum PRIORITY {
+    LOW_PRIORITY = false,
+    HIGH_PRIORITY = true,
+};
+
+
 // task state segment
 struct TSS 
 {
@@ -67,10 +73,12 @@ struct Registers // ! DO NOT CHANGE THIS STRUCT
 struct PCB // regular registers are stored on the stack
 {
     Registers regs; // ! DO NOT MOVE THIS FIELD (it is used in assembly code)
+    void (*func_ptr)(); // pointer to the function to run
     uint8_t state;
     int id;
-    bool high_priority;
+    bool priority;
+
     // TODO: add other fields to help with process managment
 
-    PCB* next_task;
+    PCB* next;
 }__attribute__((packed));

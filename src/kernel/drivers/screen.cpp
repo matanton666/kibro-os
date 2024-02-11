@@ -24,6 +24,14 @@ void print(int num)
     screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
 }
 
+void print(float num) 
+{
+    char cnum[32];
+    memset(cnum, 0, 32);
+    ftoa(num, cnum, 10);
+    screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+}
+
 void print(uint32_t num)
 {
     print((uint64_t)num);

@@ -21,6 +21,12 @@ char* itoa(int num, char *str, int base);
 // unsigned int to ascii string
 char* uitoa(uint64_t num, char *str, int base);
 
+// floating point number to ascii string
+char* ftoa(float num, char* str, int base);
+
+
+unsigned int strlen(const char* str);
+
 
 // ** memory functions **
 
@@ -29,7 +35,6 @@ void* memcpy(void *dest, const void *src, size_t n);
 
 // compare n bytes from lhs to rhs
 int memcmp(const void* lhs, const void* rhs, size_t count);
-void memset(void* dest, int ch, uint32_t count);
 
 // set n bytes of dest to ch
 void memset(void* dest, int ch, uint32_t count);
@@ -45,6 +50,16 @@ uint8_t inb(uint16_t port);
 
 // wait one io cycle for devices to catch up on input/output
 void ioWait();
+
+
+// ** assembly functions **
+
+// asm cli instruction
+void cli();
+
+// asm sti instruction
+void sti();
+
 
 
 // ** bootloader communication **
