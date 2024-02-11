@@ -8,12 +8,14 @@
 #include "../headers/GDT.h"
 #include "../headers/IDT.h"
 #include "../headers/processManager.h"
+#include "../headers/PIT.h"
 
 
 extern "C" void kernel_main(void) {
 	getBootInfoAddressFromGrub();
 	init_serial();
 	write_serial((char*)"kernel booted");
+
 
 	
 	if (screen.init()) {
@@ -37,6 +39,9 @@ extern "C" void kernel_main(void) {
 	initGdt();
 	write_serial("init gdt");
 
+	idt_init();
+	write_serial("init idt");
+
 
 	if (phys_mem.init()) {
 		write_serial("memory map initialized");
@@ -55,9 +60,6 @@ extern "C" void kernel_main(void) {
 	else {
 		write_serial((char*)"**** memory map failed to initialize");
 	}
-
-	idt_init();
-	write_serial("init idt");
 
 	MemoryManager::PagingSystem kernelPaging;
 	kernelPaging.initPaging(true);
@@ -83,11 +85,13 @@ extern "C" void kernel_main(void) {
 	
 	write_serial("running task again");
     process_manager.contextSwitch();
-    print("returned and finished switches\n");
+    print("returned and finished switches\n\n");
 
 
+	print("sleeping for 3 seconds\n");
 
-
+	pit.sleepS(3);
+	
 	print("\n> ");
 	while (true)
 	{

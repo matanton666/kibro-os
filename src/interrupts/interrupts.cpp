@@ -174,9 +174,9 @@ __attribute__((interrupt)) void deviceNotAvailableHandler(InterruptFrame *frame)
 
 __attribute__((interrupt)) void doubleFaultHandler(InterruptFrame *frame)
 {
-    //printException(0x08, 0);
+    printException(0x08, 0);
 
-    //print("cannot recover from double fault... please restart os\n");
+    print("cannot recover from double fault... please restart os\n");
 
     asm("cli; hlt");
 }
@@ -204,10 +204,10 @@ __attribute__((interrupt)) void stackSegmentFaultHandler(InterruptFrame *frame, 
 
 __attribute__((interrupt)) void generalProtectionFaultHandler(InterruptFrame *frame, unsigned int errorCode)
 {
-    //printException(0x0d, errorCode);
+    printException(0x0d, errorCode);
 
     SelectorError* error = (SelectorError*)&errorCode;
-    //printSelectorError(error);
+    printSelectorError(error);
 
     asm("cli; hlt");
 }
@@ -239,6 +239,13 @@ __attribute__((interrupt)) void keyboardInputHandler(struct InterruptFrame *fram
     picEndMaster();
 
     keyboardHandler(scancode);
+}
+
+
+__attribute__((interrupt)) void PIT_InputHandler(struct InterruptFrame *frame) 
+{
+    pit.tick(); // tick once
+    picEndMaster();
 }
 
 
