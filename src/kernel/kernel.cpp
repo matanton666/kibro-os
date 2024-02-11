@@ -24,8 +24,6 @@ extern "C" void kernel_main(void) {
 		//* test printing to screen
 		cls();
 		print("Welcome to Kibro!\n");
-		print(123456789);
-		print('\n');
 		print("\ncursur position: ");
 		print((int)screen.getCursur().x);
 		print(',');
@@ -73,26 +71,19 @@ extern "C" void kernel_main(void) {
 	*/
 
 	//* test context switch
-	PCB* task1 = process_manager.newKernelTask((void*)testTask);
-    print("task created, id: ");
-    print(task1->id);
-	print(", entry: 0x");
-	printHex(task1->regs.eip);
-
-    print("\nswitching to task\n");
-    process_manager.contextSwitch();
-    print("returned from task and testing switch again\n");
-	
-	write_serial("running task again");
-    process_manager.contextSwitch();
-    print("returned and finished switches\n\n");
+	print("creating 5 tasks with different prioritys\n");
+	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
+	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
+	process_manager.startTask(process_manager.newKernelTask((void*)testTask, HIGH_PRIORITY));
+	process_manager.startTask(process_manager.newKernelTask((void*)testTask, HIGH_PRIORITY));
+	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
 
 
-	print("sleeping for 3 seconds\n");
+	print("\nkernel sleeping for 2 seconds\n");
 
-	pit.sleepS(3);
-	
-	print("\n> ");
+	pit.sleepS(2);
+
+	print("\nkernel finished sleeping\n");
 	while (true)
 	{
 	}
