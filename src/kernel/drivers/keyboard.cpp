@@ -34,22 +34,22 @@ void Keyboard::handleKeyboard(uint8_t scancode) {
         _capsLock = !_capsLock;
         return;
     case BACKSPACE:
-        clearLastChar();
+        screen.clearLastChar();
         return;
     case ENTER:
-        print("\n");
+        screen.newLine();
         return;
     case SPACE_BAR:
-        print(' ');
+        screen.print(' ');
         return;
     case TAB:
-        print("    ");
+        screen.print('\t');
         return;
     }
 
     char ch = translateScanCode(scancode, _rightShift || _leftShift, _capsLock);
     if (ch != 0) {
-        print(ch);
+        screen.print(ch);
     }
 
 }

@@ -5,6 +5,11 @@ our implementation of the standard library
 #include <stdint.h>
 #include <stddef.h>
 
+#define KIB1 1024 // in bytes
+#define KIB4 4096 // in bytes
+#define MIB1 1048576 // in bytes
+#define GIB1 1073741824 // in bytes
+
 struct BootTag
 {
     uint32_t type;
@@ -12,6 +17,7 @@ struct BootTag
 }__attribute__((packed));
 
 extern uint32_t* bootInfoPtr; //! DO NOT TOUCH THIS VARIABLE!!!
+
 
 // ** string and number functions **
 
@@ -38,6 +44,11 @@ int memcmp(const void* lhs, const void* rhs, size_t count);
 
 // set n bytes of dest to ch
 void memset(void* dest, int ch, uint32_t count);
+
+// a quicker implementation of memset for setting memory to zero
+void zeroMemory(void* dest, uint32_t count);
+
+uintptr_t align_up(uintptr_t address, uintptr_t alignment);
 
 
 // ** serial port communication **

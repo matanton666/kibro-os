@@ -22,7 +22,7 @@
 
 #define KEYBOARD_INPUT_PORT 0x60
 
-#define PROCESS_TIME 40 // time in ms each process gets
+#define PROCESS_TIME 50 // time in ms each process gets
 
 typedef bool bit_t;
 
@@ -33,20 +33,6 @@ struct InterruptFrame {
     unsigned int sp;
     unsigned int ss;
 } __attribute__((packed));
-
-struct PageFaultError { // make sure its alligned correctly and has right size
-    bit_t present : 1;
-    bit_t write : 1;
-    bit_t user : 1;
-    bit_t reserved_write : 1;
-    bit_t instruction_fetch : 1;
-    bit_t protection_key : 1;
-    bit_t shadow_stack : 1;
-    unsigned char reserved : 8;
-    bit_t sgx : 1;
-    uint16_t reserved2 : 15;
-} __attribute__((packed));
-
 
 struct SelectorError {
     bit_t external : 1;

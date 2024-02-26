@@ -9,6 +9,12 @@ manage process creation and context switching
 #include "processManagmentStructs.h"
 #include "PIT.h"
 #include "queue.h"
+#include "interrupts.h"
+
+#define PROCESS_STACK_START align_up((uint32_t)(TOTAL_KERNEL_END_ADDR + PAGE_SIZE), KIB4) // aligned start of the processes stack
+#define PROCESS_STACK_INIT_SIZE MIB1// initial size of a processes stack (1MIB)
+#define PROCESS_HEAP_START (PROCESS_STACK_START + PROCESS_STACK_INIT_SIZE + MIB1) // keep 1MIB of space for stack to grow
+#define PROCESS_HEAP_INIT_SIZE (MIB1*2) // initial size of a processes heap (2MIB)
 
 
 
@@ -17,6 +23,7 @@ class ProcessManagerApi
 private:
     Queue<PCB> _high_priority_lst;
     Queue<PCB> _low_priority_lst;
+    Queue<PCB> _to_delete; // task to delete
 
     PCB* _current_task = nullptr; // current task running
 
@@ -50,7 +57,7 @@ private:
     // create new task and put it next in queue
     // entry: pointer to the tasks execution start
     // stack_ptr: pointer to top of stack (mem block)
-    PCB* newTask(uint32_t entry, uint32_t* stack_ptr, uint32_t cr3, bool is_high_priority);
+    PCB* newTask(uint32_t entry, uint32_t* stack_ptr, MemoryManager::PagingSystem* paging_sys, bool is_high_priority);
 
 
 public:

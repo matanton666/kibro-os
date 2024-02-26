@@ -46,11 +46,30 @@ int memcmp(const void* lhs, const void* rhs, size_t count)
 
 void memset(void* dest, int ch, uint32_t count)
 {
+	if (ch == 0 && count > 16) // faster to set memory to zero with zeroMemory function
+	{
+		zeroMemory(dest, count);
+		return;
+	}
+
 	char* addr = (char*)dest;
 	for (int i = 0; i < count; i++)
 	{
 		addr[i] = ch;
 	}
+}
+
+void zeroMemory(void* dest, uint32_t count)
+{
+	unsigned char* addr = (unsigned char*)dest;
+	for (uint32_t i = 0; i < count; i++)
+	{
+		addr[i] ^= addr[i];
+	}
+}
+
+uintptr_t align_up(uintptr_t address, uintptr_t alignment) {
+    return (address + alignment - 1) & ~(alignment - 1);
 }
 
 // convert from int to char* (ascii)

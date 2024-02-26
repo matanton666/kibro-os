@@ -2,29 +2,35 @@
 
 ScreenApi screen;
 
-void cls()
+void ScreenApi::cls()
 {
     screen.clearScreen(COLOR_BLACK);
 }
 
-void print(const char* str)
+void ScreenApi::println(const char* str)
+{
+    screen.putsCurserPSF2((unsigned char*)str, COLOR_WHITE, COLOR_BLACK);
+    print('\n');
+}
+
+void ScreenApi::print(const char* str)
 {
     screen.putsCurserPSF2((unsigned char*)str, COLOR_WHITE, COLOR_BLACK);
 }
 
-void print(char c)
+void ScreenApi::print(char c)
 {
     screen.putcCurserPSF2(c, COLOR_WHITE, COLOR_BLACK);
 }
 
-void print(int num)
+void ScreenApi::print(int num)
 {
     char cnum[32];
     itoa(num, cnum, 10);
     screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
 }
 
-void print(float num) 
+void ScreenApi::print(float num) 
 {
     char cnum[32];
     memset(cnum, 0, 32);
@@ -32,40 +38,45 @@ void print(float num)
     screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
 }
 
-void print(uint32_t num)
+void ScreenApi::print(uint32_t num)
 {
     print((uint64_t)num);
 }
 
-void print(uint64_t num)
+void ScreenApi::print(uint64_t num)
 {
     char cnum[40];
     uitoa(num, cnum, 10);
     screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
 }
 
-void printBinary(uint64_t num)
+void ScreenApi::printBinary(uint64_t num)
 {
     char cnum[64];
     uitoa(num, cnum, 2);
     screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
 }
 
-void printHex(uint64_t num)
+void ScreenApi::printHex(uint64_t num)
 {
     char cnum[32];
     uitoa(num, cnum, 16);
     screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
 }
 
-void panic(const char* str)
+void ScreenApi::newLine()
+{
+    print('\n');
+}
+
+void ScreenApi::panic(const char* str)
 {
     screen.putsCurserPSF2((unsigned char *)"\nPANIC:\n", COLOR_RED, COLOR_BLUE);
     screen.putsCurserPSF2((unsigned char*)str, COLOR_RED, COLOR_BLACK);
     print('\n');
 }
 
-void clearLastChar()
+void ScreenApi::clearLastChar()
 {
     screen.clearCursor();
     screen.clearLastChars(1);
