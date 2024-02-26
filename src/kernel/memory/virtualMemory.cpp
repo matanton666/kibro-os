@@ -18,7 +18,7 @@ bool PagingSystem::init()
 
     _is_initialized = true;
     return true;
-}
+} 
 
 
 void PagingSystem::kernelInit() // TODO: find a better way to initialize the kernel and processes seprately
