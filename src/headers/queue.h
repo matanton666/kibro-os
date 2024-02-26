@@ -3,7 +3,7 @@
 #include "std.h"
 
 // queue class implemented with linked list
-// T must have a next pointer by the name of `next`
+// ! T must have a next pointer by the name of `next` !
 template <typename T>
 class Queue
 {
@@ -72,7 +72,6 @@ public:
 
     void clear()
     {
-        // TODO: free memory
         _start = nullptr;
         _size = 0;
     }
@@ -85,7 +84,6 @@ public:
         else if (_start == item) { // first item
             _start = _start->next;
             _size--;
-            // TODO: free memory
         }
         else { // find item
             T* prev = _start;

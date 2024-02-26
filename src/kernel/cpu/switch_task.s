@@ -13,9 +13,11 @@
 .set EIP_OFFSET_IN_PCB, 0 
 .set ESP_OFFSET_IN_PCB, 4
 .set CR3_OFFSET_IN_PCB, 8
+.set EFLAGS_OFFSET_IN_PCB, 12
 
 .text
 .global switch_task
+.global enable_paging
 
 
 // function saves cpu state of current task in the stack and in the given pcb
@@ -48,8 +50,14 @@ switch_task:
     // save special regs on current pcb
     movl EIP_OFFSET_FROM_ESP(%esp), %eax // fetch eip
     movl %eax, (%edi) // save return address (eip) 
+
     movl %cr3, %eax // fetch cr3
     movl %eax, CR3_OFFSET_IN_PCB(%edi) // save cr3 of current task
+
+    xor %eax, %eax // zero eax
+    lahf // load flags to ah register
+    movl %eax, EFLAGS_OFFSET_IN_PCB(%edi) // save flags to pcb
+
     movl %esp, ESP_OFFSET_IN_PCB(%edi) // save esp of current task
 
 
@@ -57,10 +65,21 @@ switch_task:
     movl ESP_OFFSET_IN_PCB(%esi), %esp
 
 
-    // restore cpu state
+    // restore cr3
     movl CR3_OFFSET_IN_PCB(%esi), %eax
-    movl %eax, %cr3
+    movl %cr3, %ebx
+    cmpl %eax, %ebx // check if there is a need to re-enable paging for a new page directory
+    je restore_basic_regs 
+
+need_to_enable_paging:
+	mov %eax, %cr3
+
     // no need to restore eip because it is already on stack
+restore_basic_regs:
+
+    // restore flags
+    movl EFLAGS_OFFSET_IN_PCB(%esi), %eax // restore flags from pcb
+    sahf // restore flags to register
 
     popl %ebp
     popl %edi

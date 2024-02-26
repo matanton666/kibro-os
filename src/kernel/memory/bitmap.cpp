@@ -58,13 +58,10 @@ bool BitMap::init()
     _buffer = (unsigned char*)_mem_map_api.getLargestFreeSegment();// begins at the start of the largest memroy segment
 
     // make sure bitmap is after kernel code and not overwriting it
-    if ((uint64_t)KERNEL_MEM_END > (uint64_t)_buffer) {
-        _buffer = (unsigned char*)(uint64_t)KERNEL_MEM_END;
+    if (END_OF_KERNEL_CODE > (uintptr_t)_buffer) {
+        _buffer = (unsigned char*)(uint64_t)END_OF_KERNEL_CODE;
     }
 
-    for (unsigned long i = 0; i < _bufferSize; i++) // zero out memory
-    {
-        _buffer[i] = 0;
-    }
+    memset(_buffer, 0, _bufferSize);
     return true;
 }

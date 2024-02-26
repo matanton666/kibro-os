@@ -4,12 +4,14 @@ manages the virtual memory of the system, used to set up paging and identity pag
 #pragma once
 #include "std.h"
 #include "serial.h"
-#include "kheap.h"
 #include "screen.h"
+#include "memoryAllocator.h"
+#include "pageFrameAllocator.h"
 
 #define PAGE_COUNT 1024
 #define TABLE_COUNT 1024
-#define IDENTITY_PAGING_SIZE (4 * 1024 * 1024) // 4MB
+#define KENREL_HEAP_SIZE (MIB1*16) // 16MB
+#define TOTAL_KERNEL_END_ADDR (KENREL_HEAP_SIZE + phys_mem.getBitmapEndAddress()) // kernel last memory address (including heap) // TODO: if doing lower memory kernel then change to 1GB
 
 namespace MemoryManager // namespace of memory managment
 {
@@ -33,24 +35,48 @@ namespace MemoryManager // namespace of memory managment
 		struct PageTable // page table struct
 		{
 			Page pages[PAGE_COUNT]; // array of 1024 pages
-		} __attribute__((packed));
+		} __attribute__((aligned(0x1000)));
 
 		struct PageDirectory // page directory struct
 		{
 			PageTable* pageTables[TABLE_COUNT]; // array of 1024 page tables
 
 			uintptr_t pageDirectoryEntries[TABLE_COUNT]; // an array that contains the information about the page tables (present, read/write, etc.) the actual pageDirectory
-		} __attribute__((packed)); //TODO: change type of pageDirectoryEntries to PageDirectoryEntry struct
+		} __attribute__((packed));
 	}
 
-	class PagingSystem
+	struct PageFaultError { // make sure its alligned correctly and has right size
+		uint16_t present : 1;
+		uint16_t write : 1;
+		uint16_t user : 1;
+		uint16_t reserved_write : 1;
+		uint16_t instruction_fetch : 1;
+		uint16_t protection_key : 1;
+		uint16_t shadow_stack : 1;
+		unsigned char reserved : 8;
+		uint16_t sgx : 1;
+		uint16_t reserved2 : 15;
+	} __attribute__((packed));
+
+	class PagingSystem 
 	{
 	private:
 		PageDirectory* _currentDirectory; // current process pageDirectory struct
+		Allocator _alloc;
 		bool _is_initialized = false;
 
+
+		// map a virtual address to the same physical address
+		void identityPaging(uintptr_t start, uintptr_t end);
+
+	public:
+
+		bool init();
+
+		void kernelInit();
+
 		// returns the page using the virtual address and the page directory, creates the page if "make" is true
-		Page* getPage(uintptr_t address, bool make, PageDirectory* dir);
+		Page* getPage(uintptr_t address, bool make);
 
 		// allocates a frame to the provided page (using pageFrameAllocator)
 		void allocFrame(Page* page, bool user_supervisor, bool read_write);
@@ -58,12 +84,39 @@ namespace MemoryManager // namespace of memory managment
 		// frees the frame of a page
 		void freeFrame(Page* page);
 
-		// map a virtual address to the same physical address
-		void identityPaging(PageDirectory* directory, uintptr_t start, uintptr_t end);
+		void mapKernelMem();
 
-	public:
 		//initializes paging
-		void initPaging(bool isKernel);
+		void enablePaging();
+
+		bool pageFaultHandler(PageFaultError* pageFault, uintptr_t faultAddr);
+
+		// create a new page directory in the kernel heap and set the _currentDirectory to it
+		void createPageDirectory();
+
+		// returns the current page directory
+		PageDirectory* getCurrentDirectory() { return _currentDirectory; }
+
+		// allocate physicl mem for tthis range of virtual addresses (and map them)
+		void allocAddresses(uintptr_t start, uintptr_t end, bool user_supervisor, bool read_write);
+		
+		// free physical mem for this range of virtual addresses (and unmap them)
+		void freeAddresses(uintptr_t start, uintptr_t end);
+		
+		Allocator* getAllocator() { return &_alloc; }
+
+		// get the address to put in the cr3 register
+		uintptr_t* getPageDirectoryAddr() { return (uintptr_t*)_currentDirectory->pageDirectoryEntries; }
+	
+		// translate a virtual address to a physical address
+		uintptr_t translateAddr(uintptr_t virtualAddr);
+
+		// map a virtual address to a physical address, returns the new virtual address
+		// uintptr_t mapAddr(uintptr_t virtualAddr, uintptr_t physicalAddr);
+	
 	};
 
+	PagingSystem* getCurrentPagingSys();
 }
+
+extern MemoryManager::PagingSystem kernelPaging;

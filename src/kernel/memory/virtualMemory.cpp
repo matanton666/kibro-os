@@ -1,25 +1,71 @@
 #include "../../headers/virtualMemory.h"
 
 using MemoryManager::PagingSystem;
+PagingSystem* _currentPagingSys;
+MemoryManager::PagingSystem kernelPaging;
 
 extern "C" void enable_paging(uintptr_t*);
 
-MemoryManager::Page* PagingSystem::getPage(uintptr_t address, bool make, PageDirectory* dir)
+
+bool PagingSystem::init()
+{
+    if (_is_initialized) {
+        return true;
+    }
+
+    createPageDirectory();
+    mapKernelMem();
+
+    _is_initialized = true;
+    return true;
+}
+
+
+void PagingSystem::kernelInit() // TODO: find a better way to initialize the kernel and processes seprately
+{
+    if (_is_initialized) {
+        return;
+    }
+    _alloc.init(phys_mem.getBitmapEndAddress(), KENREL_HEAP_SIZE); // init allocator for kernel heap
+
+    createPageDirectory();
+
+    // reserve kernel physical memory
+    phys_mem.lockPages((unsigned char*)0, (unsigned int)TOTAL_KERNEL_END_ADDR / PAGE_SIZE + 1);
+    // reserve framebuffer physical memory
+    phys_mem.lockPages((unsigned char*)screen.getFbStartAddress(), (unsigned int)screen.getFbLength() / PAGE_SIZE + 1);
+
+
+    mapKernelMem();
+
+    enablePaging();
+
+    _is_initialized = true;
+}
+
+
+MemoryManager::Page* PagingSystem::getPage(uintptr_t address, bool make)
 {
     address /= PAGE_SIZE; // get index from address (get the left most 22 bits)
     uint32_t table_idx = address / PAGE_COUNT; // get table index from address (get the left most 10 bits)
-    if (dir->pageTables[table_idx]) // if pageTable is there return page
+
+    if (_currentDirectory->pageTables[table_idx] != nullptr) // if pageTable is there return page
     {
-        return &dir->pageTables[table_idx]->pages[address % PAGE_COUNT]; // if page has been created return it (get the right most 10 bits)
+        return &_currentDirectory->pageTables[table_idx]->pages[address % PAGE_COUNT]; // if page has been created return it (get the right most 10 bits)
     }
     else if (make)
     {
         //create pageTable and return page
-        uintptr_t addr;
-        dir->pageTables[table_idx] = (PageTable*)kmallocAlignedPhys(sizeof(PageTable), (uint32_t*)&addr);
-        memset(dir->pageTables[table_idx], 0, PAGE_SIZE); // clean the memory
-        dir->pageDirectoryEntries[table_idx] = addr | 0x3; // setting the permissions PRESENT, RW, SV.
-        return &dir->pageTables[table_idx]->pages[address % PAGE_COUNT]; // return the page (get the right most 10 bits)
+        uintptr_t addr = (uintptr_t)kernelPaging.getAllocator()->mallocAligned(sizeof(PageTable), KIB4); // get a pageTable (aligned to 4KB
+        if (addr == 0){
+            return nullptr;
+        }
+        
+        _currentDirectory->pageTables[table_idx] = (PageTable*)addr;
+        memset(_currentDirectory->pageTables[table_idx], 0, PAGE_SIZE); // clean the memory
+        
+        _currentDirectory->pageDirectoryEntries[table_idx] = addr | 0x3; // setting the permissions PRESENT, RW, SV.
+        return &_currentDirectory->pageTables[table_idx]->pages[address % PAGE_COUNT]; // return the page (get the right most 10 bits)
     }
     else
     {
@@ -46,10 +92,20 @@ void PagingSystem::allocFrame(Page* page, bool user_supervisor, bool read_write)
         }
         else
         {
-            panic("No free frames!");
+            screen.panic("No free frames!");
         }
     }
 }
+
+
+void PagingSystem::mapKernelMem()
+{
+    //identity paging for kernel
+    identityPaging(0, (uintptr_t)(TOTAL_KERNEL_END_ADDR));
+    //identity paging for framebuffer
+    identityPaging(screen.getFbStartAddress(), screen.getFbStartAddress() + screen.getFbLength());
+}
+
 
 void PagingSystem::freeFrame(Page* page)
 {
@@ -65,13 +121,12 @@ void PagingSystem::freeFrame(Page* page)
     }
 }
 
-void PagingSystem::identityPaging(PageDirectory* directory, uintptr_t start, uintptr_t end)
+void PagingSystem::identityPaging(uintptr_t start, uintptr_t end)
 {
-    phys_mem.reservePages((unsigned char*)start, ((unsigned int)(end - start)) / PAGE_SIZE);
     uintptr_t i = start;
     while (i < end)
     {
-        Page* page = getPage(i, true, directory);
+        Page* page = getPage(i, true);
         page->user_supervisor = 0;
         page->read_write = 1;
         page->present = 1;
@@ -80,23 +135,96 @@ void PagingSystem::identityPaging(PageDirectory* directory, uintptr_t start, uin
     }
 }
 
-void PagingSystem::initPaging(bool is_kernel)
+void PagingSystem::enablePaging()
 {
-    if (_is_initialized) return;
+    enable_paging(getPageDirectoryAddr());
+    _currentPagingSys = this;
+}
 
-    // create page directory table and page table for the kernel
-    PageDirectory* directory = (PageDirectory*)kmallocAligned(sizeof(PageDirectory));
-    _currentDirectory = directory;
-    memset(directory, 0, sizeof(PageDirectory));
+bool PagingSystem::pageFaultHandler(PageFaultError* pageFault, uintptr_t faultAddr)
+{
+    MemoryManager::Page* page = nullptr;
 
-    if(is_kernel)
+    write_serial_var("page fault addr", faultAddr);
+
+    //should kill process or send invalid addrs to it
+    if (pageFault->protection_key)
     {
-        //identity paging for kernel + 4MB
-        identityPaging(directory, 0, (uintptr_t)(IDENTITY_PAGING_SIZE + KERNEL_MEM_END));
-        //identity paging for framebuffer
-        identityPaging(directory, screen.getFbStartAddress(), screen.getFbStartAddress() + screen.getFbLength());
+        return false;
     }
-    
-    enable_paging(directory->pageDirectoryEntries);
-    _is_initialized = true;
+
+    // page is not presend and the fault occured by a write opperation
+    if (!pageFault->present && pageFault->write != 0)
+    {
+        page = getPage(faultAddr, true);
+
+        page->present = 1;
+        page->available = 1;
+        page->accessed = 1;
+
+        allocFrame(page, pageFault->user, pageFault->write);
+    }
+    return true;
+}
+
+void PagingSystem::createPageDirectory()
+{
+    // create page directory table in the kernel heap
+    PageDirectory* directory = (PageDirectory*)kernelPaging.getAllocator()->mallocAligned(sizeof(PageDirectory), KIB4);
+    memset(directory, 0, sizeof(PageDirectory));
+    _currentDirectory = directory;
+}
+
+
+PagingSystem* MemoryManager::getCurrentPagingSys()
+{
+    return _currentPagingSys;
+}
+
+
+void PagingSystem::allocAddresses(uintptr_t start, uintptr_t end, bool user_supervisor, bool read_write)
+{
+    // check if start is aligned to 4KB
+    if (start % PAGE_SIZE != 0)
+    {
+        start &= 0xFFFFF000;
+        start += PAGE_SIZE;
+        write_serial("*****start address not aligned to 4KB (in allocAddress function in virtual memory)*****");
+    }
+
+    for (uintptr_t i = start; i < end; i += PAGE_SIZE)
+    {
+        allocFrame(getPage(i, true), user_supervisor, read_write);
+    }
+}
+
+void PagingSystem::freeAddresses(uintptr_t start, uintptr_t end)
+{
+    for (uintptr_t i = start; i < end; i += PAGE_SIZE)
+    {
+        freeFrame(getPage(i, false));
+    }
+}
+
+
+uintptr_t PagingSystem::translateAddr(uintptr_t virtualAddr)
+{
+    uint32_t pd_index = (virtualAddr >> 22) & 0x3FF;
+    uint32_t pt_index = (virtualAddr >> 12) & 0x3FF;
+
+    if (!_currentDirectory->pageTables[pd_index]) {
+        // Page table not present
+        return 0; // Or handle appropriately
+    }
+
+    PageTable* pageTable = _currentDirectory->pageTables[pd_index];
+    Page page = pageTable->pages[pt_index];
+
+    if (!page.present) {
+        // Page not present
+        return 0; // Or handle appropriately
+    }
+
+    uintptr_t physicalAddress = (page.frame << 12) + (virtualAddr & 0xFFF);
+    return physicalAddress;
 }

@@ -4,7 +4,7 @@ strucures used for process managment
 #pragma once
 
 #include "std.h"
-
+#include "virtualMemory.h"
 
 // process states
 enum ProcessState
@@ -65,8 +65,8 @@ struct Registers // ! DO NOT CHANGE THIS STRUCT
 {
     uint32_t eip;
     uint32_t esp;
-    uint32_t cr3;
-    // uint32_t eflags;
+    uintptr_t* cr3;
+    uint32_t eflags;
 }__attribute__((packed));
 
 // process contorl block
@@ -77,8 +77,7 @@ struct PCB // regular registers are stored on the stack
     uint8_t state;
     int id;
     bool priority;
-
-    // TODO: add other fields to help with process managment
+    MemoryManager::PagingSystem* paging_system;
 
     PCB* next;
 }__attribute__((packed));

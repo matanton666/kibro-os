@@ -59,9 +59,6 @@ bool PageFrameAllocator::init()
     // lock bitmap pages
     lockPages(_bitmap.getBufferStartAddress(), _bitmap.getBufferSize() / PAGE_SIZE + 1);
 
-    //! set placementAddr after bitmap for kmalloc
-    setPlacementAddr((uintptr_t)_bitmap.getBufferStartAddress() + _bitmap.getBufferSize() + 1);
-
     // reserve reserved memory
     MemoryMap* mem_map = _bitmap.getMemMapApi()->getMemoryMap();
     MemoryMapEntry* entry = mem_map->entries;
@@ -165,3 +162,8 @@ void PageFrameAllocator::unreservePages(unsigned char *addr, unsigned int amount
     }
 }
 
+
+uintptr_t PageFrameAllocator::getBitmapEndAddress()
+{
+    return (uintptr_t)_bitmap.getBufferStartAddress() + _bitmap.getBufferSize() + 1;
+}
