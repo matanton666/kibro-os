@@ -2,6 +2,7 @@
 
 os_bin_file := dist/boot/os.bin
 os_iso_file := dist/os.iso
+os_ext_storage_file := res/ext_storage.img
 linker_file := src/kernel/linker.ld
 headers_folder := src/headers
 
@@ -17,7 +18,7 @@ psf_object_files := $(patsubst res/%.psf, build/%.o, $(psf_object_files))
 # $< is dependency, $@ is target
 
 # add grub
-$(os_iso_file): $(os_bin_file)
+$(os_iso_file): $(os_bin_file) $(os_ext_storage_file)
 	rm -f $(os_iso_file)
 	grub-mkrescue -o $(os_iso_file) dist/
 	@echo "compiled final iso $<"
@@ -49,6 +50,12 @@ $(psf_object_files): build/%.o: res/%.psf
 	objcopy -O elf32-i386 -B i386 -I binary $< $@
 	@echo "compiled $<"
 
+# create external storage image
+$(os_ext_storage_file):
+	@mkdir -p dist
+	dd 'if=/dev/zero' 'of=$@' 'bs=1M' 'count=100'
+	@echo "created external storage image"
+
 # other functions
 all: $(os_iso_file)
 	@echo "all done"
@@ -57,4 +64,5 @@ clean:
 	rm -rf build
 	rm $(os_bin_file)
 	rm $(os_iso_file)
+	rm $(os_ext_storage_file)
 	@echo "cleaned"

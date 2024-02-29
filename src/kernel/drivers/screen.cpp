@@ -116,6 +116,7 @@ void ScreenApi::clearLastPixels(int rows, int amount) {
             drawPixel(x, y, COLOR_BLACK);
             y++;
         }
+        
 
         y = getCursur().y;
         x--;

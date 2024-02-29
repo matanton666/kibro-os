@@ -10,6 +10,7 @@
 #include "../headers/processManager.h"
 #include "../headers/PIT.h"
 #include "../headers/memoryAllocator.h"
+#include "../headers/PCI.h"
 
 
 void runTests();
@@ -36,6 +37,7 @@ extern "C" void kernel_main(void) {
 	idt_init();
 	write_serial("init idt");
 
+	init();
 
 	if (phys_mem.init()) {
 		write_serial("memory map initialized");
@@ -49,8 +51,9 @@ extern "C" void kernel_main(void) {
 
 	process_manager.initMultitasking();
 	write_serial("init multitasking");
+
 	
-	// runTests();
+	runTests();
 
 	screen.print("\n>");
 	while (true)
