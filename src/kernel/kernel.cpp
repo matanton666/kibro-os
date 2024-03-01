@@ -53,7 +53,7 @@ extern "C" void kernel_main(void) {
 	write_serial("init multitasking");
 
 	
-	runTests();
+	// runTests();
 
 	screen.print("\n>");
 	while (true)

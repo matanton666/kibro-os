@@ -17,3 +17,4 @@ void write_serial_int(int num);
 void write_serial_uint(uint64_t num);
 void write_serial_hex(uint64_t num);
 void write_serial_var(const char* name, uint64_t num);
+void write_serial_var(const char* name, char* str);
