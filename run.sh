@@ -19,7 +19,7 @@ if [ $? -eq 0 ]; then
     echo "Build succeeded"
 
     if [ "$1" == "-d" ] || [ "$2" == "-d" ] || [ "$3" == "-d" ]; then
-        sudo qemu-system-i386 -S -gdb tcp::1234 -cdrom ./dist/os.iso -serial file:serial.log -m 256M &
+        qemu-system-i386 -S -gdb tcp::1234 -cdrom ./dist/os.iso -serial file:serial.log -m 256M &
         exit 0
     fi
     # qemu-system-i386 -cdrom ./dist/os.iso -serial file:serial.log -m 256M -D log.txt -d cpu_reset,int

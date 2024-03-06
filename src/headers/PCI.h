@@ -2,13 +2,8 @@
 
 #include "std.h"
 #include "serial.h"
-
-struct RSDP
-{
-    
-};
-
-
+#include "screen.h"
+#include "pciDescriptors.h"
 
 struct ACPIV1
 {
@@ -46,16 +41,39 @@ struct RSDT
 }__attribute__((packed));
 
 
+#define CONFIG_ADDRESS 0xCF8
+#define CONFIG_DATA 0xCFC
 
-// struct MCFG
-// {
-//     RSDTHeader header;
-//     uint64_t reserved;
-//     // uint64_t base_address;
-//     // uint16_t segment_group;
-//     // uint8_t start_bus_number;
-//     // uint8_t end_bus_number;
-//     // uint32_t reserved2;
-// }__attribute__((packed));
+
+struct PciDeviceHeder
+{
+    uint16_t vendor_id;
+    uint16_t device_id;
+    uint16_t command;
+    uint16_t status;
+    uint8_t revision_id;
+    uint8_t prog_if;
+    uint8_t subclass;
+    uint8_t class_code;
+    uint8_t cache_line_size;
+    uint8_t latency_timer;
+    uint8_t header_type;
+    uint8_t BIST;
+}__attribute__((packed));
+
+
+
+
 
 void init();
+
+uint16_t pciConfigReadWord(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset);
+
+void checkDevice(uint8_t bus, uint8_t device);
+
+
+void checkFunction(uint8_t bus, uint8_t device, uint8_t function);
+
+void checkAllBuses();
+
+PciDeviceHeder getDeviceHeader(uint8_t bus, uint8_t device, uint8_t function);
