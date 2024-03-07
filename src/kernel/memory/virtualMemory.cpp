@@ -150,12 +150,14 @@ bool PagingSystem::pageFaultHandler(PageFaultError* pageFault, uintptr_t faultAd
     //should kill process or send invalid addrs to it
     if (pageFault->protection_key)
     {
+        write_serial("  protection key violation");
         return false;
     }
 
     // page is not presend and the fault occured by a write opperation
     if (!pageFault->present && pageFault->write != 0)
     {
+        write_serial("  allocating memory for new page");
         page = getPage(faultAddr, true);
 
         page->present = 1;
@@ -163,8 +165,9 @@ bool PagingSystem::pageFaultHandler(PageFaultError* pageFault, uintptr_t faultAd
         page->accessed = 1;
 
         allocFrame(page, pageFault->user, pageFault->write);
+        return true;
     }
-    return true;
+    return false;
 }
 
 void PagingSystem::createPageDirectory()
@@ -227,4 +230,15 @@ uintptr_t PagingSystem::translateAddr(uintptr_t virtualAddr)
 
     uintptr_t physicalAddress = (page.frame << 12) + (virtualAddr & 0xFFF);
     return physicalAddress;
+}
+
+
+uintptr_t PagingSystem::mapVirtToPhys(uintptr_t virtualAddr, uintptr_t physicalAddr)
+{
+    Page* page = getPage(virtualAddr, true);
+    page->frame = physicalAddr >> 12;
+    page->present = 1;
+    page->user_supervisor = 0;
+    page->read_write = 1;
+    return virtualAddr;
 }

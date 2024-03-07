@@ -66,9 +66,6 @@ namespace MemoryManager // namespace of memory managment
 		bool _is_initialized = false;
 
 
-		// map a virtual address to the same physical address
-		void identityPaging(uintptr_t start, uintptr_t end);
-
 	public:
 
 		bool init();
@@ -86,6 +83,9 @@ namespace MemoryManager // namespace of memory managment
 
 		void mapKernelMem();
 
+		// map a virtual address to the same physical address
+		void identityPaging(uintptr_t start, uintptr_t end);
+		
 		//initializes paging
 		void enablePaging();
 
@@ -112,7 +112,7 @@ namespace MemoryManager // namespace of memory managment
 		uintptr_t translateAddr(uintptr_t virtualAddr);
 
 		// map a virtual address to a physical address, returns the new virtual address
-		// uintptr_t mapAddr(uintptr_t virtualAddr, uintptr_t physicalAddr);
+		uintptr_t mapVirtToPhys(uintptr_t virtualAddr, uintptr_t physicalAddr);
 	
 	};
 

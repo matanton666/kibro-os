@@ -11,6 +11,7 @@
 #include "../headers/PIT.h"
 #include "../headers/memoryAllocator.h"
 #include "../headers/PCI.h"
+#include "../headers/ahci.h"
 
 
 void runTests();
@@ -37,8 +38,6 @@ extern "C" void kernel_main(void) {
 	idt_init();
 	write_serial("init idt");
 
-	init();
-
 	if (phys_mem.init()) {
 		write_serial("memory map initialized");
 	}
@@ -52,8 +51,13 @@ extern "C" void kernel_main(void) {
 	process_manager.initMultitasking();
 	write_serial("init multitasking");
 
+
+	// checkAllBuses();
+	// write_serial("enumerated pci"); 
+
+
+	runTests();
 	
-	// runTests();
 
 	screen.print("\n>");
 	while (true)
@@ -92,8 +96,7 @@ void runTests()
 	//* test context switch
 	screen.println("creating 5 tasks with different prioritys");
 	write_serial("creating 5 tasks with different prioritys");
-	// PCB* p = process_manager.newKernelTask((void*)testTask, LOW_PRIORITY);
-	// process_manager.startTask(p);
+
 	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
 	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
 	process_manager.startTask(process_manager.newKernelTask((void*)testTask, HIGH_PRIORITY));
@@ -101,11 +104,15 @@ void runTests()
 	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
 
 
-	screen.println("\nkernel sleeping for 2 seconds");
+	write_serial("kernel sleeping for 2 seconds");
+
+	screen.println("\nkernel sleeping for 2 seconds"); // FIXME: for some reason when putting kernel_mem in ahci (and not even calling function) causes a pagefault here (probably the address of the framebuffer is not mapped or something like that)
+
 
 	pit.sleepS(2.5);
 
 	screen.println("\nkernel finished sleeping");
+	write_serial("kernel finished sleeping");
 
 
 	Allocator allocator;

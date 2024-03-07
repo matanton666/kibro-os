@@ -5,10 +5,10 @@
 # -c flag to clean before build
 if [ "$1" == "-c" ] || [ "$2" == "-c" ] || [ "$3" == "-c" ]; then
     echo "Cleaning..."
-    docker run --rm -t --privileged -v .:/root/env os-buildenv make clean
+    sudo docker run --rm -t --privileged -v .:/root/env os-buildenv make clean
 fi
 
-docker run --rm -t --privileged -v .:/root/env os-buildenv make
+sudo docker run --rm -t --privileged -v .:/root/env os-buildenv make
 # if - else clause for the exit status of the last command
 if [ $? -eq 0 ]; then
     if [ "$1" == "-n" ] || [ "$2" == "-n" ] || [ "$3" == "-n" ]; then
@@ -19,7 +19,7 @@ if [ $? -eq 0 ]; then
     echo "Build succeeded"
 
     if [ "$1" == "-d" ] || [ "$2" == "-d" ] || [ "$3" == "-d" ]; then
-        qemu-system-i386 -S -gdb tcp::1234 -cdrom ./dist/os.iso -serial file:serial.log -m 256M &
+        sudo qemu-system-i386 -S -gdb tcp::1234 -machine q35 -drive id=disk,file=./res/ext_storage.img,if=none, -device ahci,id=ahci -device ide-hd,drive=disk,bus=ahci.0  -cdrom ./dist/os.iso -serial file:serial.log -m 256M &
         exit 0
     fi
     # qemu-system-i386 -cdrom ./dist/os.iso -serial file:serial.log -m 256M -D log.txt -d cpu_reset,int

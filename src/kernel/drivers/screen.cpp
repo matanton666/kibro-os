@@ -402,7 +402,7 @@ void ScreenApi::clearCursor()
     _cursorShow = false;
 }
 
-const uint64_t ScreenApi::getFbStartAddress()
+const uint32_t ScreenApi::getFbStartAddress()
 {
     return _fbInfo->addr;
 }
