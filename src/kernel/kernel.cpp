@@ -14,12 +14,6 @@
 #include "../headers/ahci.h"
 
 
-extern MemoryManager::PagingSystem kernelPaging;
-extern ScreenApi screen;
-extern PageFrameAllocator phys_mem;
-extern ProcessManagerApi process_manager;
-extern PIT pit;
-
 void runTests();
 
 extern "C" void kernel_main(void) {
@@ -57,8 +51,8 @@ extern "C" void kernel_main(void) {
 	process_manager.initMultitasking();
 	write_serial("init multitasking");
 
-	// checkAllBuses(); // TODO: remove the namespace in virtual memory (causes problems)
-	// write_serial("enumerated pci"); 
+	checkAllBuses(); // TODO: remove the namespace in virtual memory (causes problems)
+	write_serial("enumerated pci"); 
 
 
 	runTests();

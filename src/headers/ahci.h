@@ -67,11 +67,22 @@ enum PortType
 };
 
 
+struct Port
+{
+    HBAport* _port;
+    PortType _type;
+    uint8_t* _buffer;
+    uint8_t _port_num;
+}__attribute__((packed));
+
+
 class Ahci
 {
 private:
     PciHeader0 _pci_base_addr;
     HBAmemory* _abar;
+    Port _ports[32] = {0};
+    uint8_t _port_count = 0;
 
     void probePorts();
 

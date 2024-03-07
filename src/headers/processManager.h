@@ -58,7 +58,7 @@ private:
     // create new task and put it next in queue
     // entry: pointer to the tasks execution start
     // stack_ptr: pointer to top of stack (mem block)
-    PCB* newTask(uint32_t entry, uint32_t* stack_ptr, MemoryManager::PagingSystem* paging_sys, bool is_high_priority);
+    PCB* newTask(uint32_t entry, uint32_t* stack_ptr, PagingSystem* paging_sys, bool is_high_priority);
 
 
 public:

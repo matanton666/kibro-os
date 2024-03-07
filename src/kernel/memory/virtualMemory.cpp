@@ -1,8 +1,7 @@
 #include "../../headers/virtualMemory.h"
 
-using MemoryManager::PagingSystem;
 PagingSystem* _currentPagingSys;
-MemoryManager::PagingSystem kernelPaging;
+PagingSystem kernelPaging;
 
 extern "C" void enable_paging(uintptr_t*);
 
@@ -44,7 +43,7 @@ void PagingSystem::kernelInit() // TODO: find a better way to initialize the ker
 }
 
 
-MemoryManager::Page* PagingSystem::getPage(uintptr_t address, bool make)
+Page* PagingSystem::getPage(uintptr_t address, bool make)
 {
     address /= PAGE_SIZE; // get index from address (get the left most 22 bits)
     uint32_t table_idx = address / PAGE_COUNT; // get table index from address (get the left most 10 bits)
@@ -143,7 +142,7 @@ void PagingSystem::enablePaging()
 
 bool PagingSystem::pageFaultHandler(PageFaultError* pageFault, uintptr_t faultAddr)
 {
-    MemoryManager::Page* page = nullptr;
+    Page* page = nullptr;
 
     write_serial_var("page fault addr", faultAddr);
 
@@ -179,7 +178,7 @@ void PagingSystem::createPageDirectory()
 }
 
 
-PagingSystem* MemoryManager::getCurrentPagingSys()
+PagingSystem* getCurrentPagingSys()
 {
     return _currentPagingSys;
 }

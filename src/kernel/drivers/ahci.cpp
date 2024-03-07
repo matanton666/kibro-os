@@ -2,17 +2,21 @@
 
 void Ahci::init(PciHeader0 pci_base_addr)
 {
-    write_serial("***************************");
     _pci_base_addr = pci_base_addr;
     _abar = (HBAmemory*)(pci_base_addr.bar5 & 0xFFFFFFF0);
 
-    // kernelPaging.identityPaging((uintptr_t)_abar, (uintptr_t)_abar + sizeof(HBAmemory)); // identity map 
+    kernelPaging.identityPaging((uintptr_t)_abar, (uintptr_t)_abar + sizeof(HBAmemory)); // identity map 
     write_serial_var("abar", (uintptr_t)_abar);
-    // phys_mem.lockPages((unsigned char*)_abar, 1); // lock the page
-    // MemoryManager::PagingSystem pg; // FIXME: WTAF whay does this ruin everything??????
 
-
-    // probePorts();
+    probePorts();
+    write_serial_var("port count", _port_count);
+    for (int i = 0; i < _port_count; i++)
+    {
+        Port port = _ports[i];
+        write_serial_var("port", port._port_num);
+        write_serial_var("type", (uint32_t)port._type);
+    }
+    
     write_serial("ahci init");
 }
 
@@ -28,7 +32,11 @@ void Ahci::probePorts()
             PortType port_type = checkPortType(&_abar->ports[i]);
             if (port_type == PortType::SATA)
             {
-                write_serial("found a sata drive");
+                write_serial("found sata");
+                _ports[_port_count]._type = port_type;
+                _ports[_port_count]._port = &_abar->ports[i];
+                _ports[_port_count]._port_num = _port_count;
+                _port_count++;
             }
         }
     }

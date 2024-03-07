@@ -59,7 +59,7 @@ void ProcessManagerApi::initMultitasking()
     sti();
 }
 
-PCB* ProcessManagerApi::newTask(uint32_t entry, uint32_t* stack_ptr, MemoryManager::PagingSystem* paging_sys, bool is_high_priority)
+PCB* ProcessManagerApi::newTask(uint32_t entry, uint32_t* stack_ptr, PagingSystem* paging_sys, bool is_high_priority)
 {
     // needed to be configured before context switch:
     // eip, cr3, esp
@@ -107,7 +107,7 @@ PCB* ProcessManagerApi::newKernelTask(void* entry, bool is_high_priority)
     uint32_t stack_start = PROCESS_STACK_START; // address of start of stack
     uintptr_t heap_start_addr = PROCESS_HEAP_START; // address of start of heap
 
-    MemoryManager::PagingSystem* pg_sys = (MemoryManager::PagingSystem*)kernelPaging.getAllocator()->callocAligned(sizeof(MemoryManager::PagingSystem), KIB4); 
+    PagingSystem* pg_sys = (PagingSystem*)kernelPaging.getAllocator()->callocAligned(sizeof(PagingSystem), KIB4); 
     pg_sys->init();
     pg_sys->allocAddresses(stack_start, stack_start + PROCESS_STACK_INIT_SIZE, false, true); // map stack to new process
     pg_sys->allocAddresses(heap_start_addr, heap_start_addr + PROCESS_HEAP_INIT_SIZE, false, true);// map a total of 2 MIB for heap (keep 1 MIB space for stack to grow)
