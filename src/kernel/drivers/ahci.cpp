@@ -1,19 +1,18 @@
 #include "../../headers/ahci.h"
-#include "virtualMemory.h"
-
-extern MemoryManager::PagingSystem kernelPaging;
 
 void Ahci::init(PciHeader0 pci_base_addr)
 {
+    write_serial("***************************");
     _pci_base_addr = pci_base_addr;
     _abar = (HBAmemory*)(pci_base_addr.bar5 & 0xFFFFFFF0);
 
     // kernelPaging.identityPaging((uintptr_t)_abar, (uintptr_t)_abar + sizeof(HBAmemory)); // identity map 
     write_serial_var("abar", (uintptr_t)_abar);
     // phys_mem.lockPages((unsigned char*)_abar, 1); // lock the page
+    // MemoryManager::PagingSystem pg; // FIXME: WTAF whay does this ruin everything??????
 
-    write_serial("probing ports");
-    probePorts();
+
+    // probePorts();
     write_serial("ahci init");
 }
 

@@ -14,6 +14,12 @@
 #include "../headers/ahci.h"
 
 
+extern MemoryManager::PagingSystem kernelPaging;
+extern ScreenApi screen;
+extern PageFrameAllocator phys_mem;
+extern ProcessManagerApi process_manager;
+extern PIT pit;
+
 void runTests();
 
 extern "C" void kernel_main(void) {
@@ -51,8 +57,7 @@ extern "C" void kernel_main(void) {
 	process_manager.initMultitasking();
 	write_serial("init multitasking");
 
-
-	// checkAllBuses();
+	// checkAllBuses(); // TODO: remove the namespace in virtual memory (causes problems)
 	// write_serial("enumerated pci"); 
 
 
@@ -98,15 +103,15 @@ void runTests()
 	write_serial("creating 5 tasks with different prioritys");
 
 	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
-	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
-	process_manager.startTask(process_manager.newKernelTask((void*)testTask, HIGH_PRIORITY));
-	process_manager.startTask(process_manager.newKernelTask((void*)testTask, HIGH_PRIORITY));
-	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
+	// process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
+	// process_manager.startTask(process_manager.newKernelTask((void*)testTask, HIGH_PRIORITY));
+	// process_manager.startTask(process_manager.newKernelTask((void*)testTask, HIGH_PRIORITY));
+	// process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
 
 
 	write_serial("kernel sleeping for 2 seconds");
 
-	screen.println("\nkernel sleeping for 2 seconds"); // FIXME: for some reason when putting kernel_mem in ahci (and not even calling function) causes a pagefault here (probably the address of the framebuffer is not mapped or something like that)
+	screen.println("\nkernel sleeping for 2 seconds"); 
 
 
 	pit.sleepS(2.5);

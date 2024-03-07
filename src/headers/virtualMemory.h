@@ -120,3 +120,5 @@ namespace MemoryManager // namespace of memory managment
 }
 
 extern MemoryManager::PagingSystem kernelPaging;
+
+// TODO: remove the namespace and make it regular or something

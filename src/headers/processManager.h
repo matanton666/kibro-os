@@ -11,6 +11,7 @@ manage process creation and context switching
 #include "queue.h"
 #include "interrupts.h"
 
+
 #define PROCESS_STACK_START align_up((uint32_t)(TOTAL_KERNEL_END_ADDR + PAGE_SIZE), KIB4) // aligned start of the processes stack
 #define PROCESS_STACK_INIT_SIZE MIB1// initial size of a processes stack (1MIB)
 #define PROCESS_HEAP_START (PROCESS_STACK_START + PROCESS_STACK_INIT_SIZE + MIB1) // keep 1MIB of space for stack to grow

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "std.h"
 #include "serial.h"
 #include "pciDescriptors.h"
-#include "pageFrameAllocator.h"
+#include "virtualMemory.h"
 
 
 struct HBAport // host bus addaptor port
