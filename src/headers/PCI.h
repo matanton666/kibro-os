@@ -10,25 +10,31 @@
 #define CONFIG_DATA 0xCFC
 
 
-uint16_t pciConfigReadWord(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset);
-
-void checkDevice(uint8_t bus, uint8_t device);
-
-
-void checkFunction(uint8_t bus, uint8_t device, uint8_t function);
-
-void checkAllBuses();
-
-// template function to get header from bus
-template <typename T>
-T getPciHeader(uint8_t bus, uint8_t device, uint8_t function)
+class PCI
 {
-    uint16_t dv_header[sizeof(T)] = {0};
+private:
+    uint16_t pciConfigReadWord(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset);
 
-    for (int i = 0; i < sizeof(T); i+=2)
+    void checkDevice(uint8_t bus, uint8_t device);
+
+    void checkFunction(uint8_t bus, uint8_t device, uint8_t function);
+    
+public:
+
+    void checkAllBuses();
+
+    // template function to get header from bus
+    template <typename T>
+    T getPciHeader(uint8_t bus, uint8_t device, uint8_t function)
     {
-        dv_header[i/2] = pciConfigReadWord(bus, device, function, i);
-    }
+        uint16_t dv_header[sizeof(T)] = {0};
 
-    return *(T*)dv_header;
-}
+        for (int i = 0; i < sizeof(T); i+=2)
+        {
+            dv_header[i/2] = pciConfigReadWord(bus, device, function, i);
+        }
+
+        return *(T*)dv_header;
+    }
+};
+

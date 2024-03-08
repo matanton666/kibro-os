@@ -10,6 +10,7 @@ manage process creation and context switching
 #include "PIT.h"
 #include "queue.h"
 #include "interrupts.h"
+#include "virtualMemory.h"
 
 
 #define PROCESS_STACK_START align_up((uint32_t)(TOTAL_KERNEL_END_ADDR + PAGE_SIZE), KIB4) // aligned start of the processes stack
@@ -17,7 +18,7 @@ manage process creation and context switching
 #define PROCESS_HEAP_START (PROCESS_STACK_START + PROCESS_STACK_INIT_SIZE + MIB1) // keep 1MIB of space for stack to grow
 #define PROCESS_HEAP_INIT_SIZE (MIB1*2) // initial size of a processes heap (2MIB)
 
-
+extern PagingSystem kernelPaging;
 
 class ProcessManagerApi
 {

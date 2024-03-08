@@ -59,7 +59,7 @@ class PagingSystem
 private:
 	PageDirectory* _currentDirectory; // current process pageDirectory struct
 	Allocator _alloc;
-	bool _is_initialized = false;
+	int _is_initialized = -1;
 
 
 public:
@@ -83,7 +83,7 @@ public:
 	void identityPaging(uintptr_t start, uintptr_t end);
 	
 	//initializes paging
-	void enablePaging();
+	void enable();
 
 	bool pageFaultHandler(PageFaultError* pageFault, uintptr_t faultAddr);
 
@@ -115,5 +115,3 @@ public:
 PagingSystem* getCurrentPagingSys();
 
 extern PagingSystem kernelPaging;
-
-// TODO: remove the namespace and make it regular or something

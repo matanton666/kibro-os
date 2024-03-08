@@ -4,18 +4,23 @@ PagingSystem* _currentPagingSys;
 PagingSystem kernelPaging;
 
 extern "C" void enable_paging(uintptr_t*);
+extern "C" void switch_pd(uintptr_t*);
 
 
 bool PagingSystem::init()
 {
-    if (_is_initialized) {
+    if (_is_initialized == -1) {
         return true;
     }
 
     createPageDirectory();
+    if (getPageDirectoryAddr() == nullptr) {
+        return false;
+    }
+
     mapKernelMem();
 
-    _is_initialized = true;
+    _is_initialized = -1;
     return true;
 } 
 
@@ -27,7 +32,10 @@ void PagingSystem::kernelInit() // TODO: find a better way to initialize the ker
     }
     _alloc.init(phys_mem.getBitmapEndAddress(), KENREL_HEAP_SIZE); // init allocator for kernel heap
 
-    createPageDirectory();
+    // createPageDirectory();
+    write_serial_var("alloc start", phys_mem.getBitmapEndAddress());
+    PageDirectory* directory = (PageDirectory*)_alloc.callocAligned(sizeof(PageDirectory), KIB4);
+    _currentDirectory = directory;
 
     // reserve kernel physical memory
     phys_mem.lockPages((unsigned char*)0, (unsigned int)TOTAL_KERNEL_END_ADDR / PAGE_SIZE + 1);
@@ -37,7 +45,9 @@ void PagingSystem::kernelInit() // TODO: find a better way to initialize the ker
 
     mapKernelMem();
 
-    enablePaging();
+    // enable();
+    enable_paging(getPageDirectoryAddr());
+    _currentPagingSys = this;
 
     _is_initialized = true;
 }
@@ -134,10 +144,9 @@ void PagingSystem::identityPaging(uintptr_t start, uintptr_t end)
     }
 }
 
-void PagingSystem::enablePaging()
+void PagingSystem::enable()
 {
-    enable_paging(getPageDirectoryAddr());
-    _currentPagingSys = this;
+    switch_pd(getPageDirectoryAddr());
 }
 
 bool PagingSystem::pageFaultHandler(PageFaultError* pageFault, uintptr_t faultAddr)
@@ -172,8 +181,10 @@ bool PagingSystem::pageFaultHandler(PageFaultError* pageFault, uintptr_t faultAd
 void PagingSystem::createPageDirectory()
 {
     // create page directory table in the kernel heap
-    PageDirectory* directory = (PageDirectory*)kernelPaging.getAllocator()->mallocAligned(sizeof(PageDirectory), KIB4);
+    write_serial_var("kernel heap size", (uint32_t)(uintptr_t)kernelPaging.getAllocator()->malloc(100));
+    PageDirectory* directory = (PageDirectory*)kernelPaging.getAllocator()->mallocAligned(sizeof(PageDirectory), 0x10);
     memset(directory, 0, sizeof(PageDirectory));
+    write_serial_var("page directory addr", (uintptr_t)directory);
     _currentDirectory = directory;
 }
 

@@ -1,7 +1,7 @@
 #include "../../headers/PCI.h"
 
 
-uint16_t pciConfigReadWord(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset) 
+uint16_t PCI::pciConfigReadWord(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset) 
 {
     uint32_t address;
     uint32_t lbus  = (uint32_t)bus;
@@ -21,7 +21,7 @@ uint16_t pciConfigReadWord(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offs
     return tmp;
 }
 
-void checkDevice(uint8_t bus, uint8_t device) 
+void PCI::checkDevice(uint8_t bus, uint8_t device) 
 {
     uint8_t function = 0;
     uint16_t vendorID;
@@ -45,19 +45,9 @@ void checkDevice(uint8_t bus, uint8_t device)
     } 
 }
 
-void checkFunction(uint8_t bus, uint8_t device, uint8_t function)
+void PCI::checkFunction(uint8_t bus, uint8_t device, uint8_t function)
 {
     PciDeviceHeder dv_header = getPciHeader<PciDeviceHeder>(bus, device, function);
-    screen.print(GetVendorName(dv_header.vendor_id));
-    screen.print(" / ");
-    screen.print(GetDeviceName(dv_header.vendor_id, dv_header.device_id));
-    screen.print(" / ");
-    screen.print(getDeviceClassName(dv_header.class_code));
-    screen.print(" / ");
-    screen.print(GetSubclassName(dv_header.class_code, dv_header.subclass));
-    screen.print(" / ");
-    screen.print(GetProgIFName(dv_header.class_code, dv_header.subclass, dv_header.prog_if));
-    screen.print("\n");
 
     //  mass storage controller      |       serial ATA (SATA)    |      AHCI 1.0 device
     if (dv_header.class_code == 0x01 && dv_header.subclass == 0x06 && dv_header.prog_if == 0x01)
@@ -67,15 +57,19 @@ void checkFunction(uint8_t bus, uint8_t device, uint8_t function)
     }
 }
 
-void checkAllBuses() 
+void PCI::checkAllBuses() 
 {
     uint16_t bus;
     uint8_t device;
     // 256 busses with 32 devices each
-    for (bus = 0; bus < 256; bus++) {
-        for (device = 0; device < 32; device++) {
-            checkDevice(bus, device);
-        }
+    // for (bus = 0; bus < 256; bus++) {
+    //     for (device = 0; device < 32; device++) {
+    //         checkDevice(bus, device);
+    //     }
+    // }
+
+    for (device = 0; device < 32; device++) {
+        checkDevice(0, device);
     }
 }
 

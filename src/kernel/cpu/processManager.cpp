@@ -68,10 +68,10 @@ PCB* ProcessManagerApi::newTask(uint32_t entry, uint32_t* stack_ptr, PagingSyste
     const int REGISTERS_ON_STACK = 7; // 7 registers are pushed on the stack when context switching 
     const int ARGUMENTS_ON_STACK = 2; // 2 arguments are pushed on the stack when context switching (og pcb and new pcb)
 
+    write_serial("creating pcb for task");
     // prepare task
-    PCB* task = (PCB*)kernelPaging.getAllocator()->malloc(sizeof(PCB));
+    PCB* task = (PCB*)kernelPaging.getAllocator()->callocAligned(sizeof(PCB), 256);
 
-    memset(task, 0, sizeof(PCB));
     task->state = CREATED;
     task->priority = is_high_priority;
     task->next = nullptr;
@@ -82,8 +82,10 @@ PCB* ProcessManagerApi::newTask(uint32_t entry, uint32_t* stack_ptr, PagingSyste
     task->func_ptr = (void(*)())entry;
     task->paging_system = paging_sys;
 
+    write_serial("enabling task paging");
     // kernel does not access the correct physical addresses here, need to temporarily move to the processes page directory
-    task->paging_system->enablePaging();
+    
+    task->paging_system->enable();
     
     // prepare stack
     stack_ptr -= ARGUMENTS_ON_STACK; // move stack pointer back to make space for arguments
@@ -93,7 +95,8 @@ PCB* ProcessManagerApi::newTask(uint32_t entry, uint32_t* stack_ptr, PagingSyste
     task->regs.esp = (uint32_t)(uintptr_t)stack_ptr; // set esp to the top of the stack
 
     // move back to kernel page directory
-    kernelPaging.enablePaging();
+    kernelPaging.enable();
+    write_serial("returned to kerenl paging");
 
     task->state = CREATED;
     sti();
@@ -107,12 +110,15 @@ PCB* ProcessManagerApi::newKernelTask(void* entry, bool is_high_priority)
     uint32_t stack_start = PROCESS_STACK_START; // address of start of stack
     uintptr_t heap_start_addr = PROCESS_HEAP_START; // address of start of heap
 
+    write_serial("creating paging system for new task");
+
     PagingSystem* pg_sys = (PagingSystem*)kernelPaging.getAllocator()->callocAligned(sizeof(PagingSystem), KIB4); 
     pg_sys->init();
     pg_sys->allocAddresses(stack_start, stack_start + PROCESS_STACK_INIT_SIZE, false, true); // map stack to new process
     pg_sys->allocAddresses(heap_start_addr, heap_start_addr + PROCESS_HEAP_INIT_SIZE, false, true);// map a total of 2 MIB for heap (keep 1 MIB space for stack to grow)
     // the initialization of the heap will happen in the entry function of the process
 
+    write_serial("setting stack top");
     uint32_t* stack_top = (uint32_t*)(uintptr_t)(stack_start); // move stack pointer to the top of the stack
     stack_top = stack_top + (PROCESS_STACK_INIT_SIZE / sizeof(uint32_t) - 4); // move stack pointer to the top of the stack
     return newTask((uint32_t)(uintptr_t)entry, stack_top, pg_sys, is_high_priority);

@@ -11,8 +11,8 @@
 #include "../headers/PIT.h"
 #include "../headers/memoryAllocator.h"
 #include "../headers/PCI.h"
-#include "../headers/ahci.h"
 
+extern PagingSystem kernelPaging;
 
 void runTests();
 
@@ -51,8 +51,28 @@ extern "C" void kernel_main(void) {
 	process_manager.initMultitasking();
 	write_serial("init multitasking");
 
-	checkAllBuses(); // TODO: remove the namespace in virtual memory (causes problems)
+	PCI pci;
+	pci.checkAllBuses(); // initialize the disk
 	write_serial("enumerated pci"); 
+
+
+	// if (disk.getType() != PortType::NONE) {
+	// 	write_serial("disk initialized");
+	// }
+	// else {
+	// 	write_serial("disk failed to initialize");
+	// }
+
+	// test disk
+	// char* _buffer = (char*)kernelPaging.getAllocator()->mallocAligned(256, 256);
+	// memset(port._buffer, 65, 100);
+	// port.write(0, 4, port._buffer);
+	// disk->read(0, 4, (uint8_t*)_buffer);
+
+	// for (int j = 0; j < 256 / sizeof(uint8_t); j++)
+	// {
+	// 	screen.print((char)_buffer[j]);
+	// }
 
 
 	runTests();
@@ -68,12 +88,13 @@ extern "C" void kernel_main(void) {
 
 
 
-
 void runTests()
 {
 	/*
 	* prints and tests here:
 	*/
+
+	write_serial("running tests");
 
 	screen.print("\ncursur position: ");
 	screen.print((int)screen.getCursur().x);
@@ -130,10 +151,7 @@ void runTests()
 	allocator.init((uintptr_t)p1, size);
 	
 	void* t1 = 0;
-
-	
 	void* t6 = 0;
-
 
 	void* t2 = allocator.malloc(1024);
 	screen.print("Malloc'd from free list: ");
@@ -190,5 +208,9 @@ void runTests()
 	idk->i = 5;
 	screen.print("idk->i: ");
 	screen.print((uintptr_t)idk->i);
+
+
+
+
 
 }
