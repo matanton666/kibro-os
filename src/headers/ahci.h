@@ -66,6 +66,57 @@ struct HBACommandHeader
     uint32_t reserved1[4];
 };
 
+struct HBAPRDTEntry
+{
+    uint32_t database_address;
+    uint32_t database_address_upper;
+    uint32_t reserved0;
+
+    uint32_t byte_count : 22;
+    uint32_t reserved1 : 9;
+    uint32_t interrupt_on_completion : 1;
+}__attribute__((packed));
+
+struct HBACommandTable
+{
+    uint8_t command_fis[64];
+    uint8_t atapi_command[16];
+    uint8_t reserved[48];
+    HBAPRDTEntry prdt_entry[];
+
+}__attribute__((packed));
+
+
+
+struct FIS_REG_H2D // frame information structure register hardware to device
+{
+    uint8_t fis_type;
+
+    uint8_t port_multiplyer : 4;
+    uint8_t reserved0 : 3;
+    uint8_t command_control : 1;
+
+    uint8_t command;
+    uint8_t feature_low;
+
+    uint8_t lba0;
+    uint8_t lba1;
+    uint8_t lba2;
+    uint8_t device_register;
+
+    uint8_t lba3;
+    uint8_t lba4;
+    uint8_t lba5;
+    uint8_t feature_high;
+
+    uint8_t count_low;
+    uint8_t count_high;
+    uint8_t iso_command_completion;
+    uint8_t control;
+
+    uint8_t rsv1[4];
+}__attribute__((packed));
+
 
 
 enum PortType
@@ -85,9 +136,38 @@ enum HBA_PxCMD
     FR = 0x4000
 };
 
+enum FIS_TYPE
+{
+    REG_H2D = 0x27,
+    REG_D2H = 0x34,
+    DMA_ACT = 0x39,
+    DMA_SETUP = 0x41,
+    DATA = 0x46,
+    BIST = 0x58,
+    PIO_SETUP = 0x5F,
+    DEV_BITS = 0xA1,
+};
+
+enum ATA_STATUS
+{
+    ATA_STATUS_BSY = 0x80,
+    ATA_STATUS_DRQ = 0x08,
+    ATA_STATUS_ERR = 0x01,
+    ATA_CMD_READ_DMA_EX = 0x25,
+    ATA_CMD_WRITE_DMA_EX = 0x35,
+};
+
+enum HBA_PxIS
+{
+    TFES = (1 << 30),
+};
+
 
 class Port
 {
+private:
+    bool access(uint64_t sector, uint32_t sector_count, uint8_t* buffer, bool is_write);
+
 public:
     HBAport* _port;
     PortType _type;
@@ -97,6 +177,12 @@ public:
     void configure();
     void startCmd();
     void stopCmd();
+
+    // reads from the disk
+    bool read(uint64_t sector, uint32_t sector_count, uint8_t* buffer);
+
+    // writes to the disk
+    bool write(uint64_t sector, uint32_t sector_count, uint8_t* buffer);
 }__attribute__((packed));
 
 
