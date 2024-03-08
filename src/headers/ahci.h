@@ -46,17 +46,28 @@ struct HBAmemory // host bust addaptor memory
     HBAport ports[32];
 }__attribute__((packed));
 
-// enum PortType
-// {
-//     None = 0,
-//     Sata = 1,
-//     SataPI = 2,
-//     SataPM = 3,
-//     SataPIPM = 4,
-//     SataPMPP = 5,
-//     SataPMPPSD = 6,
-//     SataPMPPSDPI = 7
-// };
+struct HBACommandHeader
+{
+    uint8_t command_fis_length : 5;
+    uint8_t atapi : 1;
+    uint8_t write : 1;
+    uint8_t prefetchable : 1;
+
+    uint8_t reset : 1;
+    uint8_t bist : 1;
+    uint8_t clear_busy_upon_r_ok : 1;
+    uint8_t reserved0 : 1;
+    uint8_t port_multiplier : 4;
+
+    uint16_t prdt_length;
+    uint32_t prdb_count;
+    uint32_t command_table_base;
+    uint32_t command_table_base_upper;
+    uint32_t reserved1[4];
+};
+
+
+
 enum PortType
 {
     NONE = 0,
@@ -66,13 +77,26 @@ enum PortType
     SATAPI = 4
 };
 
-
-struct Port
+enum HBA_PxCMD
 {
+    CR = 0x8000,
+    FRE = 0x0010,
+    ST = 0x0001,
+    FR = 0x4000
+};
+
+
+class Port
+{
+public:
     HBAport* _port;
     PortType _type;
     uint8_t* _buffer;
     uint8_t _port_num;
+
+    void configure();
+    void startCmd();
+    void stopCmd();
 }__attribute__((packed));
 
 
