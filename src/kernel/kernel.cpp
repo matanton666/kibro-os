@@ -90,7 +90,7 @@ extern "C" void kernel_main(void) {
 	// }
 
 
-	// runTests();
+	runTests();
 	
 
 	screen.print("\n>");

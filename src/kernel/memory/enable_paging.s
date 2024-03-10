@@ -15,3 +15,4 @@ enable_paging:
 switch_pd: // switch page directory
 	mov 4(%esp), %eax
 	mov %eax, %cr3
+	ret

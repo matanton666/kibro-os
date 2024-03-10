@@ -15,6 +15,7 @@ bool PagingSystem::init()
 
     createPageDirectory();
     if (getPageDirectoryAddr() == nullptr) {
+        write_serial("failed to create page directory");
         return false;
     }
 
@@ -36,6 +37,11 @@ void PagingSystem::kernelInit() // TODO: find a better way to initialize the ker
     write_serial_var("alloc start", phys_mem.getBitmapEndAddress());
     PageDirectory* directory = (PageDirectory*)_alloc.callocAligned(sizeof(PageDirectory), KIB4);
     _currentDirectory = directory;
+
+    if (directory == nullptr) {
+        write_serial("***failed to create page directory");
+        return;
+    }
 
     // reserve kernel physical memory
     phys_mem.lockPages((unsigned char*)0, (unsigned int)TOTAL_KERNEL_END_ADDR / PAGE_SIZE + 1);
@@ -182,11 +188,9 @@ void PagingSystem::createPageDirectory()
 {
     // FIXME: there is a problem here with the allocator, could be that something is not free but it always returns 0 for the address.
     // create page directory table in the kernel heap
-    write_serial_var("kernel heap size", (uint32_t)(uintptr_t)kernelPaging.getAllocator()->malloc(100));
-    PageDirectory* directory = (PageDirectory*)kernelPaging.getAllocator()->mallocAligned(sizeof(PageDirectory), 0x10);
-    memset(directory, 0, sizeof(PageDirectory));
-    write_serial_var("page directory addr", (uintptr_t)directory);
+    PageDirectory* directory = (PageDirectory*)kernelPaging.getAllocator()->callocAligned(sizeof(PageDirectory), KIB4);
     _currentDirectory = directory;
+    write_serial_var("page directory addr", (uintptr_t)directory);
 }
 
 
