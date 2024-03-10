@@ -169,20 +169,20 @@ private:
     HBAport* _port;
     PortType _type;
     uint8_t _port_num;
-    uint32_t _free_space;
-    uint32_t _used_space;
-    uint32_t _last_address;
+    // uint32_t _free_space;
+    // uint32_t _used_space;
 
     bool access(uint64_t sector, uint32_t sector_count, uint8_t* buffer, bool is_write);
     void startCmd();
     void stopCmd();
 
     // read from sector - amount of sectors 
-    bool read_sec(uint64_t sector, uint32_t sector_count, uint8_t* buffer);
+    bool readSec(uint64_t sector, uint32_t sector_count, uint8_t* buffer);
 
     // writes to sector - amount of sectors
-    bool write_sec(uint64_t sector, uint32_t sector_count, uint8_t* buffer);
+    bool writeSec(uint64_t sector, uint32_t sector_count, uint8_t* buffer);
     void configure();
+
 
 public:
 

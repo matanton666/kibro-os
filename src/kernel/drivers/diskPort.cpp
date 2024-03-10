@@ -69,12 +69,12 @@ void DiskPort::init(HBAport* port, PortType type, uint8_t port_num)
     configure();
 }
 
-bool DiskPort::read_sec(uint64_t sector, uint32_t sector_count, uint8_t* buffer)
+bool DiskPort::readSec(uint64_t sector, uint32_t sector_count, uint8_t* buffer)
 {
     return access(sector, sector_count, buffer, false);
 }
 
-bool DiskPort::write_sec(uint64_t sector, uint32_t sector_count, uint8_t* buffer)
+bool DiskPort::writeSec(uint64_t sector, uint32_t sector_count, uint8_t* buffer)
 {
     return access(sector, sector_count, buffer, true);
 }
@@ -90,28 +90,32 @@ bool DiskPort::read(uint32_t address, uint32_t size, uint8_t* buffer)
     uint8_t* temp_buffer = (uint8_t*)kernelPaging.getAllocator()->malloc(sector_count * 512);
 
     // Read sectors into temporary buffer
-    if (!read_sec(start_sector, sector_count, temp_buffer)) {
+    if (!readSec(start_sector, sector_count, temp_buffer)) {
         kernelPaging.getAllocator()->free(temp_buffer);
         return false;
     }
-
-    // Calculate offset into the first sector
-    uint32_t offset = address % 512;
-
-    // Copy the requested size into the buffer
-    memcpy(buffer, temp_buffer + offset, size);
+    // Copy the requested size into the buffer (from offset)
+    memcpy(buffer, temp_buffer + (address % 512), size);
 
     kernelPaging.getAllocator()->free(temp_buffer);
     return true;
 }
 
 
-bool DiskPort::write(uint32_t address, uint32_t size, uint8_t* buffer)
+bool DiskPort:: write(uint32_t address, uint32_t size, uint8_t* buffer)
 {
-    // TODO: need to test this on differents sizes that exceed 512
+
     // translate address to sector
     uint64_t sector = address / 512;
     uint32_t sector_count = (size / 512) + ((size % 512) ? 1 : 0);
+
+    if ((address % 512) + size > 512) {
+        sector_count++;
+    }
+
+    if (sector_count == 0) {
+        return false;
+    }
 
     // Allocate a temporary buffer to hold the data to be written
     uint8_t* temp_buffer = (uint8_t*)kernelPaging.getAllocator()->malloc(sector_count * 512);
@@ -120,7 +124,16 @@ bool DiskPort::write(uint32_t address, uint32_t size, uint8_t* buffer)
     // If the address is not a multiple of the sector size, we need to read the first sector first,
     // modify the part we want, and then write it back.
     if (address % 512 != 0) {
-        if (!read_sec(sector, 1, temp_buffer)) {
+        if (!readSec(sector, 1, temp_buffer)) {
+            kernelPaging.getAllocator()->free(temp_buffer);
+            return false;
+        }
+    }
+
+    // If the size is not a multiple of the sector size, we need to read the last sector first,
+    // modify the part we want, and then write it back.
+    if (size % 512 != 0 && size > 512) {
+        if (!readSec(sector + sector_count - 1, 1, temp_buffer + 512 * (sector_count - 1))) {
             kernelPaging.getAllocator()->free(temp_buffer);
             return false;
         }
@@ -129,17 +142,8 @@ bool DiskPort::write(uint32_t address, uint32_t size, uint8_t* buffer)
     // Copy the data to the temporary buffer
     memcpy(temp_buffer + (address % 512), buffer, size);
 
-    // If the size is not a multiple of the sector size, we need to read the last sector first,
-    // modify the part we want, and then write it back.
-    if (size % 512 != 0 && size > 512) {
-        if (!read_sec(sector + sector_count - 1, 1, temp_buffer + 512 * (sector_count - 1))) {
-            kernelPaging.getAllocator()->free(temp_buffer);
-            return false;
-        }
-    }
-
     // Write the sectors from the temporary buffer
-    bool result = write_sec(sector, sector_count, temp_buffer);
+    bool result = writeSec(sector, sector_count, temp_buffer);
 
     kernelPaging.getAllocator()->free(temp_buffer);
     return result;
@@ -208,4 +212,5 @@ bool DiskPort::access(uint64_t sector, uint32_t sector_count, uint8_t* buffer, b
 
     return true;
 }
+
 

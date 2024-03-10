@@ -58,19 +58,34 @@ extern "C" void kernel_main(void) {
 	write_serial("enumerated pci"); 
 
 	// * test disk
-	uint8_t _buffer[0x50];
-    uint8_t _buffer2[0x50];
-    uint8_t _buffer3[0x100];
-    // memset(_buffer, 67, 0x50);
-    // memset(_buffer2, 65, 0x50);
-    // disk.write(0x50, 0x50, _buffer);
-    // disk.write(0, 0x50, _buffer2);
-    disk.read(0, 0x100, _buffer3);
+	uint8_t _buffer[0x500];
+    uint8_t _buffer2[0x500];
+    uint8_t _buffer3[0x1000];
+    memset(_buffer, 67, 0x500);
+    memset(_buffer2, 65, 0x500);
 
+    disk.write(0x500, 0x500, _buffer);
+    disk.write(0x5, 0x500, _buffer2);
+
+    disk.read(0, 0x1000, _buffer3);
     screen.print((char*)_buffer3);
+
+	screen.newLine();
+
+	memset(_buffer3, 0, 0x1000);
+	memset(_buffer, 0, 0x500);
+	memset(_buffer, 69, 0x100);
+
+	disk.write(470, 0x100, _buffer); 
+    // disk.read(0, 0x1000, _buffer3);
+    // screen.print((char*)_buffer3);
+
+
 
 
     write_serial_var("alllloc222**********", (uint32_t)(uintptr_t)kernelPaging.getAllocator()->malloc(100));
+	
+	// TODO: clean and test disk
 	// if (disk.getType() != PortType::NONE) {
 	// 	write_serial("disk initialized");
 	// }
@@ -90,7 +105,7 @@ extern "C" void kernel_main(void) {
 	// }
 
 
-	runTests();
+	// runTests();
 	
 
 	screen.print("\n>");
@@ -133,10 +148,10 @@ void runTests()
 	write_serial("creating 5 tasks with different prioritys");
 
 	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
-	// process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
-	// process_manager.startTask(process_manager.newKernelTask((void*)testTask, HIGH_PRIORITY));
-	// process_manager.startTask(process_manager.newKernelTask((void*)testTask, HIGH_PRIORITY));
-	// process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
+	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
+	process_manager.startTask(process_manager.newKernelTask((void*)testTask, HIGH_PRIORITY));
+	process_manager.startTask(process_manager.newKernelTask((void*)testTask, HIGH_PRIORITY));
+	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
 
 
 	write_serial("kernel sleeping for 2 seconds");
