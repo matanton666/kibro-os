@@ -155,6 +155,7 @@ bool DiskPort:: write(uint32_t address, uint32_t size, uint8_t* buffer)
 
 bool DiskPort::access(uint64_t sector, uint32_t sector_count, uint8_t* buffer, bool is_write)
 {
+    cli();
     uint32_t sector_low = (uint32_t)sector;
     uint32_t sector_high = (uint32_t)(sector >> 32);
 
@@ -165,6 +166,7 @@ bool DiskPort::access(uint64_t sector, uint32_t sector_count, uint8_t* buffer, b
     }
     if (spin == 1000000)
     {
+        sti();
         return false;
     }
 
@@ -210,10 +212,12 @@ bool DiskPort::access(uint64_t sector, uint32_t sector_count, uint8_t* buffer, b
         }
         if (_port->interrupt_status & HBA_PxIS::TFES) // device error
         {
+            sti();
             return false;
         }
     }
 
+    sti();
     return true;
 }
 

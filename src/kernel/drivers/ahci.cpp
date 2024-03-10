@@ -11,7 +11,7 @@ void Ahci::init(PciHeader0 pci_base_addr)
     kernelPaging.identityPaging((uintptr_t)_abar, (uintptr_t)_abar + sizeof(HBAmemory)); // identity map 
 
     probePorts();
-    write_serial("ahci init");
+    // write_serial("ahci init");
 }
 
 
@@ -26,7 +26,7 @@ void Ahci::probePorts()
             PortType port_type = checkPortType(&_abar->ports[i]);
             if (port_type == PortType::SATA)
             {
-                write_serial("found sata");
+                // write_serial("found sata");
                 _port.init(&_abar->ports[i], port_type, 0);
                 disk = _port;
             }

@@ -33,6 +33,9 @@ char* ftoa(float num, char* str, int base);
 
 unsigned int strlen(const char* str);
 
+// concatenate two strings
+char* strcat(char* dest, const char* src);
+
 
 // ** memory functions **
 

@@ -48,7 +48,6 @@ extern "C" void kernel_main(void) {
 	kernelPaging.kernelInit();
 	write_serial("init paging");
 
-    write_serial_var("kernel alllloc", (uint32_t)(uintptr_t)kernelPaging.getAllocator()->malloc(100));
 
 	process_manager.initMultitasking();
 	write_serial("init multitasking");
@@ -57,6 +56,8 @@ extern "C" void kernel_main(void) {
 	pci.checkAllBuses(); // initialize the disk
 	write_serial("enumerated pci"); 
 
+	// TODO: create file manager
+	// disk.read(...);
 
 	runTests();
 	
@@ -203,4 +204,5 @@ void runTests()
 
     disk.read(489, 100, _buffer3);
     screen.print((char*)_buffer3);
+	write_serial("disk tested");
 }

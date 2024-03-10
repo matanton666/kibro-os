@@ -158,6 +158,21 @@ unsigned int strlen(const char* str)
 	return i;
 }
 
+char* strcat(char* dest, const char* src) 
+{
+	if (dest == nullptr || src == nullptr) {
+		return nullptr;
+	}
+
+	char* ptr = dest + strlen(dest);
+	while (*src != '\0') {
+		*ptr++ = *src++;
+	}
+	*ptr = '\0';
+
+	return dest;
+}
+
 void outb(uint16_t port, uint8_t value)
 {
     asm volatile("outb %b0, %w1"

@@ -33,8 +33,7 @@ void PagingSystem::kernelInit() // TODO: find a better way to initialize the ker
     }
     _alloc.init(phys_mem.getBitmapEndAddress(), KENREL_HEAP_SIZE); // init allocator for kernel heap
 
-    // createPageDirectory();
-    write_serial_var("alloc start", phys_mem.getBitmapEndAddress());
+    // create page directory
     PageDirectory* directory = (PageDirectory*)_alloc.callocAligned(sizeof(PageDirectory), KIB4);
     _currentDirectory = directory;
 
@@ -189,7 +188,7 @@ void PagingSystem::createPageDirectory()
     // create page directory table in the kernel heap
     PageDirectory* directory = (PageDirectory*)kernelPaging.getAllocator()->callocAligned(sizeof(PageDirectory), KIB4);
     _currentDirectory = directory;
-    write_serial_var("page directory addr", (uintptr_t)directory);
+    // write_serial_var("page directory addr", (uintptr_t)directory);
 }
 
 

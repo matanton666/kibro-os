@@ -68,7 +68,6 @@ PCB* ProcessManagerApi::newTask(uint32_t entry, uint32_t* stack_ptr, PagingSyste
     const int REGISTERS_ON_STACK = 7; // 7 registers are pushed on the stack when context switching 
     const int ARGUMENTS_ON_STACK = 2; // 2 arguments are pushed on the stack when context switching (og pcb and new pcb)
 
-    write_serial("creating pcb for task");
     // prepare task
     PCB* task = (PCB*)kernelPaging.getAllocator()->callocAligned(sizeof(PCB), 256);
 
@@ -82,7 +81,6 @@ PCB* ProcessManagerApi::newTask(uint32_t entry, uint32_t* stack_ptr, PagingSyste
     task->func_ptr = (void(*)())entry;
     task->paging_system = paging_sys;
 
-    write_serial("enabling task paging");
     // kernel does not access the correct physical addresses here, need to temporarily move to the processes page directory
     
     task->paging_system->enable();
@@ -96,9 +94,10 @@ PCB* ProcessManagerApi::newTask(uint32_t entry, uint32_t* stack_ptr, PagingSyste
 
     // move back to kernel page directory
     kernelPaging.enable();
-    write_serial("returned to kerenl paging");
 
     task->state = CREATED;
+
+    write_serial_var("creating new task", task->id);
     sti();
 
     return task;
@@ -109,8 +108,6 @@ PCB* ProcessManagerApi::newKernelTask(void* entry, bool is_high_priority)
     cli();
     uint32_t stack_start = PROCESS_STACK_START; // address of start of stack
     uintptr_t heap_start_addr = PROCESS_HEAP_START; // address of start of heap
-
-    write_serial("creating paging system for new task");
 
     PagingSystem* pg_sys = (PagingSystem*)kernelPaging.getAllocator()->callocAligned(sizeof(PagingSystem), KIB4); 
     if (pg_sys == nullptr) {
@@ -123,7 +120,6 @@ PCB* ProcessManagerApi::newKernelTask(void* entry, bool is_high_priority)
     pg_sys->allocAddresses(heap_start_addr, heap_start_addr + PROCESS_HEAP_INIT_SIZE, false, true);// map a total of 2 MIB for heap (keep 1 MIB space for stack to grow)
     // the initialization of the heap will happen in the entry function of the process
 
-    write_serial("setting stack top");
     uint32_t* stack_top = (uint32_t*)(uintptr_t)(stack_start); // move stack pointer to the top of the stack
     stack_top = stack_top + (PROCESS_STACK_INIT_SIZE / sizeof(uint32_t) - 4); // move stack pointer to the top of the stack
     return newTask((uint32_t)(uintptr_t)entry, stack_top, pg_sys, is_high_priority);
@@ -212,8 +208,7 @@ void ProcessManagerApi::runNextTask()
         {
             PCB* to_del = _to_delete.pop();
         
-            write_serial("deleteing task: ");
-            write_serial_int(to_del->id);
+            write_serial_var("deleteing task", to_del->id);
             // free process memory
             // TODO: create a clean funtion in paging system
             to_del->paging_system->freeAddresses(PROCESS_STACK_START, PROCESS_STACK_START + PROCESS_STACK_INIT_SIZE);
