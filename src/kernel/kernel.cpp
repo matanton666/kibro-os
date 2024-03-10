@@ -57,41 +57,8 @@ extern "C" void kernel_main(void) {
 	pci.checkAllBuses(); // initialize the disk
 	write_serial("enumerated pci"); 
 
-	// * test disk
-	uint8_t _buffer[100];
-    uint8_t _buffer3[200];
-    memset(_buffer, 67, 100);
-    disk.write(482, 23, _buffer);
 
-    disk.read(500, 200, _buffer3);
-    screen.print((char*)_buffer3);
-
-
-
-
-    write_serial_var("alllloc222**********", (uint32_t)(uintptr_t)kernelPaging.getAllocator()->malloc(100));
-	
-	// TODO: clean and test disk
-	// if (disk.getType() != PortType::NONE) {
-	// 	write_serial("disk initialized");
-	// }
-	// else {
-	// 	write_serial("disk failed to initialize");
-	// }
-
-	// test disk
-	// char* _buffer = (char*)kernelPaging.getAllocator()->mallocAligned(256, 256);
-	// memset(port._buffer, 65, 100);
-	// port.write(0, 4, port._buffer);
-	// disk->read(0, 4, (uint8_t*)_buffer);
-
-	// for (int j = 0; j < 256 / sizeof(uint8_t); j++)
-	// {
-	// 	screen.print((char)_buffer[j]);
-	// }
-
-
-	// runTests();
+	runTests();
 	
 
 	screen.print("\n>");
@@ -224,9 +191,16 @@ void runTests()
 	idk->i = 5;
 	screen.print("idk->i: ");
 	screen.print((uintptr_t)idk->i);
+	screen.newLine();
 
 
+	// * test disk
+	screen.print("disk test should get to end of the screen: ");
+	uint8_t _buffer[100];
+    uint8_t _buffer3[100];
+    memset(_buffer, 67, 100);
+    disk.write(470, 100, _buffer);
 
-
-
+    disk.read(489, 100, _buffer3);
+    screen.print((char*)_buffer3);
 }

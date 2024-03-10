@@ -186,7 +186,6 @@ bool PagingSystem::pageFaultHandler(PageFaultError* pageFault, uintptr_t faultAd
 
 void PagingSystem::createPageDirectory()
 {
-    // FIXME: there is a problem here with the allocator, could be that something is not free but it always returns 0 for the address.
     // create page directory table in the kernel heap
     PageDirectory* directory = (PageDirectory*)kernelPaging.getAllocator()->callocAligned(sizeof(PageDirectory), KIB4);
     _currentDirectory = directory;
