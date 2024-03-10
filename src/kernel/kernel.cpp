@@ -57,6 +57,18 @@ extern "C" void kernel_main(void) {
 	pci.checkAllBuses(); // initialize the disk
 	write_serial("enumerated pci"); 
 
+	// * test disk
+	uint8_t _buffer[0x50];
+    uint8_t _buffer2[0x50];
+    uint8_t _buffer3[0x100];
+    // memset(_buffer, 67, 0x50);
+    // memset(_buffer2, 65, 0x50);
+    // disk.write(0x50, 0x50, _buffer);
+    // disk.write(0, 0x50, _buffer2);
+    disk.read(0, 0x100, _buffer3);
+
+    screen.print((char*)_buffer3);
+
 
     write_serial_var("alllloc222**********", (uint32_t)(uintptr_t)kernelPaging.getAllocator()->malloc(100));
 	// if (disk.getType() != PortType::NONE) {
@@ -78,7 +90,7 @@ extern "C" void kernel_main(void) {
 	// }
 
 
-	runTests();
+	// runTests();
 	
 
 	screen.print("\n>");

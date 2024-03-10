@@ -31,8 +31,9 @@ void PCI::checkDevice(uint8_t bus, uint8_t device)
     if (vendorID != 0xFFFF) // Device exists
     {
         checkFunction(bus, device, function);
-        // PciDeviceHeder dv_header = getPciHeader<PciDeviceHeder>(bus, device, function);
         // this part is left out for now because it is not yet needed
+
+        // PciDeviceHeder dv_header = getPciHeader<PciDeviceHeder>(bus, device, function);
         // headerType = dv_header.header_type & 0x7F;
         // if( (headerType & 0x80) != 0) { 
         //     write_serial("It's a multi-function device\n");
@@ -63,6 +64,8 @@ void PCI::checkAllBuses()
 {
     uint16_t bus;
     uint8_t device;
+    // this part is left out for now because it is not yet needed
+
     // 256 busses with 32 devices each
     // for (bus = 0; bus < 256; bus++) {
     //     for (device = 0; device < 32; device++) {

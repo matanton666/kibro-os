@@ -23,4 +23,4 @@ public:
 };
 
 
-// extern DiskPort disk;
+extern DiskPort disk;

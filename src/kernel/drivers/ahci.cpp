@@ -1,6 +1,6 @@
 #include "../../headers/ahci.h"
 
-// extern DiskPort disk;
+DiskPort disk;
 
 void Ahci::init(PciHeader0 pci_base_addr)
 {
@@ -11,18 +11,6 @@ void Ahci::init(PciHeader0 pci_base_addr)
     kernelPaging.identityPaging((uintptr_t)_abar, (uintptr_t)_abar + sizeof(HBAmemory)); // identity map 
 
     probePorts();
-    uint8_t _buffer[0x50];
-    uint8_t _buffer2[0x50];
-    uint8_t _buffer3[0x100];
-    memset(_buffer, 67, 0x50);
-    memset(_buffer2, 65, 0x50);
-    _port.write(0x50, 0x50, _buffer);
-    _port.write(0, 0x50, _buffer2);
-    _port.read(0, 0x100, _buffer3);
-
-    screen.print((char*)_buffer3);
-
-    
     write_serial("ahci init");
 }
 
@@ -39,10 +27,8 @@ void Ahci::probePorts()
             if (port_type == PortType::SATA)
             {
                 write_serial("found sata");
-                // _ports[_port_count] = (DiskPort*)kernelPaging.getAllocator()->mallocAligned(sizeof(DiskPort), 256);
                 _port.init(&_abar->ports[i], port_type, 0);
-                _port.configure();
-                // TODO: set an outside variable to the port so is accessable from outisde of the class
+                disk = _port;
             }
         }
     }

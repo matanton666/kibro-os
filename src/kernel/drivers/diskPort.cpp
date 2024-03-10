@@ -66,6 +66,7 @@ void DiskPort::init(HBAport* port, PortType type, uint8_t port_num)
     _port = port;
     _type = type;
     _port_num = port_num;
+    configure();
 }
 
 bool DiskPort::read_sec(uint64_t sector, uint32_t sector_count, uint8_t* buffer)
@@ -107,6 +108,7 @@ bool DiskPort::read(uint32_t address, uint32_t size, uint8_t* buffer)
 
 bool DiskPort::write(uint32_t address, uint32_t size, uint8_t* buffer)
 {
+    // TODO: need to test this on differents sizes that exceed 512
     // translate address to sector
     uint64_t sector = address / 512;
     uint32_t sector_count = (size / 512) + ((size % 512) ? 1 : 0);

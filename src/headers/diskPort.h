@@ -177,16 +177,16 @@ private:
     void startCmd();
     void stopCmd();
 
-public:
-    void configure();
-
-    void init(HBAport* port, PortType type, uint8_t port_num);
-
     // read from sector - amount of sectors 
     bool read_sec(uint64_t sector, uint32_t sector_count, uint8_t* buffer);
 
     // writes to sector - amount of sectors
     bool write_sec(uint64_t sector, uint32_t sector_count, uint8_t* buffer);
+    void configure();
+
+public:
+
+    void init(HBAport* port, PortType type, uint8_t port_num);
 
     // read from address - amount of bytes
     bool read(uint32_t address, uint32_t size, uint8_t* buffer);
