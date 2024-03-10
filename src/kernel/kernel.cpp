@@ -58,27 +58,13 @@ extern "C" void kernel_main(void) {
 	write_serial("enumerated pci"); 
 
 	// * test disk
-	uint8_t _buffer[0x500];
-    uint8_t _buffer2[0x500];
-    uint8_t _buffer3[0x1000];
-    memset(_buffer, 67, 0x500);
-    memset(_buffer2, 65, 0x500);
+	uint8_t _buffer[100];
+    uint8_t _buffer3[200];
+    memset(_buffer, 67, 100);
+    disk.write(482, 23, _buffer);
 
-    disk.write(0x500, 0x500, _buffer);
-    disk.write(0x5, 0x500, _buffer2);
-
-    disk.read(0, 0x1000, _buffer3);
+    disk.read(500, 200, _buffer3);
     screen.print((char*)_buffer3);
-
-	screen.newLine();
-
-	memset(_buffer3, 0, 0x1000);
-	memset(_buffer, 0, 0x500);
-	memset(_buffer, 69, 0x100);
-
-	disk.write(470, 0x100, _buffer); 
-    // disk.read(0, 0x1000, _buffer3);
-    // screen.print((char*)_buffer3);
 
 
 

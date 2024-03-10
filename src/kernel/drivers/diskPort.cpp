@@ -86,6 +86,10 @@ bool DiskPort::read(uint32_t address, uint32_t size, uint8_t* buffer)
     uint64_t start_sector = address / 512;
     uint32_t sector_count = (size / 512) + ((size % 512) ? 1 : 0);
 
+    if ((address % 512) + size > 512) {
+        sector_count++;
+    }
+
     // Allocate a temporary buffer to read sectors
     uint8_t* temp_buffer = (uint8_t*)kernelPaging.getAllocator()->malloc(sector_count * 512);
 
