@@ -30,18 +30,19 @@ void PCI::checkDevice(uint8_t bus, uint8_t device)
     vendorID = pciConfigReadWord(bus, device, function, 0);
     if (vendorID != 0xFFFF) // Device exists
     {
-        PciDeviceHeder dv_header = getPciHeader<PciDeviceHeder>(bus, device, function);
         checkFunction(bus, device, function);
-        headerType = dv_header.header_type & 0x7F;
-        if( (headerType & 0x80) != 0) {
-            write_serial("It's a multi-function device\n");
-            // It's a multi-function device, so check remaining functions
-            for (function = 1; function < 8; function++) {
-                if (pciConfigReadWord(bus, device, function, 0) != 0xFFFF) {
-                    checkFunction(bus, device, function);
-                }
-            }
-        }
+        // PciDeviceHeder dv_header = getPciHeader<PciDeviceHeder>(bus, device, function);
+        // this part is left out for now because it is not yet needed
+        // headerType = dv_header.header_type & 0x7F;
+        // if( (headerType & 0x80) != 0) { 
+        //     write_serial("It's a multi-function device\n");
+        //     // It's a multi-function device, so check remaining functions
+        //     for (function = 1; function < 8; function++) {
+        //         if (pciConfigReadWord(bus, device, function, 0) != 0xFFFF) {
+        //             checkFunction(bus, device, function);
+        //         }
+        //     }
+        // }
     } 
 }
 
@@ -52,6 +53,7 @@ void PCI::checkFunction(uint8_t bus, uint8_t device, uint8_t function)
     //  mass storage controller      |       serial ATA (SATA)    |      AHCI 1.0 device
     if (dv_header.class_code == 0x01 && dv_header.subclass == 0x06 && dv_header.prog_if == 0x01)
     {
+        write_serial("found ahci");
         Ahci ahci;
         ahci.init(getPciHeader<PciHeader0>(bus, device, function));
     }

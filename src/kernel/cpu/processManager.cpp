@@ -113,6 +113,11 @@ PCB* ProcessManagerApi::newKernelTask(void* entry, bool is_high_priority)
     write_serial("creating paging system for new task");
 
     PagingSystem* pg_sys = (PagingSystem*)kernelPaging.getAllocator()->callocAligned(sizeof(PagingSystem), KIB4); 
+    if (pg_sys == nullptr) {
+        write_serial("failed to allocate paging system for new task");
+        return nullptr;
+    }
+
     pg_sys->init();
     pg_sys->allocAddresses(stack_start, stack_start + PROCESS_STACK_INIT_SIZE, false, true); // map stack to new process
     pg_sys->allocAddresses(heap_start_addr, heap_start_addr + PROCESS_HEAP_INIT_SIZE, false, true);// map a total of 2 MIB for heap (keep 1 MIB space for stack to grow)

@@ -169,6 +169,9 @@ private:
     HBAport* _port;
     PortType _type;
     uint8_t _port_num;
+    uint32_t _free_space;
+    uint32_t _used_space;
+    uint32_t _last_address;
 
     bool access(uint64_t sector, uint32_t sector_count, uint8_t* buffer, bool is_write);
     void startCmd();
@@ -179,11 +182,17 @@ public:
 
     void init(HBAport* port, PortType type, uint8_t port_num);
 
-    // reads from the disk
-    bool read(uint64_t sector, uint32_t sector_count, uint8_t* buffer);
+    // read from sector - amount of sectors 
+    bool read_sec(uint64_t sector, uint32_t sector_count, uint8_t* buffer);
 
-    // writes to the disk
-    bool write(uint64_t sector, uint32_t sector_count, uint8_t* buffer);
+    // writes to sector - amount of sectors
+    bool write_sec(uint64_t sector, uint32_t sector_count, uint8_t* buffer);
+
+    // read from address - amount of bytes
+    bool read(uint32_t address, uint32_t size, uint8_t* buffer);
+
+    // writes to address - amount of bytes
+    bool write(uint32_t address, uint32_t size, uint8_t* buffer);
 
     PortType getType() { return _type; }
 }__attribute__((packed));

@@ -91,7 +91,7 @@ public:
 	void createPageDirectory();
 
 	// returns the current page directory
-	PageDirectory* getCurrentDirectory() { return _currentDirectory; }
+	PageDirectory* getCurrentDirectory();
 
 	// allocate physicl mem for tthis range of virtual addresses (and map them)
 	void allocAddresses(uintptr_t start, uintptr_t end, bool user_supervisor, bool read_write);
@@ -99,10 +99,10 @@ public:
 	// free physical mem for this range of virtual addresses (and unmap them)
 	void freeAddresses(uintptr_t start, uintptr_t end);
 	
-	Allocator* getAllocator() { return &_alloc; }
+	Allocator* getAllocator();
 
 	// get the address to put in the cr3 register
-	uintptr_t* getPageDirectoryAddr() { return (uintptr_t*)_currentDirectory->pageDirectoryEntries; }
+	uintptr_t* getPageDirectoryAddr();
 
 	// translate a virtual address to a physical address
 	uintptr_t translateAddr(uintptr_t virtualAddr);

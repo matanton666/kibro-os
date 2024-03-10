@@ -180,6 +180,7 @@ bool PagingSystem::pageFaultHandler(PageFaultError* pageFault, uintptr_t faultAd
 
 void PagingSystem::createPageDirectory()
 {
+    // FIXME: there is a problem here with the allocator, could be that something is not free but it always returns 0 for the address.
     // create page directory table in the kernel heap
     write_serial_var("kernel heap size", (uint32_t)(uintptr_t)kernelPaging.getAllocator()->malloc(100));
     PageDirectory* directory = (PageDirectory*)kernelPaging.getAllocator()->mallocAligned(sizeof(PageDirectory), 0x10);
@@ -251,4 +252,21 @@ uintptr_t PagingSystem::mapVirtToPhys(uintptr_t virtualAddr, uintptr_t physicalA
     page->user_supervisor = 0;
     page->read_write = 1;
     return virtualAddr;
+}
+
+
+uintptr_t* PagingSystem::getPageDirectoryAddr()
+{
+    return (uintptr_t*)_currentDirectory->pageDirectoryEntries;
+}
+
+
+Allocator* PagingSystem::getAllocator()
+{
+    return &_alloc;
+}
+
+PageDirectory* PagingSystem::getCurrentDirectory()
+{
+    return _currentDirectory;
 }

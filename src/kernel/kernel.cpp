@@ -48,6 +48,8 @@ extern "C" void kernel_main(void) {
 	kernelPaging.kernelInit();
 	write_serial("init paging");
 
+    write_serial_var("kernel alllloc", (uint32_t)(uintptr_t)kernelPaging.getAllocator()->malloc(100));
+
 	process_manager.initMultitasking();
 	write_serial("init multitasking");
 
@@ -56,6 +58,7 @@ extern "C" void kernel_main(void) {
 	write_serial("enumerated pci"); 
 
 
+    write_serial_var("alllloc222**********", (uint32_t)(uintptr_t)kernelPaging.getAllocator()->malloc(100));
 	// if (disk.getType() != PortType::NONE) {
 	// 	write_serial("disk initialized");
 	// }

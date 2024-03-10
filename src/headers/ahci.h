@@ -9,8 +9,9 @@ class Ahci
 private:
     PciHeader0 _pci_base_addr;
     HBAmemory* _abar;
-    DiskPort _ports[32];
-    uint8_t _port_count = 0;
+    // DiskPort _ports[32];
+    // uint8_t _port_count = 0;
+    DiskPort _port;
 
     void probePorts();
 
