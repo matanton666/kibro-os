@@ -300,7 +300,7 @@ void ScreenApi::putcCurserPSF2( unsigned char c,uint32_t fgColor, uint32_t bgCol
     {
         curserAdd(4 * _PSF2_font->width, 0);
     }
-    else if (c == 8) // backspace
+    else if (c == '\b') // backspace
     {
         clearLastChars(1);
     }

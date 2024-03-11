@@ -63,9 +63,21 @@ extern "C" void kernel_main(void) {
 	
 
 	screen.print("\n>");
+	keyboard.reset();
 	while (true)
 	{
-
+		if (keyboard.hasBeenPressed()) 
+		{
+			char c = keyboard.getFromQueue();
+			if (c == '\n') 
+			{
+				screen.print("\n>");
+			}
+			else 
+			{
+				screen.print(c);
+			}
+		}
 	}
 	write_serial("kernel finished!\n");
 }
