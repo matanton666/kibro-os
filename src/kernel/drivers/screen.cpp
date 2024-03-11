@@ -291,9 +291,18 @@ void ScreenApi::putcCurserPSF2( unsigned char c,uint32_t fgColor, uint32_t bgCol
  {
     if (isCursorShow())
         clearCursor();
+
     if (c == '\n')
     {
         curserAdd(-_curserPos.x + CURSER_PADDING, _PSF2_font->height);
+    }
+    else if (c == '\t') 
+    {
+        curserAdd(4 * _PSF2_font->width, 0);
+    }
+    else if (c == 8) // backspace
+    {
+        clearLastChars(1);
     }
     else
     {

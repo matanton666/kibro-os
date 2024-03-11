@@ -31,19 +31,39 @@ class Keyboard
 private:
 	bool _leftShift, _rightShift, _capsLock = false, alt, ctrl;
 
-public:
 	// translate scancode and print it to the screen with charicter manipulation (shift, capslock, ect.)
-	void handleKeyboard(uint8_t scancode);
+	void checkSpecialChar(uint8_t scancode);
 
 	// translate a scancode to the coresponding charicter
 	char translateScanCode(uint8_t scanCode, bool shift, bool capsLock);
+public:
+
+	void printScancode(uint8_t scancode);
+
+	char getChar(uint8_t scancode);
+
+	// get the state of the left shift key
+	bool leftShift() { return _leftShift; }
+
+	// get the state of the right shift key
+	bool rightShift() { return _rightShift; }
+
+	// get the state of the caps lock key
+	bool capsLock() { return _capsLock; }
+
+	// get the state of the alt key
+	bool altKey() { return alt; }
+
+	// get the state of the ctrl key
+	bool ctrlKey() { return ctrl; }
+
 
 };
 
 extern Keyboard keyboard;
 
-// wrapper function for keyboard.handleKeyboard
-void keyboardHandler(uint8_t scancode);
+// // wrapper function for keyboard.printScancode
+// void keyboardHandler(uint8_t scancode);
 
 
 

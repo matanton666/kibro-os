@@ -234,7 +234,7 @@ __attribute__((interrupt)) void keyboardInputHandler(struct InterruptFrame *fram
     uint8_t scancode = inb(KEYBOARD_INPUT_PORT);
     picEndMaster();
 
-    keyboardHandler(scancode);
+    keyboard.printScancode(scancode);
 }
 
 

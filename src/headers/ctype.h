@@ -18,7 +18,7 @@ bool isGraph(char ch);
 // lower case letter
 bool isLower(char ch);
 // charicter that can be seen (excluding enter)
-bool isPrint(char ch);
+bool isPrintable(char ch);
 // space
 bool isSpace(char ch);
 // upper case letter

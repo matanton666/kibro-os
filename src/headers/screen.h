@@ -19,7 +19,7 @@ extern char _binary_res_Tamsyn8x16b_psf_end;
 #define PSF_START _binary_res_Tamsyn8x16b_psf_start
 #define PSF_END _binary_res_Tamsyn8x16b_psf_end
 
-#define CURSER_PADDING 10
+#define CURSER_PADDING 16
 
 // colors
 #define COLOR_BLACK 0x00000000
