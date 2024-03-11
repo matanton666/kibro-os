@@ -59,7 +59,7 @@ extern "C" void kernel_main(void) {
 	// TODO: create file manager
 	// disk.read(...);
 
-	runTests();
+	// runTests();
 	
 
 	screen.print("\n>");

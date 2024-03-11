@@ -5,6 +5,7 @@ Keyboard keyboard;
 void Keyboard::handleKeyboard(uint8_t scancode) {
 
     // check if scancode has special key
+    write_serial_var("scancode", scancode);
     switch (scancode) {
     case L_SHIFT:
         _leftShift = true;
@@ -51,7 +52,6 @@ void Keyboard::handleKeyboard(uint8_t scancode) {
     if (ch != 0) {
         screen.print(ch);
     }
-
 }
 
 char Keyboard::translateScanCode(uint8_t scancode, bool shift, bool capsLock)
@@ -63,7 +63,7 @@ char Keyboard::translateScanCode(uint8_t scancode, bool shift, bool capsLock)
     int ch = (int)ASCIITable[scancode];
 
     if (shift)
-        return isAlpha(ch) ? toUpper(ch) : shiftDigit(ch);
+        return isAlpha(ch) ? toUpper(ch) : shiftNonAlpha(ch);
     else if (capsLock)
         return toUpper(ch);
 

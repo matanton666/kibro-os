@@ -31,4 +31,4 @@ char toLower(char ch);
 // convert to upper case
 char toUpper(char ch);
 // convert digit to shifted digit (ex. '1' -> '!') 
-char shiftDigit(char ch);
+char shiftNonAlpha(char ch);

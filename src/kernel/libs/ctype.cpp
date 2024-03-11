@@ -58,7 +58,7 @@ char toUpper(char ch)
 	return ch;
 }
 
-char shiftDigit(char ch)
+char shiftNonAlpha(char ch)
 {
     if (isDigit(ch)) {
         switch (ch) {
@@ -82,7 +82,30 @@ char shiftDigit(char ch)
             return '(';
         case '0':
             return ')';
+        case '[':
+            return '{';
+        case ']':
+            return '}';
+        case '/':
+            return '?';
+        case ',':
+            return '<';
+        case '.':
+            return '>';
+        case ';':
+            return ':';
+        case '\'':
+            return '"';
+        case '`':
+            return '~';
+        case '\\':
+            return '|';
+        case '-':
+            return '_';
+        case '=':
+            return '+';
         }
+
     }
     return ch;
 }	
