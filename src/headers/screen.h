@@ -21,13 +21,23 @@ extern char _binary_res_Tamsyn8x16b_psf_end;
 
 #define CURSER_PADDING 16
 
-// colors
-#define COLOR_BLACK 0x00000000
-#define COLOR_WHITE 0x00ffffff
-#define COLOR_RED 0x00ff0000
-#define COLOR_GREEN 0x0000ff00
-#define COLOR_BLUE 0x000000ff
 
+
+enum COLORS
+{
+    BLACK = 0x00000000,
+    WHITE = 0x00ffffff,
+    RED = 0x00ff0000,
+    GREEN = 0x0000ff00,
+    BLUE = 0x000000ff,
+    YELLOW = 0x00ffff00,
+    CYAN = 0x0000ffff,
+    GREY = 0x00a9a9a9,
+    ORANGE = 0x00ffa500,
+    PURPLE = 0x00800080,
+    BROWN = 0x00a52a2a,
+    PINK = 0x00ffc0cb,
+};
 
 
 /*
@@ -86,8 +96,10 @@ private:
     unsigned long _fbLength = 0;
     bool _is_initialized = false;
     bool _cursorShow = false;
+    COLORS _textColor = WHITE;
+    COLORS _bgColor = BLACK;
 
-    
+
 
     // draw a pixel on the screen
     // x, y - position in pixels from the top left corner (0,0)
@@ -165,6 +177,12 @@ public:
 
     // get the length of the framebuffer in bytes
     unsigned long getFbLength();
+
+    // set the text color
+    void setTextColor(COLORS color);
+
+    // set the background color
+    void setBgColor(COLORS color);
 };
 
 

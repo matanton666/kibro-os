@@ -8,3 +8,5 @@
 
 
 void cmd_settext(char** args, unsigned int argCount);
+
+void cmd_setbg(char** args, unsigned int argCount);

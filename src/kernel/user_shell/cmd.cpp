@@ -5,7 +5,7 @@ Command commands[] = {
     {"help", cmd_help, "displays all commands", ""},
 	{"exit", cmd_exit, "exits the shell", ""},
 	{"settext", cmd_settext, "set the text color", "color"},
-	{"setbg", 0, "set the background color", "color"},
+	{"setbg", cmd_setbg, "set the background color", "color"},
 	{"clear", 0, "clear the screen", ""},
 	{"echo", 0, "print the input", "text"},
 };
@@ -56,15 +56,23 @@ void startShell()
 		}
 
 		argCount = stringToScentence(userInput, args);
-		command = args[0];
-		if (command != 0)
+		if (argCount != 0)
 		{
+			command = args[0];
 			bool cmdFound = false;
 			for (int i = 0; i < NUM_COMMANDS; i++)
 			{
 				if (strcmp(command, commands[i].name) == 0)
 				{
-					commands[i].function(args, argCount);
+					if (commands[i].function == 0)
+					{
+						screen.print("command not implemented: ");
+						screen.println(command);
+					}
+					else
+					{
+						commands[i].function(args, argCount);
+					}
 					cmdFound = true;
 					break;
 				}
@@ -171,8 +179,9 @@ void cmd_help(char** args, unsigned int argCount)
 			int count = stringToScentence(commands[i].args, arguments);
 			for (int j = 0; j < count; j++)
 			{
+				screen.print("<");
 				screen.print(arguments[j]);
-				screen.print(" ");
+				screen.print("> ");
 			}
 		}
 
