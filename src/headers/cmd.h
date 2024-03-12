@@ -20,6 +20,7 @@ struct Command
     const char* name;
     void (*function)(char** args, unsigned int argCount);
     const char* description;
+    char* args; // space delemited argument names
 };
 
 
@@ -30,9 +31,6 @@ bool getInput(char* buffer, char* prompt, uint64_t bufferSize);
 
 // converts input to char** of words. returns the number of words (does not allocate new memory)
 unsigned int stringToScentence(char* input, char** output);
-
-// parse input user command. return the number of arguments (does not allocate new memory)
-unsigned int parseCommand(char* input, char** command, char** args);
 
 void cmd_help(char** args, unsigned int argCount);
 

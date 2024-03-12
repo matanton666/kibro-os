@@ -80,11 +80,14 @@ private:
     FramebufferInfo* _fbInfo = nullptr;
     PSF1_Header* _PSF1_font = nullptr;
     PSF2_Header* _PSF2_font = nullptr;
+
     uint16_t* _unicode = nullptr;
     Point _curserPos = { CURSER_PADDING, CURSER_PADDING };
     unsigned long _fbLength = 0;
-    bool _is_initialized = false; 
+    bool _is_initialized = false;
     bool _cursorShow = false;
+
+    
 
     // draw a pixel on the screen
     // x, y - position in pixels from the top left corner (0,0)

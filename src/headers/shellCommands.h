@@ -6,3 +6,5 @@
 #include "screen.h"
 
 
+
+void cmd_settext(char** args, unsigned int argCount);

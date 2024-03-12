@@ -2,10 +2,15 @@
 
 
 Command commands[] = {
-    {"help", cmd_help, "displays all commands"},
-	{"exit", cmd_exit, "exits the shell"},
-    {"echo", 0, "repeats user input"},
-	{"clear", 0, "clears the screen"},
+    {"help", cmd_help, "displays all commands", ""},
+	{"exit", cmd_exit, "exits the shell", ""},
+	{"settext", cmd_settext, "set the text color", "color"},
+	{"setbg", 0, "set the background color", "color"},
+	{"clear", 0, "clear the screen", ""},
+	{"echo", 0, "print the input", "text"},
+};
+
+/* commands to implment?
 	{"mem", 0, "displays the amount of memory used"},
 	{"ps", 0, "displays the current processes"},
 	{"kill", 0, "kills a process"},
@@ -28,7 +33,7 @@ Command commands[] = {
 	{"find", 0, "finds a file"},
 	{"grep", 0, "searches for a pattern in a file"},
 	{"wc", 0, "displays the number of lines, words, and characters in a file"},	
-};
+*/
 
 const int NUM_COMMANDS = sizeof(commands) / sizeof(commands[0]);
 
@@ -50,7 +55,8 @@ void startShell()
 			continue;
 		}
 
-		argCount = parseCommand(userInput, &command, args);
+		argCount = stringToScentence(userInput, args);
+		command = args[0];
 		if (command != 0)
 		{
 			bool cmdFound = false;
@@ -120,14 +126,6 @@ bool getInput(char* buffer, char* prompt, uint64_t bufferSize)
 	return false;
 }
 
-unsigned int parseCommand(char* input, char** command, char** args)
-{
-	unsigned int argCount = stringToScentence(input, args);
-
-	*command = args[0];
-	args = &args[1];
-	return argCount-1;
-}
 
 unsigned int stringToScentence(char* input, char** output)
 {
@@ -156,16 +154,28 @@ unsigned int stringToScentence(char* input, char** output)
 
 void cmd_help(char** args, unsigned int argCount) 
 {
+	char** arguments;
     for (int i = 0; i < NUM_COMMANDS; i++)
     {
+        if (commands[i].function == 0)
+        {
+            screen.print("(not implemented) ");
+        }
         screen.print(commands[i].name);
         screen.print(" - ");
         screen.print(commands[i].description);
 
-        if (commands[i].function == 0)
-        {
-            screen.print(" (not implemented yet...)");
-        }
+		if (commands[i].args[0] != 0)
+		{
+			screen.print(", args: ");
+			int count = stringToScentence(commands[i].args, arguments);
+			for (int j = 0; j < count; j++)
+			{
+				screen.print(arguments[j]);
+				screen.print(" ");
+			}
+		}
+
 		screen.newLine();
     }
 }
