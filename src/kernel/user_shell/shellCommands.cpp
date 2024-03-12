@@ -132,3 +132,9 @@ void cmd_sleepms(char** args, unsigned int argCount)
     unsigned int timeInt = atoi(time);
     pit.sleepMS(timeInt);
 }
+
+void cmd_devs(char** args, unsigned int argCount)
+{
+    PCI pci;
+    pci.printAvailableDevices();
+}

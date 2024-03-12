@@ -10,6 +10,7 @@ Command commands[] = {
 	{"echo", cmd_echo, "repeat the given text", "text"},
 	{"sleep", cmd_sleep, "sleep x seconds", "seconds"},
 	{"sleepms", cmd_sleepms, "sleep x miliseconds", "miliseconds"},
+	{"devs", cmd_devs, "prints the available hardware devices", ""},
 };
 
 /* commands to implment?
