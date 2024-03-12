@@ -105,6 +105,7 @@ void ScreenApi::clearLastPixels(int rows, int amount) {
     {
         if (x <= CURSER_PADDING) // got to the left of the screen
         {
+            write_serial("got to end");
             y -= amount;
             x = _fbInfo->width - CURSER_PADDING -1;
             _curserPos.x = x;
@@ -378,6 +379,8 @@ bool ScreenApi::isCursorShow()
 
 void ScreenApi::showCursor()
 {
+    if (_cursorShow) return;
+
     int x = _curserPos.x + 1;
     int y = _curserPos.y - 1;
     for (int i = 0; i < 1; i++)
@@ -395,6 +398,8 @@ void ScreenApi::showCursor()
 }
 void ScreenApi::clearCursor()
 {
+    if (!_cursorShow) return;
+
     int x = _curserPos.x + 1;
     int y = _curserPos.y - 2;
     for (int i = 0; i < 1; i++)
