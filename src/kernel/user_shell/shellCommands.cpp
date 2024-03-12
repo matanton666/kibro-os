@@ -90,3 +90,45 @@ void cmd_setbg(char** args, unsigned int argCount)
     screen.cls();
 }
 
+
+void cmd_clear(char** args, unsigned int argCount)
+{
+    screen.cls();
+}
+
+
+void cmd_echo(char** args, unsigned int argCount)
+{
+    for (int i = 1; i < argCount; i++)
+    {
+        screen.print(args[i]);
+        screen.print(" ");
+    }
+}
+
+
+void cmd_sleep(char** args, unsigned int argCount)
+{
+    if (argCount < 2)
+    {
+        screen.println("sleep <time>");
+        return;
+    }
+
+    char* time = args[1];
+    unsigned int timeInt = atoi(time);
+    pit.sleepS(timeInt);
+}
+
+void cmd_sleepms(char** args, unsigned int argCount)
+{
+    if (argCount < 2)
+    {
+        screen.println("sleepms <time>");
+        return;
+    }
+
+    char* time = args[1];
+    unsigned int timeInt = atoi(time);
+    pit.sleepMS(timeInt);
+}

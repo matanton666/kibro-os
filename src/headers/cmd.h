@@ -20,7 +20,7 @@ struct Command
     const char* name;
     void (*function)(char** args, unsigned int argCount);
     const char* description;
-    char* args; // space delemited argument names
+    const char* args; // space delemited argument names
 };
 
 

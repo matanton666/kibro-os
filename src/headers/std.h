@@ -30,6 +30,7 @@ char* uitoa(uint64_t num, char *str, int base);
 // floating point number to ascii string
 char* ftoa(float num, char* str, int base);
 
+unsigned int atoi(const char* str);
 
 unsigned int strlen(const char* str);
 

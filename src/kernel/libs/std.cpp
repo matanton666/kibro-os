@@ -150,6 +150,18 @@ char* ftoa(float num, char* str, int base)
 	return str;
 }
 
+unsigned int atoi(const char* str)
+{
+	unsigned int result = 0;
+	for (int i = 0; str[i] != '\0'; i++)
+	{
+		if (str[i] >= '0' && str[i] <= '9')
+			result = result * 10 + str[i] - '0';
+	}
+	return result;
+
+}
+
 unsigned int strlen(const char* str)
 {
 	int i = 0;

@@ -6,8 +6,10 @@ Command commands[] = {
 	{"exit", cmd_exit, "exits the shell", ""},
 	{"settext", cmd_settext, "set the text color", "color"},
 	{"setbg", cmd_setbg, "set the background color", "color"},
-	{"clear", 0, "clear the screen", ""},
-	{"echo", 0, "print the input", "text"},
+	{"clear", cmd_clear, "clear the screen", ""},
+	{"echo", cmd_echo, "repeat the given text", "text"},
+	{"sleep", cmd_sleep, "sleep x seconds", "seconds"},
+	{"sleepms", cmd_sleepms, "sleep x miliseconds", "miliseconds"},
 };
 
 /* commands to implment?
@@ -15,6 +17,7 @@ Command commands[] = {
 	{"ps", 0, "displays the current processes"},
 	{"kill", 0, "kills a process"},
 	{"run", 0, "runs a program"},
+
 	{"ls", 0, "lists all files in the current directory"},
 	{"cd", 0, "changes the current directory"},
 	{"mkdir", 0, "creates a new directory"},
@@ -176,7 +179,7 @@ void cmd_help(char** args, unsigned int argCount)
 		if (commands[i].args[0] != 0)
 		{
 			screen.print(", args: ");
-			int count = stringToScentence(commands[i].args, arguments);
+			int count = stringToScentence((char*)commands[i].args, arguments);
 			for (int j = 0; j < count; j++)
 			{
 				screen.print("<");
