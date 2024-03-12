@@ -1,6 +1,37 @@
 #include "../../headers/cmd.h"
 
 
+Command commands[] = {
+    {"help", cmd_help, "displays all commands"},
+	{"exit", cmd_exit, "exits the shell"},
+    {"echo", 0, "repeats user input"},
+	{"clear", 0, "clears the screen"},
+	{"mem", 0, "displays the amount of memory used"},
+	{"ps", 0, "displays the current processes"},
+	{"kill", 0, "kills a process"},
+	{"run", 0, "runs a program"},
+	{"ls", 0, "lists all files in the current directory"},
+	{"cd", 0, "changes the current directory"},
+	{"mkdir", 0, "creates a new directory"},
+	{"rmdir", 0, "removes a directory"},
+	{"rm", 0, "removes a file"},
+	{"touch", 0, "creates a new file"},
+	{"cat", 0, "displays the contents of a file"},
+	{"write", 0, "writes to a file"},
+	{"append", 0, "appends to a file"},
+	{"mv", 0, "moves a file"},
+	{"cp", 0, "copies a file"},
+	{"rename", 0, "renames a file"},
+	{"pwd", 0, "displays the current directory"},
+	{"df", 0, "displays the amount of free space"},
+	{"du", 0, "displays the amount of space used by a file"},
+	{"find", 0, "finds a file"},
+	{"grep", 0, "searches for a pattern in a file"},
+	{"wc", 0, "displays the number of lines, words, and characters in a file"},	
+};
+
+const int NUM_COMMANDS = sizeof(commands) / sizeof(commands[0]);
+
 
 void startShell()
 {
@@ -20,36 +51,32 @@ void startShell()
 		}
 
 		argCount = parseCommand(userInput, &command, args);
-		if (command != 0) // TODO: problem with parsing 
+		if (command != 0)
 		{
-			// TODO: run command
-			screen.print("commmmand: ");
-			screen.print(command);
-
-			screen.print("args: ");
-			for (int i = 0; i < argCount; i++)
+			bool cmdFound = false;
+			for (int i = 0; i < NUM_COMMANDS; i++)
 			{
-				screen.print(args[i]);
-				screen.print(" ");
+				if (strcmp(command, commands[i].name) == 0)
+				{
+					commands[i].function(args, argCount);
+					cmdFound = true;
+					break;
+				}
 			}
 
-			screen.print("count: ");
-			screen.print((int)argCount);
+			if (!cmdFound)
+			{
+				screen.print("command not found: ");
+				screen.println(command);
+			}
+			
 		}
-
-		// int count = stringToScentence(userInput, args);
-		// screen.print("args: ");
-		// for (int i = 0; i < count; i++)
-		// {
-		// 	screen.print(args[i]);
-		// 	screen.print(" ");
-		// }
 
 		screen.newLine();
 	}
+	screen.cls();
+	keyboard.reset();
 }
-
-
 
 
 bool getInput(char* buffer, char* prompt, uint64_t bufferSize)
@@ -124,4 +151,32 @@ unsigned int stringToScentence(char* input, char** output)
 	}
 	
 	return wordCount;
+}
+
+
+void cmd_help(char** args, unsigned int argCount) 
+{
+    for (int i = 0; i < NUM_COMMANDS; i++)
+    {
+        screen.print(commands[i].name);
+        screen.print(" - ");
+        screen.print(commands[i].description);
+
+        if (commands[i].function == 0)
+        {
+            screen.print(" (not implemented yet...)");
+        }
+		screen.newLine();
+    }
+}
+
+void cmd_exit(char** args, unsigned int argCount) 
+{
+	screen.println("exiting...");
+	write_serial("kernel finished!\n");
+	cli();
+	while (true)
+	{
+		asm("hlt");
+	}
 }

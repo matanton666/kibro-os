@@ -173,6 +173,16 @@ char* strcat(char* dest, const char* src)
 	return dest;
 }
 
+int strcmp(const char* str1, const char* str2)
+{
+	while (*str1 && *str2 && *str1 == *str2) {
+		str1++;
+		str2++;
+	}
+
+	return *str1 - *str2;
+}
+
 void outb(uint16_t port, uint8_t value)
 {
     asm volatile("outb %b0, %w1"

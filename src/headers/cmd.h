@@ -4,6 +4,8 @@
 #include "virtualMemory.h"
 #include "processManager.h"
 #include "screen.h"
+#include "shellCommands.h"
+
 
 // todos:
 
@@ -12,6 +14,13 @@
 // - create something to manage file system manuverablility
 // - create text editor???
 // - create buffer to hold screen contents and manage it (with queue?)
+
+struct Command
+{
+    const char* name;
+    void (*function)(char** args, unsigned int argCount);
+    const char* description;
+};
 
 
 void startShell();
@@ -25,3 +34,6 @@ unsigned int stringToScentence(char* input, char** output);
 // parse input user command. return the number of arguments (does not allocate new memory)
 unsigned int parseCommand(char* input, char** command, char** args);
 
+void cmd_help(char** args, unsigned int argCount);
+
+void cmd_exit(char** args, unsigned int argCount);

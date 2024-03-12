@@ -36,6 +36,8 @@ unsigned int strlen(const char* str);
 // concatenate two strings
 char* strcat(char* dest, const char* src);
 
+// compare two strings (ret=0 if equal, ret>0 if str1 > str2, ret<0 if str1 < str2)
+int strcmp(const char* str1, const char* str2);
 
 // ** memory functions **
 
