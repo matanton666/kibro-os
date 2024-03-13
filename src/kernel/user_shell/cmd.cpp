@@ -4,20 +4,26 @@
 Command commands[] = {
     {"help", cmd_help, "displays all commands", ""},
 	{"exit", cmd_exit, "exits the shell", ""},
+	// screen commands
 	{"settext", cmd_settext, "set the text color", "color"},
 	{"setbg", cmd_setbg, "set the background color", "color"},
 	{"clear", cmd_clear, "clear the screen", ""},
 	{"echo", cmd_echo, "repeat the given text", "text"},
+	// pic commands
 	{"sleep", cmd_sleep, "sleep x seconds", "seconds"},
 	{"sleepms", cmd_sleepms, "sleep x miliseconds", "miliseconds"},
+	// pci commands
 	{"devs", cmd_devs, "prints the available hardware devices", ""},
+	// memory commands
+	{"pmem", cmd_pmem, "displays the physical memory usage", ""},
+	{"vmem", cmd_vmem, "displays the virtual memory usage", ""},
+	{"malloc", cmd_malloc, "allocates memory on heap", "size"},
+	{"free", cmd_free, "frees memory from heap", "address"},
+	// {"paddr", cmd_paddr, "displays the physical address of a virtual address", "address"},
+	{"px", 0, "show the contents of an address (amount of addresses to show)", "address amount"},
 };
 
-/* commands to implment?
-	{"mem", 0, "displays the amount of memory used"},
-	{"ps", 0, "displays the current processes"},
-	{"kill", 0, "kills a process"},
-	{"run", 0, "runs a program"},
+/* disk commands
 
 	{"ls", 0, "lists all files in the current directory"},
 	{"cd", 0, "changes the current directory"},
@@ -49,7 +55,8 @@ void startShell()
 	char** args;
 	unsigned int argCount;
 
-	keyboard.reset();
+	screen.println("Welcome to Kibro!");
+
 	while (true)
 	{
 		memset(userInput, 0, 256);
@@ -167,6 +174,8 @@ unsigned int stringToScentence(char* input, char** output)
 void cmd_help(char** args, unsigned int argCount) 
 {
 	char** arguments;
+
+	screen.print("welcome to Kibro!, available commands:\n");
     for (int i = 0; i < NUM_COMMANDS; i++)
     {
         if (commands[i].function == 0)

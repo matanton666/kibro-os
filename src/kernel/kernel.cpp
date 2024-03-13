@@ -193,7 +193,7 @@ void runTests()
 
 
 	// * test disk
-	screen.print("disk test should get to end of the screen: ");
+	screen.print("disk test should get to end of the screen:");
 	uint8_t _buffer[100];
     uint8_t _buffer3[100];
     memset(_buffer, 67, 100);

@@ -274,6 +274,8 @@ bool ScreenApi::initializeScreen(FramebufferInfo* fbInfo)
 
     _fbInfo = fbInfo;
 
+    write_serial_var("fb addr", _fbInfo->addr);
+
     if (_fbInfo == nullptr) {
         return false;
     }

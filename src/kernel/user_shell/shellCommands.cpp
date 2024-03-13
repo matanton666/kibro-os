@@ -138,3 +138,93 @@ void cmd_devs(char** args, unsigned int argCount)
     PCI pci;
     pci.printAvailableDevices();
 }
+
+
+void cmd_pmem(char** args, unsigned int argCount)
+{
+    screen.print("used mem: ");
+    screen.print(phys_mem.getUsedMem() / MIB1);
+    screen.print(" MIB\nfree mem: ");
+    screen.print(phys_mem.getFreeMem() / MIB1);
+    screen.print(" MIB\nreserved mem: ");
+    screen.print(phys_mem.getReservedMem() / MIB1);
+    screen.print(" MIB\n");
+}
+
+
+void cmd_vmem(char** args, unsigned int argCount)
+{
+    screen.print("used mem: ");
+    screen.print(kernelPaging.getAllocator()->getUsedMem() / KIB1);
+    screen.print(" KIB\nfree mem: ");
+    screen.print(kernelPaging.getAllocator()->getFreeMem() / KIB1);
+    screen.print(" KIB\nreserved mem: ");
+    screen.print(kernelPaging.getAllocator()->getReservedMem() / KIB1);
+    screen.print(" KIB\n");
+}
+
+
+void cmd_malloc(char** args, unsigned int argCount)
+{
+    if (argCount < 2)
+    {
+        screen.println("malloc <size>");
+        return;
+    }
+
+    char* size = args[1];
+    unsigned int sizeInt = atoi(size);
+    uintptr_t addr = (uintptr_t)kernelPaging.getAllocator()->malloc(sizeInt);
+    if (addr == 0)
+    {
+        screen.println("failed to allocate memory");
+        return;
+    }
+    screen.print("allocated memory at: 0x");
+    screen.printHex(addr);
+}
+
+
+void cmd_free(char** args, unsigned int argCount)
+{
+    if (argCount < 2)
+    {
+        screen.println("free <addr>");
+        return;
+    }
+
+    char* addr = args[1];
+    if (addr[0] != '0' || addr[1] != 'x')
+    {
+        screen.println("invalid address (must start with 0x)");
+        return;
+    }
+
+    uintptr_t addrInt = (uintptr_t)atoh(&addr[2]);
+    kernelPaging.getAllocator()->free((void*)addrInt);
+    screen.print("freed memory at: 0x");
+    screen.printHex(addrInt);
+}
+
+
+
+void cmd_paddr(char** args, unsigned int argCount)
+{
+    if (argCount < 2)
+    {
+        screen.println("paddr <vaddr>");
+        return;
+    }
+
+    char* addr = args[1];
+    if (addr[0] != '0' || addr[1] != 'x')
+    {
+        screen.println("invalid address (must start with 0x)");
+        return;
+    }
+
+    uintptr_t addrInt = (uintptr_t)atoh(&addr[2]);
+    uintptr_t paddr = kernelPaging.translateAddr(addrInt);
+    screen.print("physical address: 0x");
+    screen.printHex(paddr);
+}

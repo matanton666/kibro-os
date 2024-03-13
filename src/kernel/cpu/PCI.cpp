@@ -94,11 +94,11 @@ void PCI::printAvailableDevices()
             {
                 screen.print("vendor: ");
                 screen.print(GetVendorName(dv_header.vendor_id));
-                screen.print(" | device: ");
+                screen.print(" \\ device: ");
                 screen.print(GetDeviceName(dv_header.vendor_id, dv_header.device_id));
-                screen.print(" | class: ");
+                screen.print(" \\ class: ");
                 screen.print(GetSubclassName(dv_header.class_code, dv_header.subclass));
-                screen.print(" | progIF: ");
+                screen.print(" \\ progIF: ");
                 screen.print(GetProgIFName(dv_header.class_code, dv_header.subclass, dv_header.prog_if));
                 screen.newLine();
             } 

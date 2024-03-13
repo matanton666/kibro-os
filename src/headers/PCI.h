@@ -23,7 +23,7 @@ public:
 
     void checkAllBuses();
 
-    static void printAvailableDevices();
+    void printAvailableDevices();
 
     // template function to get header from bus
     template <typename T>

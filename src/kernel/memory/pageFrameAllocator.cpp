@@ -53,6 +53,7 @@ bool PageFrameAllocator::init()
     }
 
     _free_memory = _bitmap.getMemMapApi()->getFreeMem();
+    write_serial_var("freemem", _free_memory);
     _used_memory = _bitmap.getMemMapApi()->getUsedMem();
     _reserved_memory = _bitmap.getMemMapApi()->getReservedMem();
 
