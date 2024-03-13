@@ -20,7 +20,8 @@ Command commands[] = {
 	{"malloc", cmd_malloc, "allocates memory on heap", "size"},
 	{"free", cmd_free, "frees memory from heap", "address"},
 	// {"paddr", cmd_paddr, "displays the physical address of a virtual address", "address"},
-	{"px", 0, "show the contents of an address (amount of addresses to show)", "address amount"},
+	{"px", cmd_px, "show the contents of an address (amount of addresses to show)", "address amount"},
+	{"sx", cmd_sx, "set the contents of an address", "address value"},
 };
 
 /* disk commands

@@ -24,10 +24,6 @@ extern "C" void kernel_main(void) {
 
 	if (screen.init()) {
 		write_serial((char*)"screen initialized");
-
-		//* test printing to screen
-		screen.cls();
-		screen.println("Welcome to Kibro!");
 	}
 	else {
 		write_serial("**** screen failed to initialize");

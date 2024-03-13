@@ -32,7 +32,9 @@ void cmd_free(char** args, unsigned int argCount);
 
 void cmd_paddr(char** args, unsigned int argCount);
 
+void cmd_px(char** args, unsigned int argCount);
 
+void cmd_sx(char** args, unsigned int argCount);
 
 
 // TODO: memory manager
