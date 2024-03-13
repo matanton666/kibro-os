@@ -76,7 +76,16 @@ public:
     // start a task (put it in the queue)
     void startTask(PCB* task);
 
+    // stop task 
+    void killTask(PCB* task);
+
+    void killTask(unsigned int id);
+
     PCB* getCurrentTask();
+
+    PCB* getHighPriorityTask();
+
+    PCB* getLowPriorityTask();
 };
 
 

@@ -19,9 +19,14 @@ Command commands[] = {
 	{"vmem", cmd_vmem, "displays the virtual memory usage", ""},
 	{"malloc", cmd_malloc, "allocates memory on heap", "size"},
 	{"free", cmd_free, "frees memory from heap", "address"},
-	// {"paddr", cmd_paddr, "displays the physical address of a virtual address", "address"},
+	{"paddr", cmd_paddr, "displays the physical address of a virtual address", "address"},
 	{"px", cmd_px, "show the contents of an address (amount of addresses to show)", "address amount"},
 	{"sx", cmd_sx, "set the contents of an address", "address value"},
+	// process commands
+	{"exec", cmd_exec, "executes a program in new process", "program_number"},
+	{"programs", cmd_programs, "lists avilable programs that can be executed useing `exec`", ""},
+	{"top", cmd_top, "displays the top processes", ""},
+	{"kill", cmd_kill, "kills a process", "pid"},
 };
 
 /* disk commands
@@ -205,7 +210,7 @@ void cmd_help(char** args, unsigned int argCount)
 
 void cmd_exit(char** args, unsigned int argCount) 
 {
-	screen.println("exiting...");
+	screen.println("stopping all");
 	write_serial("kernel finished!\n");
 	cli();
 	while (true)

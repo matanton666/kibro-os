@@ -307,6 +307,97 @@ void cmd_sx(char** args, unsigned int argCount)
 
     // set the value at the address + offset
     *(uint32_t*)addrInt = valueInt;
+
+    screen.print("0x");
+    screen.printHex(addrInt);
+    screen.print(" = ");
+    screen.print("0x");
+    screen.printHex(valueInt);
 }
 
+
+void cmd_programs(char** args, unsigned int argCount)
+{
+    screen.println("programs:");
+    for (int i = 0; i < NUM_PROGRAMS; i++)
+    {
+        screen.print(i);
+        screen.print(") ");
+        screen.print(programs[i].name);
+        screen.print(" - ");
+        screen.print(programs[i].description);
+        screen.newLine();
+    }
+}
+
+
+void cmd_exec(char** args, unsigned int argCount)
+{
+    if (argCount < 2)
+    {
+        screen.println("exec <program_number>");
+        return;
+    }
+
+    char* program = args[1];
+    int programInt = atoi(program);
+    if (programInt < 0 || programInt >= NUM_PROGRAMS)
+    {
+        screen.println("invalid program number");
+        return;
+    }
+
+    PCB* proc = process_manager.newKernelTask(programs[programInt].function, LOW_PRIORITY);
+    screen.print("process id: ");
+    screen.print(proc->id);
+    screen.newLine();
+
+    screen.println("running program...");
+    process_manager.startTask(proc);
+}
+
+
+void cmd_top(char** args, unsigned int argCount)
+{
+    screen.println("running processes:");
+    PCB* head = process_manager.getHighPriorityTask();
+    printProcesses(head);
+
+    head = process_manager.getLowPriorityTask();
+    printProcesses(head);
+}
+
+void cmd_kill(char** args, unsigned int argCount)
+{
+    if (argCount < 2)
+    {
+        screen.println("kill <id>");
+        return;
+    }
+    process_manager.killTask(atoi(args[1]));
+}
+
+
+
+
+
+
+
+void printProcesses(PCB* head)
+{
+    while (head != 0)
+    {
+        screen.print("id: ");
+        screen.print(head->id);
+        screen.print(", priority: ");
+        screen.print(head->priority);
+        screen.print(", state: ");
+        screen.print(head->state);
+        screen.print(", total mem: ");
+        screen.print(head->paging_system->getAllocator()->getTotalMem() / KIB1);
+        screen.print(" KIB");
+        screen.newLine();
+        head = head->next;
+    }
+}
 

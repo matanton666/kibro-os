@@ -207,6 +207,9 @@ void ProcessManagerApi::runNextTask()
         while (!_to_delete.isEmpty())
         {
             PCB* to_del = _to_delete.pop();
+            if (to_del == nullptr) {
+                continue;
+            }
         
             write_serial_var("deleteing task", to_del->id);
             // free process memory
@@ -258,8 +261,8 @@ void ProcessManagerApi::runNextTask()
     
     case TERMINATED:
         // should not get here
-        write_serial("something went wrong in process manager (process state is TERMINATED)");
-        curr_lst->rotate();
+        _to_delete.push(curr_lst->pop());
+        runNextTask();
         break;
     
     case RUNNING:
@@ -313,6 +316,39 @@ void ProcessManagerApi::startTask(PCB* task)
 
 }
 
+void ProcessManagerApi::killTask(PCB* task)
+{
+    cli();
+    task->state = TERMINATED;
+    sti();
+}
+
+void ProcessManagerApi::killTask(unsigned int id)
+{
+    cli();
+    PCB* task = _high_priority_lst.peek();
+    while (task != 0 && task->id != id) task = task->next;
+    
+    if (task == nullptr) {
+        task = _low_priority_lst.peek();
+        while (task != 0 && task->id != id) task = task->next;
+    }
+    if (task != nullptr) {
+        task->state = TERMINATED;
+    }
+    sti();
+}
+
+
+PCB* ProcessManagerApi::getHighPriorityTask()
+{
+    return _high_priority_lst.peek();
+}
+
+PCB* ProcessManagerApi::getLowPriorityTask()
+{
+    return _low_priority_lst.peek();
+}
 
 
 

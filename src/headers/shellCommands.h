@@ -6,6 +6,7 @@
 #include "screen.h"
 #include "PCI.h"
 #include "memoryAllocator.h"
+#include "demoPrograms.h"
 
 
 void cmd_settext(char** args, unsigned int argCount);
@@ -36,10 +37,20 @@ void cmd_px(char** args, unsigned int argCount);
 
 void cmd_sx(char** args, unsigned int argCount);
 
+void cmd_programs(char** args, unsigned int argCount);
 
-// TODO: memory manager
+void cmd_exec(char** args, unsigned int argCount);
 
-// TODO: process manager
+void cmd_top(char** args, unsigned int argCount);
+
+void cmd_kill(char** args, unsigned int argCount);
+
+
+
+
+// helper function for top
+void printProcesses(PCB* head);
+
 
 // TODO: file system
 
