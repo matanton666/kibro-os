@@ -98,6 +98,7 @@ private:
     bool _cursorShow = false;
     COLORS _textColor = WHITE;
     COLORS _bgColor = BLACK;
+    bool _is_printing = false;
 
 
 
@@ -183,6 +184,9 @@ public:
 
     // set the background color
     void setBgColor(COLORS color);
+
+    // function for the PIT to check if the cursor should blink
+    bool isPrinting();
 };
 
 

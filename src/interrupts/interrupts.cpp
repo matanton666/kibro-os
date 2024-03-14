@@ -243,9 +243,16 @@ __attribute__((interrupt)) void PIT_InputHandler(struct InterruptFrame *frame)
     pit.tick(); // tick once
     picEndMaster();
 
-    if (pit.getTimeSinceBoot() % PROCESS_TIME == 0) { // context switch every 40 ms
+    if (pit.getTimeSinceBoot() % PROCESS_TIME == 0) { // context switch every 50 ms
         process_manager.runNextTask();
     
+    }
+    if (pit.getTimeSinceBoot() % CURSOR_BLINK_TIME == 0 && !screen.isPrinting()) { // blink cursor every 500 ms
+        if (screen.isCursorShow()) {
+            screen.clearCursor();
+        } else {
+            screen.showCursor();
+        }
     }
 
 }

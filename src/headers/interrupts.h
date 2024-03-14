@@ -23,6 +23,7 @@
 #define KEYBOARD_INPUT_PORT 0x60
 
 #define PROCESS_TIME 50 // time in ms each process gets
+#define CURSOR_BLINK_TIME 750 // time in ms for cursor to blink
 
 typedef bool bit_t;
 

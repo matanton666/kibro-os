@@ -179,7 +179,7 @@ unsigned int stringToScentence(char* input, char** output)
 
 void cmd_help(char** args, unsigned int argCount) 
 {
-	char** arguments;
+	char** arguments = nullptr;
 
 	screen.print("welcome to Kibro!, available commands:\n");
     for (int i = 0; i < NUM_COMMANDS; i++)
@@ -194,7 +194,7 @@ void cmd_help(char** args, unsigned int argCount)
 
 		if (commands[i].args[0] != 0)
 		{
-			screen.print(", args: ");
+			screen.print(" \\ args: ");
 			int count = stringToScentence((char*)commands[i].args, arguments);
 			for (int j = 0; j < count; j++)
 			{
