@@ -5,6 +5,7 @@
 #include "processManager.h"
 #include "screen.h"
 #include "shellCommands.h"
+#include "moreCommands.h"
 
 
 // todos:

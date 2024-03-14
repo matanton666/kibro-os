@@ -380,9 +380,6 @@ void cmd_kill(char** args, unsigned int argCount)
 
 
 
-
-
-
 void printProcesses(PCB* head)
 {
     while (head != 0)

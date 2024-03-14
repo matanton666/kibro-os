@@ -32,13 +32,13 @@ $(os_bin_file): $(asm_object_files) $(cpp_object_files) $(psf_object_files) $(li
 # compile interrupts with separate flags
 build/kernel/interrupts.o: src/interrupts/interrupts.cpp $(headers_folder)/interrupts.h
 	@mkdir -p build/kernel
-	i686-elf-g++ -mno-red-zone -mgeneral-regs-only -ffreestanding -I $(headers_folder) -g -c -o $@ $<
+	i686-elf-g++ -mno-red-zone -mgeneral-regs-only -ffreestanding -I $(headers_folder) -g -O0 -c -o $@ $<
 	@echo "compiled $<"
 
 # compile when src files change
 $(asm_object_files): build/kernel/%.o: src/kernel/%.s
 	@mkdir -p $(dir $@)
-	i686-elf-as -g $< -o $@
+	i686-elf-as -g -O0 $< -o $@
 	@echo "compiled $<"
 
 $(cpp_object_files): build/kernel/%.o: src/kernel/%.cpp $(cpp_header_files)
@@ -53,7 +53,7 @@ $(psf_object_files): build/%.o: res/%.psf
 # create external storage image
 $(os_ext_storage_file):
 	@mkdir -p dist
-	dd 'if=/dev/zero' 'of=$@' 'bs=1M' 'count=100'
+	dd 'if=/dev/zero' 'of=$@' 'bs=1M' 'count=50'
 	@echo "created external storage image"
 
 # other functions

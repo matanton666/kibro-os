@@ -7,6 +7,7 @@ Command commands[] = {
 	// screen commands
 	{"settext", cmd_settext, "set the text color", "color"},
 	{"setbg", cmd_setbg, "set the background color", "color"},
+	{"curwide", cmd_curwide, "toggle wide / slim cursor", ""},
 	{"clear", cmd_clear, "clear the screen", ""},
 	{"echo", cmd_echo, "repeat the given text", "text"},
 	// pic commands

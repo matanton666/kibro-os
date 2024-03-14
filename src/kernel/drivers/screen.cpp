@@ -390,14 +390,15 @@ bool ScreenApi::isCursorShow()
 void ScreenApi::showCursor()
 {
     if (_cursorShow) return;
+    _is_printing = true;
 
     int x = _curserPos.x + 1;
     int y = _curserPos.y - 1;
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < _curosr_width; i++)
     {
         for (int j = 0; j < _PSF2_font->height + 2; j++)
         {
-            drawPixel(x, y, COLORS::WHITE);
+            drawPixel(x, y, _textColor);
             y++;
         }
 
@@ -405,14 +406,16 @@ void ScreenApi::showCursor()
         x++;
     }
     _cursorShow = true;
+    _is_printing = false;
 }
 void ScreenApi::clearCursor()
 {
     if (!_cursorShow) return;
 
+    _is_printing = true;
     int x = _curserPos.x + 1;
     int y = _curserPos.y - 2;
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < _curosr_width; i++)
     {
         for (int j = 0; j < _PSF2_font->height + 4; j++)
         {
@@ -424,6 +427,7 @@ void ScreenApi::clearCursor()
         x++;
     }
     _cursorShow = false;
+    _is_printing = false;
 }
 
 const uint32_t ScreenApi::getFbStartAddress()
@@ -454,5 +458,22 @@ void ScreenApi::setBgColor(COLORS color)
 bool ScreenApi::isPrinting()
 {
     return _is_printing;
+}
+
+
+void ScreenApi::setCursorWidth(unsigned int width)
+{
+    if (width >= 1 && width <= 8)
+    {
+        clearCursor();
+        _curosr_width = width;
+        showCursor();
+    }
+}
+
+
+unsigned int ScreenApi::getCursorWidth()
+{
+    return _curosr_width;
 }
 

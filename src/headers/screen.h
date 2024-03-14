@@ -99,6 +99,7 @@ private:
     COLORS _textColor = WHITE;
     COLORS _bgColor = BLACK;
     bool _is_printing = false;
+    unsigned int _curosr_width = 1;
 
 
 
@@ -187,6 +188,10 @@ public:
 
     // function for the PIT to check if the cursor should blink
     bool isPrinting();
+
+    void setCursorWidth(unsigned int width);
+
+    unsigned int getCursorWidth();
 };
 
 
