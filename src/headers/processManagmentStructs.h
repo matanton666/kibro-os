@@ -77,7 +77,7 @@ struct PCB // regular registers are stored on the stack
     uint8_t state;
     int id;
     bool priority;
-    MemoryManager::PagingSystem* paging_system;
+    PagingSystem* paging_system;
 
     PCB* next;
 }__attribute__((packed));

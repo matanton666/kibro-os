@@ -1,22 +1,27 @@
 #include "../../headers/virtualMemory.h"
 
-using MemoryManager::PagingSystem;
 PagingSystem* _currentPagingSys;
-MemoryManager::PagingSystem kernelPaging;
+PagingSystem kernelPaging;
 
 extern "C" void enable_paging(uintptr_t*);
+extern "C" void switch_pd(uintptr_t*);
 
 
 bool PagingSystem::init()
 {
-    if (_is_initialized) {
+    if (_is_initialized == -1) {
         return true;
     }
 
     createPageDirectory();
+    if (getPageDirectoryAddr() == nullptr) {
+        write_serial("failed to create page directory");
+        return false;
+    }
+
     mapKernelMem();
 
-    _is_initialized = true;
+    _is_initialized = -1;
     return true;
 } 
 
@@ -28,7 +33,14 @@ void PagingSystem::kernelInit() // TODO: find a better way to initialize the ker
     }
     _alloc.init(phys_mem.getBitmapEndAddress(), KENREL_HEAP_SIZE); // init allocator for kernel heap
 
-    createPageDirectory();
+    // create page directory
+    PageDirectory* directory = (PageDirectory*)_alloc.callocAligned(sizeof(PageDirectory), KIB4);
+    _currentDirectory = directory;
+
+    if (directory == nullptr) {
+        write_serial("***failed to create page directory");
+        return;
+    }
 
     // reserve kernel physical memory
     phys_mem.lockPages((unsigned char*)0, (unsigned int)TOTAL_KERNEL_END_ADDR / PAGE_SIZE + 1);
@@ -38,13 +50,15 @@ void PagingSystem::kernelInit() // TODO: find a better way to initialize the ker
 
     mapKernelMem();
 
-    enablePaging();
+    // enable();
+    enable_paging(getPageDirectoryAddr());
+    _currentPagingSys = this;
 
     _is_initialized = true;
 }
 
 
-MemoryManager::Page* PagingSystem::getPage(uintptr_t address, bool make)
+Page* PagingSystem::getPage(uintptr_t address, bool make)
 {
     address /= PAGE_SIZE; // get index from address (get the left most 22 bits)
     uint32_t table_idx = address / PAGE_COUNT; // get table index from address (get the left most 10 bits)
@@ -135,27 +149,28 @@ void PagingSystem::identityPaging(uintptr_t start, uintptr_t end)
     }
 }
 
-void PagingSystem::enablePaging()
+void PagingSystem::enable()
 {
-    enable_paging(getPageDirectoryAddr());
-    _currentPagingSys = this;
+    switch_pd(getPageDirectoryAddr());
 }
 
 bool PagingSystem::pageFaultHandler(PageFaultError* pageFault, uintptr_t faultAddr)
 {
-    MemoryManager::Page* page = nullptr;
+    Page* page = nullptr;
 
     write_serial_var("page fault addr", faultAddr);
 
     //should kill process or send invalid addrs to it
     if (pageFault->protection_key)
     {
+        write_serial("  protection key violation");
         return false;
     }
 
     // page is not presend and the fault occured by a write opperation
     if (!pageFault->present && pageFault->write != 0)
     {
+        write_serial("  allocating memory for new page");
         page = getPage(faultAddr, true);
 
         page->present = 1;
@@ -163,20 +178,21 @@ bool PagingSystem::pageFaultHandler(PageFaultError* pageFault, uintptr_t faultAd
         page->accessed = 1;
 
         allocFrame(page, pageFault->user, pageFault->write);
+        return true;
     }
-    return true;
+    return false;
 }
 
 void PagingSystem::createPageDirectory()
 {
     // create page directory table in the kernel heap
-    PageDirectory* directory = (PageDirectory*)kernelPaging.getAllocator()->mallocAligned(sizeof(PageDirectory), KIB4);
-    memset(directory, 0, sizeof(PageDirectory));
+    PageDirectory* directory = (PageDirectory*)kernelPaging.getAllocator()->callocAligned(sizeof(PageDirectory), KIB4);
     _currentDirectory = directory;
+    // write_serial_var("page directory addr", (uintptr_t)directory);
 }
 
 
-PagingSystem* MemoryManager::getCurrentPagingSys()
+PagingSystem* getCurrentPagingSys()
 {
     return _currentPagingSys;
 }
@@ -227,4 +243,32 @@ uintptr_t PagingSystem::translateAddr(uintptr_t virtualAddr)
 
     uintptr_t physicalAddress = (page.frame << 12) + (virtualAddr & 0xFFF);
     return physicalAddress;
+}
+
+
+uintptr_t PagingSystem::mapVirtToPhys(uintptr_t virtualAddr, uintptr_t physicalAddr)
+{
+    Page* page = getPage(virtualAddr, true);
+    page->frame = physicalAddr >> 12;
+    page->present = 1;
+    page->user_supervisor = 0;
+    page->read_write = 1;
+    return virtualAddr;
+}
+
+
+uintptr_t* PagingSystem::getPageDirectoryAddr()
+{
+    return (uintptr_t*)_currentDirectory->pageDirectoryEntries;
+}
+
+
+Allocator* PagingSystem::getAllocator()
+{
+    return &_alloc;
+}
+
+PageDirectory* PagingSystem::getCurrentDirectory()
+{
+    return _currentDirectory;
 }
