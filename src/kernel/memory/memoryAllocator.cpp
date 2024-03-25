@@ -68,6 +68,7 @@ void Allocator::appendNewMem(uintptr_t start, size_t size)
 {
 	if (start != _memEndAddr + 1) // if the new memory block is not adjacent to the current memory pool
 	{
+		write_serial("Warning: adding non-adjacent memory block to the allocator");
 		screen.print("\n Warning: adding non-adjacent memory block to the allocator\n");
 		return;
 	}

@@ -110,9 +110,6 @@ public:
 	// map a virtual address to a physical address, returns the new virtual address
 	uintptr_t mapVirtToPhys(uintptr_t virtualAddr, uintptr_t physicalAddr);
 
-
-	
-
 };
 
 PagingSystem* getCurrentPagingSys();

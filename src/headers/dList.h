@@ -18,4 +18,4 @@ void DListRemove(DList** head, DList* node);
 // void DListInsertAfter(DList* node, DList* newNode);
 // void DListInsertBefore(DList** head, DList* node, DList* newNode);
 
-// void printDList(DList* head);
+void printDList(DList* head);

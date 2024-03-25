@@ -200,14 +200,30 @@ char* strcat(char* dest, const char* src)
 	return dest;
 }
 
-int strcmp(const char* str1, const char* str2)
+char* strcpy(char* dest, const char* src) 
 {
-	while (*str1 && *str2 && *str1 == *str2) {
-		str1++;
-		str2++;
+	if (dest == nullptr || src == nullptr) {
+		return nullptr;
 	}
 
-	return *str1 - *str2;
+	char* ptr = dest;
+	while (*src != '\0') {
+		*ptr++ = *src++;
+	}
+	*ptr = '\0';
+
+	return dest;
+}
+
+int strcmp(const char* s1, const char* s2) {
+	while (*s1 == *s2) {
+		if (*s1 == '\0') {
+			return 0;
+		}
+		s1++;
+		s2++;
+	}
+	return *s1 - *s2;
 }
 
 void outb(uint16_t port, uint8_t value)

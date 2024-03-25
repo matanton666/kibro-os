@@ -53,7 +53,7 @@ $(psf_object_files): build/%.o: res/%.psf
 # create external storage image
 $(os_ext_storage_file):
 	@mkdir -p dist
-	dd 'if=/dev/zero' 'of=$@' 'bs=1M' 'count=50'
+	dd 'if=/dev/zero' 'of=$@' 'bs=1M' 'count=100'
 	@echo "created external storage image"
 
 # other functions

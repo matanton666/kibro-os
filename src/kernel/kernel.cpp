@@ -11,6 +11,8 @@
 #include "../headers/PIT.h"
 #include "../headers/memoryAllocator.h"
 #include "../headers/PCI.h"
+#include "../headers/fileSystem.h"
+#include "../headers/PCI.h"
 #include "../headers/cmd.h"
 
 extern PagingSystem kernelPaging;
@@ -53,13 +55,21 @@ extern "C" void kernel_main(void) {
 	pci.checkAllBuses(); // initialize the disk
 	write_serial("enumerated pci"); 
 
-	// TODO: create file manager
-	// disk.read(...);
 
-	// runTests();
+
+	if (initFileSystem()) {
+		write_serial("file system initialized");
+	}
+	else {
+		write_serial("file system failed to initialize");
+	}
 	
-	startShell();
 
+	screen.print("\n>");
+	while (true)
+	{
+		asm("hlt");
+	}
 	write_serial("kernel finished!\n");
 }
 
@@ -164,7 +174,7 @@ void runTests()
 	allocator.free(t3), t3 = nullptr;
 	allocator.free(t4), t4 = nullptr;
 
-	t1 = allocator.malloc(3000);
+	t1 = allocator.malloc(300);
 	screen.print("Malloc'd from free list: ");
 	screen.printHex((uint64_t)t1);
 	screen.newLine();
@@ -178,7 +188,7 @@ void runTests()
 	screen.newLine();
 
 
-	//test page fault
+	// test page fault
 	struct a{int i;};
 	a* idk = (a*)0x1507DC0B;
 
@@ -189,13 +199,13 @@ void runTests()
 
 
 	// * test disk
-	screen.print("disk test should get to end of the screen:");
+	screen.print("disk test should get to end of the screen: ");
 	uint8_t _buffer[100];
-    uint8_t _buffer3[100];
-    memset(_buffer, 67, 100);
-    disk.write(470, 100, _buffer);
+   uint8_t _buffer3[100];
+   memset(_buffer, 67, 100);
+   disk.write(470, 100, _buffer);
 
-    disk.read(489, 100, _buffer3);
-    screen.print((char*)_buffer3);
+   disk.read(489, 100, _buffer3);
+   screen.print((char*)_buffer3);
 	write_serial("disk tested");
 }
