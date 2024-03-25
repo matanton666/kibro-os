@@ -58,7 +58,7 @@ bool createFS()
 
 	currDirInodeIdxG = fatherInodeIdxG;
 
-	createNewDirectory("/"); // TODO: root should not have .. entry
+	createNewDirectory("/");
 
 	currDir = readDirectoryList(getInode(rootInodeIdxG));
 	currDirInodeIdxG = rootInodeIdxG;
@@ -67,11 +67,11 @@ bool createFS()
 
 	createNewDirectory("user1");
 	cd("user1");
-	// createNewDirectory("Documents");
-	// createNewDirectory("Desktop");
-	// createNewDirectory("Downloads");
-	// createNewDirectory("Pictures");
-	// cd("..");
+	createNewDirectory("Documents");
+	createNewDirectory("Desktop");
+	createNewDirectory("Downloads");
+	createNewDirectory("Pictures");
+	cd("..");
 	return true;
 }
 

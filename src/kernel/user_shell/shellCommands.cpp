@@ -410,6 +410,10 @@ void cmd_ls(char** args, unsigned int argCount)
             showAll = true;
         }
     }
+    else // skip '.' and '..' directorys
+    {
+        curr = curr->next->next;
+    }
 
 
     while (curr != nullptr)
