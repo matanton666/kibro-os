@@ -37,19 +37,14 @@ Command commands[] = {
 	{"cat", cmd_cat, "displays the contents of a file", "file_name"},
 };
 
+// TODO:
 /* disk commands
-
-	{"write", 0, "writes to a file"},
-	{"append", 0, "appends to a file"},
-	{"mv", 0, "moves a file"},
-	{"cp", 0, "copies a file"},
-	{"rename", 0, "renames a file"},
-	{"pwd", 0, "displays the current directory"},
+	{"write", 0, "writes to a file", "file_name data"},
+	{"append", 0, "appends to a file", "file_name data"},
+	{"mv", 0, "moves a file", "file_name target_dir"},
+	{"rename", 0, "renames a file", "file_name"},
 	{"df", 0, "displays the amount of free space"},
-	{"du", 0, "displays the amount of space used by a file"},
-	{"find", 0, "finds a file"},
-	{"grep", 0, "searches for a pattern in a file"},
-	{"wc", 0, "displays the number of lines, words, and characters in a file"},	
+	{"du", 0, "displays the amount of space used by a file", "file_name"},
 */
 
 const int NUM_COMMANDS = sizeof(commands) / sizeof(commands[0]);
