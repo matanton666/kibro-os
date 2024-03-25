@@ -29,9 +29,13 @@ void DListRemove(DList** head, DList* node)
 		return;
 
 	if ((*head) == node) // if node is head set the pointer of head to next
+	{
 		(*head) = node->next;
-	
-	node->prev->next = node->next; // set previous node to skip current node
+	}
+	else
+	{
+		node->prev->next = node->next; // set previous node to skip current node
+	}
 
 	if (node->next == nullptr) // is last node
 		return;
@@ -60,18 +64,21 @@ void DListPushBack(DList** head, DList* newNode)
 }
 
 
-// void printDList(DList* head)
-// {
-// 	DList* last = head;
-// 	while (last != nullptr)
-// 	{
-// 		screen.printHex((uint64_t)last);
-// 		screen.print(" -> ");
-// 		last = last->next;
-// 	}
-// 	screen.print("nullptr");
-// 	screen.newLine();
-// }
+void printDList(DList* head)
+{
+	DList* last = head;
+	while (last != nullptr)
+	{
+		write_serial_hex((uint64_t)last);
+		write_serial(" <-> ");
+		// screen.printHex((uint64_t)last);
+		// screen.print(" -> ");
+		last = last->next;
+	}
+	// screen.print("nullptr");
+	// screen.newLine();
+	write_serial("nullptr");
+}
 
 
 // void DListInsertAfter(DList* node, DList* newNode)

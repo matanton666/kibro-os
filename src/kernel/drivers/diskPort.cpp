@@ -86,7 +86,7 @@ bool DiskPort::read(uint32_t address, uint32_t size, uint8_t* buffer)
     uint64_t start_sector = address / 512;
     uint32_t sector_count = (size / 512) + ((size % 512) ? 1 : 0);
 
-    if ((address % 512) + size > 512) {
+    if ((address % 512) + size > 512 * sector_count) {
         sector_count++;
     }
 
@@ -106,14 +106,15 @@ bool DiskPort::read(uint32_t address, uint32_t size, uint8_t* buffer)
 }
 
 
-bool DiskPort:: write(uint32_t address, uint32_t size, uint8_t* buffer)
+bool DiskPort::write(uint32_t address, uint32_t size, uint8_t* buffer)
 {
 
     // translate address to sector
     uint64_t sector = address / 512;
     uint32_t sector_count = (size / 512) + ((size % 512) ? 1 : 0);
 
-    if ((address % 512) + size > 512) {
+    // check if offset of address makes it so we need to read an extra sector
+    if ((address % 512) + size > 512 * sector_count) {
         sector_count++;
     }
 
@@ -122,16 +123,14 @@ bool DiskPort:: write(uint32_t address, uint32_t size, uint8_t* buffer)
     }
 
     // Allocate a temporary buffer to hold the data to be written
-    uint8_t* temp_buffer = (uint8_t*)kernelPaging.getAllocator()->malloc(sector_count * 512);
+    uint8_t* temp_buffer = (uint8_t*)kernelPaging.getAllocator()->calloc(sector_count * 512);
 
 
     // If the address is not a multiple of the sector size, we need to read the first sector first,
     // modify the part we want, and then write it back.
-    if (address % 512 != 0) {
-        if (!readSec(sector, 1, temp_buffer)) {
-            kernelPaging.getAllocator()->free(temp_buffer);
-            return false;
-        }
+    if (!readSec(sector, 1, temp_buffer)) {
+        kernelPaging.getAllocator()->free(temp_buffer);
+        return false;
     }
 
     // If the size is not a multiple of the sector size, we need to read the last sector first,

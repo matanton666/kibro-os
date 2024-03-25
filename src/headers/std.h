@@ -36,6 +36,11 @@ unsigned int strlen(const char* str);
 // concatenate two strings
 char* strcat(char* dest, const char* src);
 
+// copy one string to another
+char* strcpy(char* dest, const char* src);
+
+int strcmp(const char* s1, const char* s2);
+
 
 // ** memory functions **
 
