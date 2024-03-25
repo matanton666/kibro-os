@@ -380,6 +380,7 @@ void cmd_top(char** args, unsigned int argCount)
     printProcesses(head);
 }
 
+
 void cmd_kill(char** args, unsigned int argCount)
 {
     if (argCount < 2)
@@ -389,6 +390,164 @@ void cmd_kill(char** args, unsigned int argCount)
     }
     process_manager.killTask(atoi(args[1]));
 }
+
+
+void cmd_ls(char** args, unsigned int argCount)
+{
+    Directory* curr = getCurrentDir();
+    if (curr == 0)
+    {
+        screen.println("failed to get current directory");
+        return;
+    }
+
+    bool showAll = false;
+
+    if (argCount > 1)
+    {
+        if (strcmp(args[1], "-a") == 0)
+        {
+            showAll = true;
+        }
+    }
+
+
+    while (curr != nullptr)
+    {
+        screen.print(curr->entry.fileName);
+        if (showAll)
+        {
+            screen.print(" ");
+            switch (curr->entry.fileType)
+            {
+            case DirFileType::FT_DIR:
+                screen.print("- DIR - ");
+                break;
+            case DirFileType::FT_RF:
+                screen.print("- FILE - ");
+                break;      
+            case DirFileType::FT_SL:
+                screen.print("- LINK - ");
+                break;
+            
+            default:
+                break;
+            }
+
+            int size = getInodeSize(getInode(curr->entry.InodeIdx));
+            screen.print(size);
+            screen.print("B");
+        }
+        screen.newLine();
+
+        curr = curr->next;
+    }
+}
+
+
+void cmd_cd(char** args, unsigned int argCount)
+{
+    if (argCount < 2)
+    {
+        screen.println("cd <dir>");
+        return;
+    }
+
+    char* dir = args[1];
+    if (!cd(dir))
+    {
+        screen.println("failed to change directory");
+    }
+}
+
+
+void cmd_mkdir(char** args, unsigned int argCount)
+{
+    if (argCount < 2)
+    {
+        screen.println("mkdir <dir>");
+        return;
+    }
+
+    char* dir = args[1];
+    if (createNewDirectory(dir) != 0)
+    {
+        screen.println("failed to create directory");
+    }
+}
+
+
+void cmd_rmdir(char** args, unsigned int argCount)
+{
+    if (argCount < 2)
+    {
+        screen.println("rmdir <dir>");
+        return;
+    }
+
+    char* dir = args[1];
+    write_serial(dir);
+    if (!deleteDir(dir))
+    {
+        screen.println("failed to remove directory");
+    }
+}
+
+
+void cmd_touch(char** args, unsigned int argCount)
+{
+    if (argCount < 2)
+    {
+        screen.println("touch <file>");
+        return;
+    }
+
+    char* file = args[1];
+    if (addDirEntryToPath(createDirEntry(file, DirFileType::FT_RF)) != 0)
+    {
+        screen.println("failed to create file");
+    }
+}
+
+
+void cmd_rm(char** args, unsigned int argCount)
+{
+    if (argCount < 2)
+    {
+        screen.println("rm <file>");
+        return;
+    }
+
+    char* file = args[1];
+    if (!deleteFile(file))
+    {
+        screen.println("failed to remove file");
+    }
+}
+
+
+void cmd_cat(char** args, unsigned int argCount)
+{
+    if (argCount < 2)
+    {
+        screen.println("cat <file>");
+        return;
+    }
+
+    char* file = args[1];
+    unsigned int fileSize = getFileSize(file);
+    char* content = (char*)kernelPaging.getAllocator()->malloc(fileSize);
+
+    if (readFromFile(file, (uint8_t*)content, fileSize) != 0)
+    {
+        screen.println("failed to read file");
+        return;
+    }
+
+    screen.println(content);
+}
+
+
 
 
 

@@ -17,11 +17,14 @@ bool initFileSystem()
 	{
 		createFS();
 	}
-	// set current directory to root
-	currDir = readDirectoryList(getInode(rootInodeIdxG));
-	currDirInodeIdxG = rootInodeIdxG;
-	currPath[0] = '/';
-	currPath[1] = 0;
+	else
+	{
+		// set current directory to root
+		currDir = readDirectoryList(getInode(rootInodeIdxG));
+		currDirInodeIdxG = rootInodeIdxG;
+		currPath[0] = '/';
+		currPath[1] = 0;
+	}
 	
 	return true;
 }
@@ -44,27 +47,31 @@ bool createFS()
 	unsigned int blockGroup = 0;
 	BGD bgd = getBGD(blockGroup);
 	uint8_t* inodeBitmap = getInodeBitmap(bgd);
-	uint32_t inodeIndex = fatherInodeIdxG;
-	BitMapDS::setBit(inodeBitmap, inodeIndex, fatherInodeIdxG);
+	BitMapDS::setBit(inodeBitmap, fatherInodeIdxG, fatherInodeIdxG);
 	global_sb.totalFreeBlocks--;
 	bgd.freeBlocks--;
 	setSuperblock(global_sb);
-	setInode(inodeIndex, bgd, rootInode);
+	setInode(fatherInodeIdxG, bgd, rootInode);
 	setBGD(blockGroup, bgd);
 	setInodeBitmap(bgd, inodeBitmap);
 	kernelPaging.getAllocator()->free(inodeBitmap);
 
 	currDirInodeIdxG = fatherInodeIdxG;
 
-	createNewDirectory("/");
+	createNewDirectory("/"); // TODO: root should not have .. entry
+
+	currDir = readDirectoryList(getInode(rootInodeIdxG));
+	currDirInodeIdxG = rootInodeIdxG;
+	currPath[0] = '/';
+	currPath[1] = 0;
 
 	createNewDirectory("user1");
 	cd("user1");
-	createNewDirectory("Documents");
-	createNewDirectory("Desktop");
-	createNewDirectory("Downloads");
-	createNewDirectory("Pictures");
-	cd("..");
+	// createNewDirectory("Documents");
+	// createNewDirectory("Desktop");
+	// createNewDirectory("Downloads");
+	// createNewDirectory("Pictures");
+	// cd("..");
 	return true;
 }
 
@@ -283,15 +290,30 @@ bool cd(char* name)
 	currDirInodeIdxG = newDir.InodeIdx;
 
 	// update current tempPath
-	if (strcmp(name, "/") == 0)
+	if (strcmp(name, "/") == 0 || currDirInodeIdxG == rootInodeIdxG)
 	{
 		currPath[0] = '/';
 		currPath[1] = 0;
 	}
+	else if (strcmp(name, ".") == 0)
+	{
+	}
+	else if (strcmp(name, "..") == 0)
+	{
+		currPath[strlen(currPath) - 1] = 0; // remove the last '/'
+		for (int i = strlen(currPath) - 1; i >= 0; i--)
+		{
+			if (currPath[i] == '/')
+			{
+				currPath[i+1] = 0;
+				break;
+			}
+		}
+	}
 	else
 	{
+		strcat(currPath, name); 
 		strcat(currPath, "/");
-		strcat(currPath, name); // TODO: for later create a case for '..' and '.'
 	}
 
 	return true;
@@ -379,8 +401,14 @@ bool deleteDir(char* name)
 		return false;
 	}
 
+	cd(name); // move to the directory to delete
 	// recursively delete all files and directories in the directory
 	Directory* temp = dir;
+
+	// skip the . and .. entries
+	temp = temp->next->next;
+
+	// recursively delete all files and directories in the directory
 	while (temp != nullptr)
 	{
 		if (temp->entry.fileType == DirFileType::FT_DIR)
@@ -393,6 +421,9 @@ bool deleteDir(char* name)
 		}
 		temp = temp->next;
 	}
+
+	// deleteFile("."); // TODO: test if this is correct
+	cd(".."); // move back to the parent directory
 
 	deleteInode(dirEntry.InodeIdx);
 	return true;
@@ -413,4 +444,10 @@ void updateCurrDir()
 {
 	freeDirectoryList(currDir);
 	currDir = readDirectoryList(getInode(currDirInodeIdxG));
+}
+
+Directory* getCurrentDir()
+{
+	updateCurrDir();
+	return currDir;
 }

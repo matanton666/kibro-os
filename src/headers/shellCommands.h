@@ -7,6 +7,7 @@
 #include "PCI.h"
 #include "memoryAllocator.h"
 #include "demoPrograms.h"
+#include "fileSystem.h"
 
 
 void cmd_settext(char** args, unsigned int argCount);
@@ -47,9 +48,19 @@ void cmd_top(char** args, unsigned int argCount);
 
 void cmd_kill(char** args, unsigned int argCount);
 
+void cmd_ls(char** args, unsigned int argCount);
 
+void cmd_cd(char** args, unsigned int argCount);
 
+void cmd_mkdir(char** args, unsigned int argCount);
 
+void cmd_rmdir(char** args, unsigned int argCount);
+
+void cmd_touch(char** args, unsigned int argCount);
+
+void cmd_rm(char** args, unsigned int argCount);
+
+void cmd_cat(char** args, unsigned int argCount);
 
 // helper function for top
 void printProcesses(PCB* head);

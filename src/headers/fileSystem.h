@@ -18,13 +18,14 @@ size_t getFileSize(char* name);
 bool deleteDir(char* name);
 int createNewDirectory(char* name);
 
+Directory* getCurrentDir();
 
 // save directory entry to disk in the path the inode points to 
 int addDirEntryToPath(DirectoryEntry entry);
 DirectoryEntry createDirEntry(char* name, DirFileType type);
 
 // recursive function to get the dir for a path (beware that if it is a file it will fail)
-Directory* getDir(Directory* dir, char** tokens, int idx, int finish);
+// Directory* getDir(Directory* dir, char** tokens, int idx, int finish);
 
 // returns the number of tokens (non-zero indexing)
 size_t splitPath(char *str, char delimiter, char** tokens);

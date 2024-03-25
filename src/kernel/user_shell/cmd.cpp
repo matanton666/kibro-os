@@ -28,17 +28,17 @@ Command commands[] = {
 	{"programs", cmd_programs, "lists avilable programs that can be executed useing `exec`", ""},
 	{"top", cmd_top, "displays the top processes", ""},
 	{"kill", cmd_kill, "kills a process", "pid"},
+	{"ls", cmd_ls, "list all files in current directory", "-a"}, 
+	{"cd", cmd_cd, "changes the current directory", "dir name"},
+	{"mkdir", cmd_mkdir, "creates a new directory", "dir name"},
+	{"rmdir", cmd_rmdir, "removes a directory", "dir name"},
+	{"touch", 0, "creates a new file", "file name"},
+	{"rm", 0, "removes a file", "file name"},
+	{"cat", 0, "displays the contents of a file", "file name"},
 };
 
 /* disk commands
 
-	{"ls", 0, "lists all files in the current directory"},
-	{"cd", 0, "changes the current directory"},
-	{"mkdir", 0, "creates a new directory"},
-	{"rmdir", 0, "removes a directory"},
-	{"rm", 0, "removes a file"},
-	{"touch", 0, "creates a new file"},
-	{"cat", 0, "displays the contents of a file"},
 	{"write", 0, "writes to a file"},
 	{"append", 0, "appends to a file"},
 	{"mv", 0, "moves a file"},
@@ -58,6 +58,7 @@ const int NUM_COMMANDS = sizeof(commands) / sizeof(commands[0]);
 void startShell()
 {
 	char userInput[256];
+	char currentPath[256];
 	char* command;
 	char** args;
 	unsigned int argCount;
@@ -67,7 +68,12 @@ void startShell()
 	while (true)
 	{
 		memset(userInput, 0, 256);
-		if (!getInput(userInput, "> ", 256))
+		memset(currentPath, 0, 256);
+
+		strcpy(currentPath, getCurrPath());
+		strcat(currentPath, "$ ");
+
+		if (!getInput(userInput, currentPath, 256))
 		{
 			screen.println("*input too long*\n");
 			continue;
@@ -181,6 +187,8 @@ unsigned int stringToScentence(char* input, char** output)
 void cmd_help(char** args, unsigned int argCount) 
 {
 	char** arguments = nullptr;
+
+	screen.cls();
 
 	screen.print("welcome to Kibro!, available commands:\n");
     for (int i = 0; i < NUM_COMMANDS; i++)
