@@ -29,12 +29,12 @@ Command commands[] = {
 	{"top", cmd_top, "displays the top processes", ""},
 	{"kill", cmd_kill, "kills a process", "pid"},
 	{"ls", cmd_ls, "list all files in current directory", "-a"}, 
-	{"cd", cmd_cd, "changes the current directory", "dir name"},
-	{"mkdir", cmd_mkdir, "creates a new directory", "dir name"},
-	{"rmdir", cmd_rmdir, "removes a directory", "dir name"},
-	{"touch", 0, "creates a new file", "file name"},
-	{"rm", 0, "removes a file", "file name"},
-	{"cat", 0, "displays the contents of a file", "file name"},
+	{"cd", cmd_cd, "changes the current directory", "dir_name"},
+	{"touch", cmd_touch, "creates a new file", "file_name"},
+	{"rm", cmd_rm, "removes a file", "file_name"},
+	{"mkdir", cmd_mkdir, "creates a new directory", "dir_name"},
+	{"rmdir", cmd_rmdir, "removes a directory", "dir_name"},
+	{"cat", cmd_cat, "displays the contents of a file", "file_name"},
 };
 
 /* disk commands

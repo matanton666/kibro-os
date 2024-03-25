@@ -22,6 +22,7 @@ Directory* getCurrentDir();
 
 // save directory entry to disk in the path the inode points to 
 int addDirEntryToPath(DirectoryEntry entry);
+int removeDirEntryFromPath(char* name);
 DirectoryEntry createDirEntry(char* name, DirFileType type);
 
 // recursive function to get the dir for a path (beware that if it is a file it will fail)

@@ -72,6 +72,9 @@ bool createFS()
 	createNewDirectory("Downloads");
 	createNewDirectory("Pictures");
 	cd("..");
+
+	addDirEntryToPath(createDirEntry("hello", DirFileType::FT_RF));
+	writeToFile("hello", (uint8_t*)"wazzaaaaaaa!?!?!", 16); 
 	return true;
 }
 
@@ -156,6 +159,62 @@ int addDirEntryToPath(DirectoryEntry entry)
 	uint8_t* data = (uint8_t *)kernelPaging.getAllocator()->calloc(size);
 	// copy Directory to data
 	Directory* temp = currDir;
+	uint32_t offset = 0;
+	while (temp != nullptr)
+	{
+		memcpy(data + offset, &temp->entry, sizeof(DirectoryEntry));
+		offset += sizeof(DirectoryEntry);
+		temp = temp->next;
+	}
+	
+	writeInode(data, size, currDirInodeIdxG);
+	kernelPaging.getAllocator()->free(data);
+	return 0;
+}
+
+int removeDirEntryFromPath(char* name)
+{
+	// remove DE from the current directory on disk
+	uint32_t size = 0;
+
+	// get size of linked list and push new directory to the end
+	if (currDir == nullptr)
+	{
+		return -1;
+	}
+
+	Directory *temp = currDir;
+	Directory *prev = nullptr;
+	while (temp != nullptr)
+	{
+		if (strcmp(temp->entry.fileName, name) == 0)
+		{
+			if (prev == nullptr)
+			{
+				currDir = temp->next;
+			}
+			else
+			{
+				prev->next = temp->next;
+			}
+			kernelPaging.getAllocator()->free(temp);
+			break;
+		}
+		prev = temp;
+		temp = temp->next;
+	}
+
+	temp = currDir;
+	while (temp != nullptr)
+	{
+		size += sizeof(DirectoryEntry);
+		temp = temp->next;
+	}
+
+	// update directory on disk
+	uint8_t* data = (uint8_t *)kernelPaging.getAllocator()->calloc(size);
+	// copy Directory to data
+	temp = currDir;
 	uint32_t offset = 0;
 	while (temp != nullptr)
 	{
@@ -379,8 +438,16 @@ bool deleteFile(char* name)
 		write_serial(name);
 		return false;
 	}
+	if (fileEntry.fileType != DirFileType::FT_RF)
+	{
+		write_serial("could not delete file because it is not a file");
+		write_serial(name);
+		return false;
+	}
 
 	deleteInode(fileEntry.InodeIdx);
+	removeDirEntryFromPath(name);
+
 	return true;
 }
 
@@ -422,10 +489,11 @@ bool deleteDir(char* name)
 		temp = temp->next;
 	}
 
-	// deleteFile("."); // TODO: test if this is correct
 	cd(".."); // move back to the parent directory
 
 	deleteInode(dirEntry.InodeIdx);
+	removeDirEntryFromPath(name);
+
 	return true;
 }
 
