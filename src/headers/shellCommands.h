@@ -17,6 +17,8 @@ void cmd_clear(char** args, unsigned int argCount);
 
 void cmd_echo(char** args, unsigned int argCount);
 
+void cmd_curwide(char** args, unsigned int argCount);
+
 void cmd_sleep(char** args, unsigned int argCount);
 
 void cmd_sleepms(char** args, unsigned int argCount);
@@ -45,15 +47,13 @@ void cmd_top(char** args, unsigned int argCount);
 
 void cmd_kill(char** args, unsigned int argCount);
 
-// CREATED A NEW FILE (moreCommands) BECAUSE FOR SOME REASON THE COMPILER GOES HAYWIRE IF I HAVE EVEN ONE MORE FUNCTION IN THE OTHER FILE (shellCommands)
+
+
+
 
 // helper function for top
 void printProcesses(PCB* head);
 
-
-// TODO: file system
-
-// TODO: demo programs
 
 
 

@@ -99,7 +99,7 @@ private:
     COLORS _textColor = WHITE;
     COLORS _bgColor = BLACK;
     bool _is_printing = false;
-    unsigned int _curosr_width = 1;
+    unsigned int _curosr_width = 7;
 
 
 

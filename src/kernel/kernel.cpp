@@ -63,8 +63,11 @@ extern "C" void kernel_main(void) {
 	else {
 		write_serial("file system failed to initialize");
 	}
-	
 
+	// runTests();
+
+	startShell();
+	
 	screen.print("\n>");
 	while (true)
 	{

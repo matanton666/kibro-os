@@ -5,7 +5,6 @@
 #include "processManager.h"
 #include "screen.h"
 #include "shellCommands.h"
-#include "moreCommands.h"
 
 
 // todos:
@@ -13,8 +12,6 @@
 // - create system to get string of command and run it accordingly
 // - create demos for each of the parts of the os
 // - create something to manage file system manuverablility
-// - create text editor???
-// - create buffer to hold screen contents and manage it (with queue?)
 
 struct Command
 {

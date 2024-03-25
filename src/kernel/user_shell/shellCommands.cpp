@@ -107,6 +107,19 @@ void cmd_echo(char** args, unsigned int argCount)
 }
 
 
+void cmd_curwide(char** args, unsigned int argCount)
+{
+    if (screen.getCursorWidth() > 1)
+    {
+        screen.setCursorWidth(1);
+    }
+    else
+    {
+        screen.setCursorWidth(7);
+    }
+}
+
+
 void cmd_sleep(char** args, unsigned int argCount)
 {
     if (argCount < 2)
@@ -145,11 +158,11 @@ void cmd_devs(char** args, unsigned int argCount)
 void cmd_pmem(char** args, unsigned int argCount)
 {
     screen.print("used mem: ");
-    screen.print(phys_mem.getUsedMem() / MIB1);
+    screen.print(uint32_t(phys_mem.getUsedMem() / MIB1));
     screen.print(" MIB\nfree mem: ");
-    screen.print(phys_mem.getFreeMem() / MIB1);
+    screen.print(uint32_t(phys_mem.getFreeMem() / MIB1));
     screen.print(" MIB\nreserved mem: ");
-    screen.print(phys_mem.getReservedMem() / MIB1);
+    screen.print(uint32_t(phys_mem.getReservedMem() / MIB1));
     screen.print(" MIB\n");
 }
 
