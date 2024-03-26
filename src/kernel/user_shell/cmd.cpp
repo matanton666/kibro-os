@@ -40,6 +40,9 @@ Command commands[] = {
 	{"rename", cmd_rename, "renames a file", "old_name new_name"},
 };
 
+/* disk commands
+	{"append", cmd_append, "appends to a file", "file_name data"},
+*/
 
 const int NUM_COMMANDS = sizeof(commands) / sizeof(commands[0]);
 

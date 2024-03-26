@@ -70,7 +70,7 @@ BGDT createBGDT()
 		bgd.inodeUsageBitmap = inodeBitmapOffset;
 		bgd.inodeTable = inodeTableOffset;
 		bgd.freeBlocks = blocksInData; // amount of blocks in the data blocks
-		bgd.freeInodes = global_sb.inodesInBg; // TODO: might need to change this to a lower number
+		bgd.freeInodes = global_sb.inodesInBg;
 		bgd.totalDirs = 0;
 		bgdt.groupDescriptors[groupNum] = bgd;
 	}

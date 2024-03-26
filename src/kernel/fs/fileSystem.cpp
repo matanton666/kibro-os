@@ -582,3 +582,4 @@ int moveDirEntry(char* src, char* dest, bool rename)
 
 	return 0;
 }
+

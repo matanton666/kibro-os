@@ -213,7 +213,6 @@ void ProcessManagerApi::runNextTask()
         
             write_serial_var("deleteing task", to_del->id);
             // free process memory
-            // TODO: create a clean funtion in paging system
             to_del->paging_system->freeAddresses(PROCESS_STACK_START, PROCESS_STACK_START + PROCESS_STACK_INIT_SIZE);
             to_del->paging_system->freeAddresses(PROCESS_HEAP_START, PROCESS_HEAP_START + PROCESS_HEAP_INIT_SIZE);
             kernelPaging.getAllocator()->free(to_del->paging_system);
