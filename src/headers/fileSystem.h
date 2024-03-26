@@ -18,6 +18,10 @@ size_t getFileSize(char* name);
 bool deleteDir(char* name);
 int createNewDirectory(char* name);
 
+// move or reanme a directory entry
+int moveDirEntry(char* src, char* dest, bool rename);
+
+
 Directory* getCurrentDir();
 
 // save directory entry to disk in the path the inode points to 

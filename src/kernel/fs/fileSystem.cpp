@@ -390,7 +390,7 @@ int writeToFile(char* name, uint8_t* data, size_t size)
 	}
 
 	// BGD bgd = getBGD(getBlockGroupIndex(fileEntry.InodeIdx));
-	return writeInode(data, size, fileEntry.InodeIdx) ? size : 0;
+	return writeInode(data, size, fileEntry.InodeIdx) ? 0 : -1;
 }
 
 int readFromFile(char* name, uint8_t* data, size_t size)
@@ -413,11 +413,20 @@ int readFromFile(char* name, uint8_t* data, size_t size)
 int appendToFile(char* name, uint8_t* data, size_t size)
 {
 	size_t oldSize = getFileSize(name);
-	uint8_t* mergedData = (uint8_t *)kernelPaging.getAllocator()->malloc(oldSize + size);
-
-	readFromFile(name, data, oldSize); // read old data
-	memcpy(mergedData + oldSize, data, size);
-	writeToFile(name, mergedData, oldSize + size);
+	uint8_t* mergedData = (uint8_t *)kernelPaging.getAllocator()->calloc(oldSize + size + 1);
+	
+	if (readFromFile(name, mergedData, oldSize) != 0)
+	{
+		write_serial("could not append to file because could not read it");
+		return -1;
+	}
+	memcpy(mergedData + oldSize-1, data, size);
+	mergedData[oldSize + size] = 0;
+	if (writeToFile(name, mergedData, oldSize + size) != 0)
+	{
+		write_serial("could not append to file because could not write to it");
+		return -1;
+	}
 
 	kernelPaging.getAllocator()->free(mergedData);
 	return 0;
@@ -518,4 +527,58 @@ Directory* getCurrentDir()
 {
 	updateCurrDir();
 	return currDir;
+}
+
+
+int moveDirEntry(char* src, char* dest, bool rename)
+{
+	if (strcmp(src, "/") == 0 || strcmp(src, "..") == 0 || strcmp(src, ".") == 0)
+	{
+		write_serial("could not move directory entry because src in invalid");
+		return -1;
+	}
+
+	DirectoryEntry entry = getDirEntry(src);
+	if (entry.InodeIdx == 0)
+	{
+		write_serial("could not move directory entry because it does not exist");
+		write_serial(src);
+		return -1;
+	}
+
+	if (rename)
+	{
+		if (strlen(dest) > MAX_NAME_LENGTH)
+		{
+			write_serial("could not rename directory entry because the new name is too long");
+			write_serial(dest);
+			return -1;
+		}
+		removeDirEntryFromPath(src);
+		strcpy(entry.fileName, dest);
+		addDirEntryToPath(entry);
+	}
+
+	else if (strcmp(dest, "..") == 0)
+	{
+		removeDirEntryFromPath(src);
+		cd(dest);
+		addDirEntryToPath(entry);
+	}
+	else if (cd(dest))
+	{
+		cd("..");
+		removeDirEntryFromPath(src);
+		cd(dest);
+		addDirEntryToPath(entry);
+		cd("..");
+	}
+	else
+	{
+		write_serial("could not move directory entry because the destination does not exist");
+		write_serial(dest);
+		return -1;
+	}
+
+	return 0;
 }

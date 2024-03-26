@@ -62,6 +62,14 @@ void cmd_rm(char** args, unsigned int argCount);
 
 void cmd_cat(char** args, unsigned int argCount);
 
+void cmd_write(char** args, unsigned int argCount);
+
+void cmd_append(char** args, unsigned int argCount);
+
+void cmd_mv(char** args, unsigned int argCount);
+
+void cmd_rename(char** args, unsigned int argCount);
+
 // helper function for top
 void printProcesses(PCB* head);
 

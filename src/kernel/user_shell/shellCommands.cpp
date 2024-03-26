@@ -549,8 +549,115 @@ void cmd_cat(char** args, unsigned int argCount)
     }
 
     screen.println(content);
+
+    kernelPaging.getAllocator()->free(content);
 }
 
+
+void cmd_write(char** args, unsigned int argCount)
+{
+    if (argCount < 3)
+    {
+        screen.println("write <file> <content>");
+        return;
+    }
+
+    char* file = args[1];
+
+    unsigned int contentSize = 0;
+    for (int i = 2; i < argCount; i++)
+    {
+        contentSize += strlen(args[i]);
+        contentSize += 1; // for the space
+    }
+
+    char* content = (char*)kernelPaging.getAllocator()->calloc(contentSize);
+
+    for (int i = 2; i < argCount; i++)
+    {
+        strcat(content, args[i]);
+        strcat(content, " ");
+    }
+    content[contentSize-1] = 0;
+
+
+    if (writeToFile(file, (uint8_t*)content, contentSize) != 0)
+    {
+        screen.println("failed to write to file");
+    }
+
+    kernelPaging.getAllocator()->free(content);
+}
+
+
+void cmd_append(char** args, unsigned int argCount)
+{
+    if (argCount < 3)
+    {
+        screen.println("append <file> <content>");
+        return;
+    }
+
+    char* file = args[1];
+
+    unsigned int contentSize = 0;
+    for (int i = 2; i < argCount; i++)
+    {
+        contentSize += strlen(args[i]);
+        contentSize += 1; // for the space
+    }
+
+    char* content = (char*)kernelPaging.getAllocator()->calloc(contentSize);
+
+    for (int i = 2; i < argCount; i++)
+    {
+        strcat(content, args[i]);
+        strcat(content, " ");
+    }
+    content[contentSize-1] = 0;
+
+    if (appendToFile(file, (uint8_t*)content, contentSize) != 0)
+    {
+        screen.println("failed to append to file");
+    }
+
+    kernelPaging.getAllocator()->free(content);
+}
+
+
+
+void cmd_mv(char** args, unsigned int argCount)
+{
+    if (argCount < 3)
+    {
+        screen.println("mv <target> <dest>");
+        return;
+    }
+
+    char* src = args[1];
+    char* dest = args[2];
+    if (moveDirEntry(src, dest, false) != 0)
+    {
+        screen.println("failed to move directory entry");
+    }
+}
+
+
+void cmd_rename(char** args, unsigned int argCount)
+{
+    if (argCount < 3)
+    {
+        screen.println("rename <old> <new>");
+        return;
+    }
+
+    char* src = args[1];
+    char* dest = args[2];
+    if (moveDirEntry(src, dest, true) != 0)
+    {
+        screen.println("failed to rename directory entry");
+    }
+}
 
 
 
