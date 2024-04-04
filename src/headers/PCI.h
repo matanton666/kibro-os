@@ -23,6 +23,8 @@ public:
 
     void checkAllBuses();
 
+    void printAvailableDevices();
+
     // template function to get header from bus
     template <typename T>
     T getPciHeader(uint8_t bus, uint8_t device, uint8_t function)

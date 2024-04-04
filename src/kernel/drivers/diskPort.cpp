@@ -108,7 +108,6 @@ bool DiskPort::read(uint32_t address, uint32_t size, uint8_t* buffer)
 
 bool DiskPort::write(uint32_t address, uint32_t size, uint8_t* buffer)
 {
-
     // translate address to sector
     uint64_t sector = address / 512;
     uint32_t sector_count = (size / 512) + ((size % 512) ? 1 : 0);

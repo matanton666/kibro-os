@@ -17,11 +17,14 @@ bool initFileSystem()
 	{
 		createFS();
 	}
-	// set current directory to root
-	currDir = readDirectoryList(getInode(rootInodeIdxG));
-	currDirInodeIdxG = rootInodeIdxG;
-	currPath[0] = '/';
-	currPath[1] = 0;
+	else
+	{
+		// set current directory to root
+		currDir = readDirectoryList(getInode(rootInodeIdxG));
+		currDirInodeIdxG = rootInodeIdxG;
+		currPath[0] = '/';
+		currPath[1] = 0;
+	}
 	
 	return true;
 }
@@ -44,12 +47,11 @@ bool createFS()
 	unsigned int blockGroup = 0;
 	BGD bgd = getBGD(blockGroup);
 	uint8_t* inodeBitmap = getInodeBitmap(bgd);
-	uint32_t inodeIndex = fatherInodeIdxG;
-	BitMapDS::setBit(inodeBitmap, inodeIndex, fatherInodeIdxG);
+	BitMapDS::setBit(inodeBitmap, fatherInodeIdxG, fatherInodeIdxG);
 	global_sb.totalFreeBlocks--;
 	bgd.freeBlocks--;
 	setSuperblock(global_sb);
-	setInode(inodeIndex, bgd, rootInode);
+	setInode(fatherInodeIdxG, bgd, rootInode);
 	setBGD(blockGroup, bgd);
 	setInodeBitmap(bgd, inodeBitmap);
 	kernelPaging.getAllocator()->free(inodeBitmap);
@@ -58,6 +60,11 @@ bool createFS()
 
 	createNewDirectory("/");
 
+	currDir = readDirectoryList(getInode(rootInodeIdxG));
+	currDirInodeIdxG = rootInodeIdxG;
+	currPath[0] = '/';
+	currPath[1] = 0;
+
 	createNewDirectory("user1");
 	cd("user1");
 	createNewDirectory("Documents");
@@ -65,6 +72,9 @@ bool createFS()
 	createNewDirectory("Downloads");
 	createNewDirectory("Pictures");
 	cd("..");
+
+	addDirEntryToPath(createDirEntry("hello", DirFileType::FT_RF));
+	writeToFile("hello", (uint8_t*)"wazzaaaaaaa!?!?!", 16); 
 	return true;
 }
 
@@ -149,6 +159,62 @@ int addDirEntryToPath(DirectoryEntry entry)
 	uint8_t* data = (uint8_t *)kernelPaging.getAllocator()->calloc(size);
 	// copy Directory to data
 	Directory* temp = currDir;
+	uint32_t offset = 0;
+	while (temp != nullptr)
+	{
+		memcpy(data + offset, &temp->entry, sizeof(DirectoryEntry));
+		offset += sizeof(DirectoryEntry);
+		temp = temp->next;
+	}
+	
+	writeInode(data, size, currDirInodeIdxG);
+	kernelPaging.getAllocator()->free(data);
+	return 0;
+}
+
+int removeDirEntryFromPath(char* name)
+{
+	// remove DE from the current directory on disk
+	uint32_t size = 0;
+
+	// get size of linked list and push new directory to the end
+	if (currDir == nullptr)
+	{
+		return -1;
+	}
+
+	Directory *temp = currDir;
+	Directory *prev = nullptr;
+	while (temp != nullptr)
+	{
+		if (strcmp(temp->entry.fileName, name) == 0)
+		{
+			if (prev == nullptr)
+			{
+				currDir = temp->next;
+			}
+			else
+			{
+				prev->next = temp->next;
+			}
+			kernelPaging.getAllocator()->free(temp);
+			break;
+		}
+		prev = temp;
+		temp = temp->next;
+	}
+
+	temp = currDir;
+	while (temp != nullptr)
+	{
+		size += sizeof(DirectoryEntry);
+		temp = temp->next;
+	}
+
+	// update directory on disk
+	uint8_t* data = (uint8_t *)kernelPaging.getAllocator()->calloc(size);
+	// copy Directory to data
+	temp = currDir;
 	uint32_t offset = 0;
 	while (temp != nullptr)
 	{
@@ -283,15 +349,30 @@ bool cd(char* name)
 	currDirInodeIdxG = newDir.InodeIdx;
 
 	// update current tempPath
-	if (strcmp(name, "/") == 0)
+	if (strcmp(name, "/") == 0 || currDirInodeIdxG == rootInodeIdxG)
 	{
 		currPath[0] = '/';
 		currPath[1] = 0;
 	}
+	else if (strcmp(name, ".") == 0)
+	{
+	}
+	else if (strcmp(name, "..") == 0)
+	{
+		currPath[strlen(currPath) - 1] = 0; // remove the last '/'
+		for (int i = strlen(currPath) - 1; i >= 0; i--)
+		{
+			if (currPath[i] == '/')
+			{
+				currPath[i+1] = 0;
+				break;
+			}
+		}
+	}
 	else
 	{
+		strcat(currPath, name); 
 		strcat(currPath, "/");
-		strcat(currPath, name); // TODO: for later create a case for '..' and '.'
 	}
 
 	return true;
@@ -309,7 +390,7 @@ int writeToFile(char* name, uint8_t* data, size_t size)
 	}
 
 	// BGD bgd = getBGD(getBlockGroupIndex(fileEntry.InodeIdx));
-	return writeInode(data, size, fileEntry.InodeIdx) ? size : 0;
+	return writeInode(data, size, fileEntry.InodeIdx) ? 0 : -1;
 }
 
 int readFromFile(char* name, uint8_t* data, size_t size)
@@ -332,11 +413,20 @@ int readFromFile(char* name, uint8_t* data, size_t size)
 int appendToFile(char* name, uint8_t* data, size_t size)
 {
 	size_t oldSize = getFileSize(name);
-	uint8_t* mergedData = (uint8_t *)kernelPaging.getAllocator()->malloc(oldSize + size);
-
-	readFromFile(name, data, oldSize); // read old data
-	memcpy(mergedData + oldSize, data, size);
-	writeToFile(name, mergedData, oldSize + size);
+	uint8_t* mergedData = (uint8_t *)kernelPaging.getAllocator()->calloc(oldSize + size + 1);
+	
+	if (readFromFile(name, mergedData, oldSize) != 0)
+	{
+		write_serial("could not append to file because could not read it");
+		return -1;
+	}
+	memcpy(mergedData + oldSize-1, data, size);
+	mergedData[oldSize + size] = 0;
+	if (writeToFile(name, mergedData, oldSize + size) != 0)
+	{
+		write_serial("could not append to file because could not write to it");
+		return -1;
+	}
 
 	kernelPaging.getAllocator()->free(mergedData);
 	return 0;
@@ -357,8 +447,16 @@ bool deleteFile(char* name)
 		write_serial(name);
 		return false;
 	}
+	if (fileEntry.fileType != DirFileType::FT_RF)
+	{
+		write_serial("could not delete file because it is not a file");
+		write_serial(name);
+		return false;
+	}
 
 	deleteInode(fileEntry.InodeIdx);
+	removeDirEntryFromPath(name);
+
 	return true;
 }
 
@@ -379,8 +477,14 @@ bool deleteDir(char* name)
 		return false;
 	}
 
+	cd(name); // move to the directory to delete
 	// recursively delete all files and directories in the directory
 	Directory* temp = dir;
+
+	// skip the . and .. entries
+	temp = temp->next->next;
+
+	// recursively delete all files and directories in the directory
 	while (temp != nullptr)
 	{
 		if (temp->entry.fileType == DirFileType::FT_DIR)
@@ -394,7 +498,11 @@ bool deleteDir(char* name)
 		temp = temp->next;
 	}
 
+	cd(".."); // move back to the parent directory
+
 	deleteInode(dirEntry.InodeIdx);
+	removeDirEntryFromPath(name);
+
 	return true;
 }
 
@@ -414,3 +522,64 @@ void updateCurrDir()
 	freeDirectoryList(currDir);
 	currDir = readDirectoryList(getInode(currDirInodeIdxG));
 }
+
+Directory* getCurrentDir()
+{
+	updateCurrDir();
+	return currDir;
+}
+
+
+int moveDirEntry(char* src, char* dest, bool rename)
+{
+	if (strcmp(src, "/") == 0 || strcmp(src, "..") == 0 || strcmp(src, ".") == 0)
+	{
+		write_serial("could not move directory entry because src in invalid");
+		return -1;
+	}
+
+	DirectoryEntry entry = getDirEntry(src);
+	if (entry.InodeIdx == 0)
+	{
+		write_serial("could not move directory entry because it does not exist");
+		write_serial(src);
+		return -1;
+	}
+
+	if (rename)
+	{
+		if (strlen(dest) > MAX_NAME_LENGTH)
+		{
+			write_serial("could not rename directory entry because the new name is too long");
+			write_serial(dest);
+			return -1;
+		}
+		removeDirEntryFromPath(src);
+		strcpy(entry.fileName, dest);
+		addDirEntryToPath(entry);
+	}
+
+	else if (strcmp(dest, "..") == 0)
+	{
+		removeDirEntryFromPath(src);
+		cd(dest);
+		addDirEntryToPath(entry);
+	}
+	else if (cd(dest))
+	{
+		cd("..");
+		removeDirEntryFromPath(src);
+		cd(dest);
+		addDirEntryToPath(entry);
+		cd("..");
+	}
+	else
+	{
+		write_serial("could not move directory entry because the destination does not exist");
+		write_serial(dest);
+		return -1;
+	}
+
+	return 0;
+}
+

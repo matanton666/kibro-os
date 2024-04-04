@@ -22,13 +22,13 @@ bool isDigit(char ch)
 }
 bool isGraph(char ch)
 {
-	return isPrint(ch) && !isSpace(ch);
+	return isPrintable(ch) && !isSpace(ch);
 }
 bool isLower(char ch)
 {
 	return (ch >= 'a' && ch <= 'z');
 }
-bool isPrint(char ch)
+bool isPrintable(char ch)
 {
 	return (ch >= ' ' && ch <= '~');
 }
@@ -58,9 +58,9 @@ char toUpper(char ch)
 	return ch;
 }
 
-char shiftDigit(char ch)
+char shiftNonAlpha(char ch)
 {
-    if (isDigit(ch)) {
+    if (isPrintable(ch)) {
         switch (ch) {
         case '1':
             return '!';
@@ -82,7 +82,30 @@ char shiftDigit(char ch)
             return '(';
         case '0':
             return ')';
+        case '[':
+            return '{';
+        case ']':
+            return '}';
+        case '/':
+            return '?';
+        case ',':
+            return '<';
+        case '.':
+            return '>';
+        case ';':
+            return ':';
+        case '\'':
+            return '"';
+        case '`':
+            return '~';
+        case '\\':
+            return '|';
+        case '-':
+            return '_';
+        case '=':
+            return '+';
         }
+
     }
     return ch;
 }	

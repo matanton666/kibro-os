@@ -18,7 +18,7 @@ bool isGraph(char ch);
 // lower case letter
 bool isLower(char ch);
 // charicter that can be seen (excluding enter)
-bool isPrint(char ch);
+bool isPrintable(char ch);
 // space
 bool isSpace(char ch);
 // upper case letter
@@ -31,4 +31,4 @@ char toLower(char ch);
 // convert to upper case
 char toUpper(char ch);
 // convert digit to shifted digit (ex. '1' -> '!') 
-char shiftDigit(char ch);
+char shiftNonAlpha(char ch);

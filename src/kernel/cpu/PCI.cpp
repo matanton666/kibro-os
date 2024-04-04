@@ -78,3 +78,31 @@ void PCI::checkAllBuses()
     }
 }
 
+
+void PCI::printAvailableDevices()
+{
+    uint16_t bus;
+    uint8_t device;
+    // this part is left out for now because it is not yet needed
+
+    // 256 busses with 32 devices each
+    for (bus = 0; bus < 256; bus++) {
+        for (device = 0; device < 32; device++) {
+        
+            PciDeviceHeder dv_header = getPciHeader<PciDeviceHeder>(bus, device, 0);
+            if (dv_header.vendor_id != 0xFFFF) // Device exists
+            {
+                screen.print("vendor: ");
+                screen.print(GetVendorName(dv_header.vendor_id));
+                screen.print(" \\ device: ");
+                screen.print(GetDeviceName(dv_header.vendor_id, dv_header.device_id));
+                screen.print(" \\ class: ");
+                screen.print(GetSubclassName(dv_header.class_code, dv_header.subclass));
+                screen.print(" \\ progIF: ");
+                screen.print(GetProgIFName(dv_header.class_code, dv_header.subclass, dv_header.prog_if));
+                screen.newLine();
+            } 
+        }
+    }
+
+}
