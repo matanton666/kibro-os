@@ -59,7 +59,7 @@ void ProcessManagerApi::initMultitasking()
     sti();
 }
 
-PCB* ProcessManagerApi::newTask(uint32_t entry, uint32_t* stack_ptr, MemoryManager::PagingSystem* paging_sys, bool is_high_priority)
+PCB* ProcessManagerApi::newTask(uint32_t entry, uint32_t* stack_ptr, PagingSystem* paging_sys, bool is_high_priority)
 {
     // needed to be configured before context switch:
     // eip, cr3, esp
@@ -69,9 +69,8 @@ PCB* ProcessManagerApi::newTask(uint32_t entry, uint32_t* stack_ptr, MemoryManag
     const int ARGUMENTS_ON_STACK = 2; // 2 arguments are pushed on the stack when context switching (og pcb and new pcb)
 
     // prepare task
-    PCB* task = (PCB*)kernelPaging.getAllocator()->malloc(sizeof(PCB));
+    PCB* task = (PCB*)kernelPaging.getAllocator()->callocAligned(sizeof(PCB), 256);
 
-    memset(task, 0, sizeof(PCB));
     task->state = CREATED;
     task->priority = is_high_priority;
     task->next = nullptr;
@@ -83,7 +82,8 @@ PCB* ProcessManagerApi::newTask(uint32_t entry, uint32_t* stack_ptr, MemoryManag
     task->paging_system = paging_sys;
 
     // kernel does not access the correct physical addresses here, need to temporarily move to the processes page directory
-    task->paging_system->enablePaging();
+    
+    task->paging_system->enable();
     
     // prepare stack
     stack_ptr -= ARGUMENTS_ON_STACK; // move stack pointer back to make space for arguments
@@ -93,9 +93,11 @@ PCB* ProcessManagerApi::newTask(uint32_t entry, uint32_t* stack_ptr, MemoryManag
     task->regs.esp = (uint32_t)(uintptr_t)stack_ptr; // set esp to the top of the stack
 
     // move back to kernel page directory
-    kernelPaging.enablePaging();
+    kernelPaging.enable();
 
     task->state = CREATED;
+
+    write_serial_var("creating new task", task->id);
     sti();
 
     return task;
@@ -107,7 +109,12 @@ PCB* ProcessManagerApi::newKernelTask(void* entry, bool is_high_priority)
     uint32_t stack_start = PROCESS_STACK_START; // address of start of stack
     uintptr_t heap_start_addr = PROCESS_HEAP_START; // address of start of heap
 
-    MemoryManager::PagingSystem* pg_sys = (MemoryManager::PagingSystem*)kernelPaging.getAllocator()->callocAligned(sizeof(MemoryManager::PagingSystem), KIB4); 
+    PagingSystem* pg_sys = (PagingSystem*)kernelPaging.getAllocator()->callocAligned(sizeof(PagingSystem), KIB4); 
+    if (pg_sys == nullptr) {
+        write_serial("failed to allocate paging system for new task");
+        return nullptr;
+    }
+
     pg_sys->init();
     pg_sys->allocAddresses(stack_start, stack_start + PROCESS_STACK_INIT_SIZE, false, true); // map stack to new process
     pg_sys->allocAddresses(heap_start_addr, heap_start_addr + PROCESS_HEAP_INIT_SIZE, false, true);// map a total of 2 MIB for heap (keep 1 MIB space for stack to grow)
@@ -201,8 +208,7 @@ void ProcessManagerApi::runNextTask()
         {
             PCB* to_del = _to_delete.pop();
         
-            write_serial("deleteing task: ");
-            write_serial_int(to_del->id);
+            write_serial_var("deleteing task", to_del->id);
             // free process memory
             // TODO: create a clean funtion in paging system
             to_del->paging_system->freeAddresses(PROCESS_STACK_START, PROCESS_STACK_START + PROCESS_STACK_INIT_SIZE);

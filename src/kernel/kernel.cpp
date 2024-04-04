@@ -10,7 +10,10 @@
 #include "../headers/processManager.h"
 #include "../headers/PIT.h"
 #include "../headers/memoryAllocator.h"
+#include "../headers/PCI.h"
+#include "../headers/fileSystem.h"
 
+extern PagingSystem kernelPaging;
 
 void runTests();
 
@@ -36,7 +39,6 @@ extern "C" void kernel_main(void) {
 	idt_init();
 	write_serial("init idt");
 
-
 	if (phys_mem.init()) {
 		write_serial("memory map initialized");
 	}
@@ -47,19 +49,31 @@ extern "C" void kernel_main(void) {
 	kernelPaging.kernelInit();
 	write_serial("init paging");
 
+
 	process_manager.initMultitasking();
 	write_serial("init multitasking");
+
+	PCI pci;
+	pci.checkAllBuses(); // initialize the disk
+	write_serial("enumerated pci"); 
+
+
+
+	if (initFileSystem()) {
+		write_serial("file system initialized");
+	}
+	else {
+		write_serial("file system failed to initialize");
+	}
 	
-	// runTests();
 
 	screen.print("\n>");
 	while (true)
 	{
-
+		asm("hlt");
 	}
 	write_serial("kernel finished!\n");
 }
-
 
 
 
@@ -68,6 +82,8 @@ void runTests()
 	/*
 	* prints and tests here:
 	*/
+
+	write_serial("running tests");
 
 	screen.print("\ncursur position: ");
 	screen.print((int)screen.getCursur().x);
@@ -89,8 +105,7 @@ void runTests()
 	//* test context switch
 	screen.println("creating 5 tasks with different prioritys");
 	write_serial("creating 5 tasks with different prioritys");
-	// PCB* p = process_manager.newKernelTask((void*)testTask, LOW_PRIORITY);
-	// process_manager.startTask(p);
+
 	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
 	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
 	process_manager.startTask(process_manager.newKernelTask((void*)testTask, HIGH_PRIORITY));
@@ -98,11 +113,15 @@ void runTests()
 	process_manager.startTask(process_manager.newKernelTask((void*)testTask, LOW_PRIORITY));
 
 
-	screen.println("\nkernel sleeping for 2 seconds");
+	write_serial("kernel sleeping for 2 seconds");
+
+	screen.println("\nkernel sleeping for 2 seconds"); 
+
 
 	pit.sleepS(2.5);
 
 	screen.println("\nkernel finished sleeping");
+	write_serial("kernel finished sleeping");
 
 
 	Allocator allocator;
@@ -121,10 +140,7 @@ void runTests()
 	allocator.init((uintptr_t)p1, size);
 	
 	void* t1 = 0;
-
-	
 	void* t6 = 0;
-
 
 	void* t2 = allocator.malloc(1024);
 	screen.print("Malloc'd from free list: ");
@@ -160,7 +176,7 @@ void runTests()
 	allocator.free(t3), t3 = nullptr;
 	allocator.free(t4), t4 = nullptr;
 
-	t1 = allocator.malloc(3000);
+	t1 = allocator.malloc(300);
 	screen.print("Malloc'd from free list: ");
 	screen.printHex((uint64_t)t1);
 	screen.newLine();
@@ -174,12 +190,24 @@ void runTests()
 	screen.newLine();
 
 
-	//test page fault
+	// test page fault
 	struct a{int i;};
 	a* idk = (a*)0x1507DC0B;
 
 	idk->i = 5;
 	screen.print("idk->i: ");
 	screen.print((uintptr_t)idk->i);
+	screen.newLine();
 
+
+	// * test disk
+	screen.print("disk test should get to end of the screen: ");
+	uint8_t _buffer[100];
+   uint8_t _buffer3[100];
+   memset(_buffer, 67, 100);
+   disk.write(470, 100, _buffer);
+
+   disk.read(489, 100, _buffer3);
+   screen.print((char*)_buffer3);
+	write_serial("disk tested");
 }

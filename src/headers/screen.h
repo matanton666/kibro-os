@@ -153,7 +153,7 @@ public:
     void clearCursor();
 
     // get the starting address of the framebuffer (where the pixels start)
-    const uint64_t getFbStartAddress();
+    const uint32_t getFbStartAddress();
 
     // get the x and y cordiantes of the curser
     const Point& getCursur();

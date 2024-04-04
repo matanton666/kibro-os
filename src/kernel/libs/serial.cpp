@@ -62,5 +62,16 @@ void write_serial_var(const char* name, uint64_t num) {
 	}
 
    write_serial_char(':');
+   write_serial_char(' ');
    write_serial_hex(num);
+}
+
+void write_serial_var(const char* name, char* str) {
+   for (int i = 0; name[i] != '\0'; i++)
+   {
+      write_serial_char(name[i]);
+   }
+
+   write_serial_char(':');
+   write_serial(str);
 }

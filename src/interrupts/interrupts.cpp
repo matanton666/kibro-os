@@ -214,13 +214,13 @@ __attribute__((interrupt)) void generalProtectionFaultHandler(InterruptFrame *fr
 
 __attribute__((interrupt)) void pagefaultHandler(struct InterruptFrame *frame, unsigned int errorCode)
 {
-    MemoryManager::PageFaultError* error = (MemoryManager::PageFaultError*)&errorCode;
+    PageFaultError* error = (PageFaultError*)&errorCode;
 
     
     uintptr_t faultAddr; // The faulting address is stored in the CR2 register.
     asm volatile("mov %%cr2, %0" : "=r" (faultAddr));
     
-    MemoryManager::PagingSystem* pagingSystem = MemoryManager::getCurrentPagingSys();
+    PagingSystem* pagingSystem = getCurrentPagingSys();
     if (pagingSystem != nullptr && pagingSystem->pageFaultHandler(error, faultAddr))
     {
         screen.print("handled page fault successfully \n");

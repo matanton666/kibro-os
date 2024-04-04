@@ -33,6 +33,14 @@ char* ftoa(float num, char* str, int base);
 
 unsigned int strlen(const char* str);
 
+// concatenate two strings
+char* strcat(char* dest, const char* src);
+
+// copy one string to another
+char* strcpy(char* dest, const char* src);
+
+int strcmp(const char* s1, const char* s2);
+
 
 // ** memory functions **
 
@@ -58,6 +66,12 @@ void outb(uint16_t port, uint8_t value);
 
 // get input from serial port
 uint8_t inb(uint16_t port);
+
+// write 32 bit to bus
+void outl(uint16_t port, uint32_t value);
+
+// read 32 bit from bus
+uint32_t inl(uint16_t port);
 
 // wait one io cycle for devices to catch up on input/output
 void ioWait();
