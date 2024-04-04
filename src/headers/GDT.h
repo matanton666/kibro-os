@@ -2,6 +2,8 @@
 #include "std.h"
 #include "serial.h"
 
+#define GDT_SIZE 6
+
 //gdt pointer
 struct GdtPtr
 {
@@ -10,7 +12,7 @@ struct GdtPtr
 }
 __attribute__((packed));
 
-//gdt entry
+
 struct GdtEntry
 {
     uint16_t limit_low;           // The lower 16 bits of the limit.
@@ -21,5 +23,10 @@ struct GdtEntry
     uint8_t base_high;           // The last 8 bits of the base.
 } __attribute__((packed));
 
-void gdtSetGate(unsigned short index, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran);
+
 void initGdt();
+
+// Set the value of a GDT entry.
+void gdtSetGate(unsigned short index, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran);
+
+void reloadGDT();

@@ -1,10 +1,10 @@
-#include "GDT.h"
+#include "../../headers/GDT.h"
 
-GdtEntry gdtTable[3];
+GdtEntry gdtTable[GDT_SIZE];
 GdtPtr gdtPtr;
-extern "C" void load_gdt(GdtEntry*);
+extern "C" void load_gdt(GdtPtr*);
 
-// Set the value of a GDT entry.
+
 void gdtSetGate(unsigned short index, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran)
 {
 	//getting the address
@@ -21,22 +21,23 @@ void gdtSetGate(unsigned short index, uint32_t base, uint32_t limit, uint8_t acc
 	gdtTable[index].access = access;
 }
 
+void reloadGDT()
+{
+	load_gdt(&gdtPtr);
+}
+
 void initGdt()
 {
-	//setting the gdt pointer
-	gdtPtr.size = (sizeof(GdtEntry) * 3) - 1;
+	gdtPtr.size = (sizeof(GdtEntry) * GDT_SIZE) - 1;
 	gdtPtr.base = (uintptr_t)&gdtTable;
 
 	//setting the null, code, data segments (Flat memory model)
 	gdtSetGate(0, 0, 0, 0, 0);				// Null segment
 	gdtSetGate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);	// Code segment
 	gdtSetGate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);	// Data segment
+	gdtSetGate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF);	// user code segment
+	gdtSetGate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);	// user data segment
+	gdtSetGate(5, 0, 0, 0, 0); // tss segment
 
-	//loading the gdt to the cpu
-	load_gdt((GdtEntry*) &gdtPtr);
-
-	write_serial("GDT PTR at: ");
-	write_serial_hex((uint64_t)&gdtPtr);
-	write_serial("GDT at: ");
-	write_serial_hex((uint64_t)gdtPtr.base);
+	load_gdt(&gdtPtr);
 }

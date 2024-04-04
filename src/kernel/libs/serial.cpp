@@ -1,14 +1,10 @@
-#include "headers/serial.h"
-#include "headers/std.h"
+#include "../../headers/serial.h"
+
 
 
 #define PORT 0x3f8          // COM1
 
-void outb(unsigned short port, unsigned char value)
-{
-    __asm("outb %b0, %w1"
-        :: "a"(value), "d"(port));
-}
+
  
 int init_serial() {
    outb(PORT + 1, 0x00);    // Disable all interrupts

@@ -1,4 +1,6 @@
-#include "std.h"
+#include "../../headers/std.h"
+
+uint32_t* bootInfoPtr = nullptr;
 
 void* memcpy(void* dest, const void* src, size_t n) {
 	if (dest == src) {
@@ -22,7 +24,7 @@ int memcmp(const void* lhs, const void* rhs, size_t count)
 	unsigned char* x = (unsigned char*)lhs;
 	unsigned char* y = (unsigned char*)rhs;
 
-	if (lhs == rhs)
+	if (lhs == rhs) // check if same location
 	{
 		return 0;
 	}
@@ -105,4 +107,32 @@ char* uitoa(uint64_t num, char *str, int base)
 
 	str[i] = '\0';
 	return str;
+}
+
+void outb(uint16_t port, uint8_t value)
+{
+    asm volatile("outb %b0, %w1"
+        :: "a"(value), "d"(port));
+}
+
+uint8_t inb(uint16_t port)
+{
+	uint8_t ret;
+	asm volatile("inb %w1, %b0"
+		: "=a"(ret)
+		: "d"(port));
+	return ret;
+}
+
+void ioWait()
+{
+	asm volatile("outb %%al, $0x80"
+		:
+		: "a"(0));
+}
+
+void getBootInfoAddressFromGrub() {
+	if (bootInfoPtr == nullptr) {
+		asm("movl %%ebx, %0;" : "=r"(bootInfoPtr));
+	}
 }

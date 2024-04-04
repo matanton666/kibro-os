@@ -1,10 +1,10 @@
-#include "headers/IDT.h"
-#include "IDT.h"
+#include "../../headers/IDT.h"
 
 extern "C" void load_idt(IdtEntry*);
 
 IdtPtr idtPtr;
 IdtEntry idtEntries[IDT_SIZE];
+
 
 void idtSetEntry(uint8_t vector, void *isr, uint8_t flags)
 {
@@ -22,11 +22,6 @@ void idt_init()
     //setting the idt pointer
     idtPtr.base = (uintptr_t)&idtEntries;
     idtPtr.limit = (uint16_t)(sizeof(IdtEntry) * IDT_SIZE - 1);
-    write_serial("IDT PTR at: ");
-    write_serial_hex((uint64_t)&idtPtr);
-    write_serial("IDT at: ");
-    write_serial_hex((uint64_t)idtPtr.base);
-    write_serial_hex((uint64_t)pagefaultHandler);
 
     //cleaning the memory
     memset(&idtEntries, 0, sizeof(IdtEntry) * 256);
@@ -63,6 +58,17 @@ void idt_init()
     idtSetEntry(0x1d, (void *)generalFaultWithErrCode, IDT_INTERRUPT_GATE);
     idtSetEntry(0x1e, (void *)generalFaultWithErrCode, IDT_INTERRUPT_GATE);
 
+
+    idtSetEntry(0x21, (void *)keyboardInputHandler, IDT_INTERRUPT_GATE);
+
     //loading idt to cpu
     load_idt((IdtEntry *)&idtPtr);
+
+    // enable hardware interrupts
+    remapPIC();
+
+    outb(PIC1_DATA, 0b11111101); // unmask second interrupt 
+    outb(PIC2_DATA, 0b11111111); // mask all interrupts
+
+    asm ("sti");
 }

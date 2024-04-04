@@ -1,9 +1,6 @@
 #pragma once
 
 #include "std.h"
-#include "screen.h"
-#include "pageFrameAllocator.h"
-#include "serial.h"
 #include "interrupts.h"
 
 #define IDT_SIZE 256
@@ -28,6 +25,7 @@ struct IdtPtr {
     uint32_t base;
 } __attribute__((packed));
 
-
+// set an entry of a ISR in the IDT
 void idtSetEntry(uint8_t vector, void* isr, uint8_t flags);
+
 void idt_init();
