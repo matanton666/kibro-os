@@ -96,32 +96,32 @@ __attribute__((no_caller_saved_registers)) void printException(unsigned int exce
 {
     if (exceptionNumber < EXCEPTION_COUNT)
     {
-        panic(exceptions[exceptionNumber]);
-        print('\n');
+        screen.panic(exceptions[exceptionNumber]);
+        screen.newLine();
         if (errorCode != 0)
         {
-            print("Error code: ");
-            printBinary(errorCode);
-            print('\n');
+            screen.print("Error code: ");
+            screen.printBinary(errorCode);
+            screen.newLine();
         }
     }
     else
     {
-        print("Unknown exception\n");
+        screen.print("Unknown exception\n");
     }
 }
 
 __attribute__((no_caller_saved_registers)) void printSelectorError(SelectorError *err)
 {
-    print("External: ");
-    print(err->external);
-    print('\n');
-    print("Table: ");
-    print(err->table);
-    print('\n');
-    print("Index: ");
-    print(err->index);
-    print('\n');
+    screen.print("External: ");
+    screen.print(err->external);
+    screen.newLine();
+    screen.print("Table: ");
+    screen.print(err->table);
+    screen.newLine();
+    screen.print("Index: ");
+    screen.print(err->index);
+    screen.newLine();
 }
 
 __attribute__((interrupt)) void generalFault(struct InterruptFrame *frame)
@@ -174,9 +174,9 @@ __attribute__((interrupt)) void deviceNotAvailableHandler(InterruptFrame *frame)
 
 __attribute__((interrupt)) void doubleFaultHandler(InterruptFrame *frame)
 {
-    //printException(0x08, 0);
+    printException(0x08, 0);
 
-    //print("cannot recover from double fault... please restart os\n");
+    screen.print("cannot recover from double fault... please restart os\n");
 
     asm("cli; hlt");
 }
@@ -204,32 +204,28 @@ __attribute__((interrupt)) void stackSegmentFaultHandler(InterruptFrame *frame, 
 
 __attribute__((interrupt)) void generalProtectionFaultHandler(InterruptFrame *frame, unsigned int errorCode)
 {
-    //printException(0x0d, errorCode);
+    printException(0x0d, errorCode);
 
     SelectorError* error = (SelectorError*)&errorCode;
-    //printSelectorError(error);
+    printSelectorError(error);
 
     asm("cli; hlt");
 }
 
 __attribute__((interrupt)) void pagefaultHandler(struct InterruptFrame *frame, unsigned int errorCode)
 {
-    printException(0x0e, errorCode);
-    PageFaultError* error = (PageFaultError*)&errorCode;
+    MemoryManager::PageFaultError* error = (MemoryManager::PageFaultError*)&errorCode;
 
     
     uintptr_t faultAddr; // The faulting address is stored in the CR2 register.
     asm volatile("mov %%cr2, %0" : "=r" (faultAddr));
-
-    print("error at address: ");
-    printHex(faultAddr);
-    print((error->present ? "\npresent" : "\nnot present"));
-    print((error->write ? "\nread only" : "\nread-write"));
-    print((error->user ? "\nuser" : "\nsupervisor"));
-    print((error->reserved_write ? "\nreserved" : "\nnot reserved"));
-    print((error->instruction_fetch ? "\ninstruction fetch" : "\nnot instruction fetch"));
-
-    asm("cli; hlt");
+    
+    MemoryManager::PagingSystem* pagingSystem = MemoryManager::getCurrentPagingSys();
+    if (pagingSystem != nullptr && pagingSystem->pageFaultHandler(error, faultAddr))
+    {
+        screen.print("handled page fault successfully \n");
+        write_serial("handled page fault successfully \n");
+    }
 }
 
 
@@ -239,6 +235,19 @@ __attribute__((interrupt)) void keyboardInputHandler(struct InterruptFrame *fram
     picEndMaster();
 
     keyboardHandler(scancode);
+}
+
+
+__attribute__((interrupt)) void PIT_InputHandler(struct InterruptFrame *frame) 
+{
+    pit.tick(); // tick once
+    picEndMaster();
+
+    if (pit.getTimeSinceBoot() % PROCESS_TIME == 0) { // context switch every 40 ms
+        process_manager.runNextTask();
+    
+    }
+
 }
 
 

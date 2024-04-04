@@ -1,9 +1,13 @@
+/*
+ these are the ISRs of the IDT
+*/
 #pragma once
-/// these are the ISRs of the IDT
 #include "screen.h"
 #include "std.h"
 #include "keyboard.h"
 #include "virtualMemory.h"
+#include "PIT.h"
+#include "processManager.h"
 
 #define PIC1_COMMAND 0x20 // master pic chip
 #define PIC1_DATA 0x21 // data line of master pic chip
@@ -18,6 +22,8 @@
 
 #define KEYBOARD_INPUT_PORT 0x60
 
+#define PROCESS_TIME 50 // time in ms each process gets
+
 typedef bool bit_t;
 
 struct InterruptFrame {
@@ -27,20 +33,6 @@ struct InterruptFrame {
     unsigned int sp;
     unsigned int ss;
 } __attribute__((packed));
-
-struct PageFaultError { // make sure its alligned correctly and has right size
-    bit_t present : 1;
-    bit_t write : 1;
-    bit_t user : 1;
-    bit_t reserved_write : 1;
-    bit_t instruction_fetch : 1;
-    bit_t protection_key : 1;
-    bit_t shadow_stack : 1;
-    unsigned char reserved : 8;
-    bit_t sgx : 1;
-    uint16_t reserved2 : 15;
-} __attribute__((packed));
-
 
 struct SelectorError {
     bit_t external : 1;
@@ -75,5 +67,6 @@ __attribute__((interrupt)) void stackSegmentFaultHandler(struct InterruptFrame *
 __attribute__((interrupt)) void generalProtectionFaultHandler(struct InterruptFrame *frame, unsigned int errorCode);
 __attribute__((interrupt)) void pagefaultHandler(struct InterruptFrame *frame, unsigned int errorCode);
 __attribute__((interrupt)) void keyboardInputHandler(struct InterruptFrame *frame);
+__attribute__((interrupt)) void PIT_InputHandler(struct InterruptFrame *frame);
 
 

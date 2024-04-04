@@ -7,7 +7,6 @@ used to maintain in-use and free pages of the system.
 
 #include "bitmap.h"
 #include "memoryMap.h"
-#include "kheap.h"
 
 
 class PageFrameAllocator
@@ -59,6 +58,7 @@ public:
     // do not use this outside of pageFrameAllocator
     void unreservePages(unsigned char *addr, unsigned int amount);
 
+    uintptr_t getBitmapEndAddress();
 };
 
 

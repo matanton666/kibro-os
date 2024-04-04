@@ -4,7 +4,7 @@ strucures used for process managment
 #pragma once
 
 #include "std.h"
-
+#include "virtualMemory.h"
 
 // process states
 enum ProcessState
@@ -15,6 +15,12 @@ enum ProcessState
     RUNNABLE, // is waiting and can be run
     TERMINATED, // has finished running
 };
+
+enum PRIORITY {
+    LOW_PRIORITY = false,
+    HIGH_PRIORITY = true,
+};
+
 
 // task state segment
 struct TSS 
@@ -59,18 +65,19 @@ struct Registers // ! DO NOT CHANGE THIS STRUCT
 {
     uint32_t eip;
     uint32_t esp;
-    uint32_t cr3;
-    // uint32_t eflags;
+    uintptr_t* cr3;
+    uint32_t eflags;
 }__attribute__((packed));
 
 // process contorl block
 struct PCB // regular registers are stored on the stack
 {
     Registers regs; // ! DO NOT MOVE THIS FIELD (it is used in assembly code)
+    void (*func_ptr)(); // pointer to the function to run
     uint8_t state;
     int id;
-    bool high_priority;
-    // TODO: add other fields to help with process managment
+    bool priority;
+    MemoryManager::PagingSystem* paging_system;
 
-    PCB* next_task;
+    PCB* next;
 }__attribute__((packed));

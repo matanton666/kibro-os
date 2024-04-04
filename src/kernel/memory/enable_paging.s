@@ -7,8 +7,6 @@ enable_paging:
 
 	// set paging bit in cr0 (enable paging)
 	mov %cr0, %eax 
-	xor $0x80000000, %eax
+	or $0x80000001, %eax
 	mov %eax, %cr0
 	ret
-	
-	

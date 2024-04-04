@@ -112,6 +112,20 @@ private:
 public:
     bool init();
 
+    void cls();
+    void println(const char* str);
+    void print(const char* str);
+    void print(char c);
+    void print(int num);
+    void print(float num);
+    void print(uint32_t num);
+    void print(uint64_t num);
+    void printBinary(uint64_t num);
+    void printHex(uint64_t num);
+    void newLine();
+    void panic(const char* str);
+    void clearLastChar();
+
     // draw char to screen with PSF2 at the curser position
     void putcCurserPSF2( unsigned char c, uint32_t fgColor, uint32_t bgColor);
 
@@ -152,17 +166,5 @@ public:
 
 
 extern ScreenApi screen;
-
-// wraper functions
-void cls();
-void print(const char* str);
-void print(char c);
-void print(int num);
-void print(uint32_t num);
-void print(uint64_t num);
-void printBinary(uint64_t num);
-void printHex(uint64_t num);
-void panic(const char* str);
-void clearLastChar();
 
 

@@ -15,10 +15,8 @@ in the physica memory allocator and manager
 extern uint64_t _KernelStart;
 extern uint64_t _KernelEnd;
 
-#define KERNEL_MEM_END (&_KernelEnd + PAGE_SIZE*5) // take 5 pages to make sure not overwriteing anything
-#define KENREL_MEM_START &_KernelStart
-
-
+#define END_OF_KERNEL_CODE ((uintptr_t)&_KernelEnd + PAGE_SIZE*5) // take 5 pages to make sure not overwriteing bss section (kernel stack)
+#define START_OF_KERNEL_CODE ((uintptr_t)&(_KernelStart))
 
 class BitMap
 {
@@ -27,6 +25,7 @@ private:
     unsigned char* _buffer = nullptr; // bitmap buffer start address
     bool _is_initialized = false;
     MemoryMapApi _mem_map_api;
+
 
 public:
     bool init();

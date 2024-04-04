@@ -5,6 +5,11 @@ our implementation of the standard library
 #include <stdint.h>
 #include <stddef.h>
 
+#define KIB1 1024 // in bytes
+#define KIB4 4096 // in bytes
+#define MIB1 1048576 // in bytes
+#define GIB1 1073741824 // in bytes
+
 struct BootTag
 {
     uint32_t type;
@@ -12,6 +17,7 @@ struct BootTag
 }__attribute__((packed));
 
 extern uint32_t* bootInfoPtr; //! DO NOT TOUCH THIS VARIABLE!!!
+
 
 // ** string and number functions **
 
@@ -21,6 +27,12 @@ char* itoa(int num, char *str, int base);
 // unsigned int to ascii string
 char* uitoa(uint64_t num, char *str, int base);
 
+// floating point number to ascii string
+char* ftoa(float num, char* str, int base);
+
+
+unsigned int strlen(const char* str);
+
 
 // ** memory functions **
 
@@ -29,10 +41,14 @@ void* memcpy(void *dest, const void *src, size_t n);
 
 // compare n bytes from lhs to rhs
 int memcmp(const void* lhs, const void* rhs, size_t count);
-void memset(void* dest, int ch, uint32_t count);
 
 // set n bytes of dest to ch
 void memset(void* dest, int ch, uint32_t count);
+
+// a quicker implementation of memset for setting memory to zero
+void zeroMemory(void* dest, uint32_t count);
+
+uintptr_t align_up(uintptr_t address, uintptr_t alignment);
 
 
 // ** serial port communication **
@@ -45,6 +61,16 @@ uint8_t inb(uint16_t port);
 
 // wait one io cycle for devices to catch up on input/output
 void ioWait();
+
+
+// ** assembly functions **
+
+// asm cli instruction
+void cli();
+
+// asm sti instruction
+void sti();
+
 
 
 // ** bootloader communication **

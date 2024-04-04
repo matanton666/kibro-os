@@ -54,3 +54,13 @@ void write_serial_hex(uint64_t num) {
    uitoa(num, asString, 16);
    write_serial(asString);
 }
+
+void write_serial_var(const char* name, uint64_t num) {
+   for (int i = 0; name[i] != '\0'; i++)
+	{
+		write_serial_char(name[i]);
+	}
+
+   write_serial_char(':');
+   write_serial_hex(num);
+}
