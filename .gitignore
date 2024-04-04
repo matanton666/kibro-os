@@ -1,0 +1,10 @@
+
+*.iso
+*.bin
+build/*
+
+.vs
+.vscode
+*.log
+log.txt
+*.img
