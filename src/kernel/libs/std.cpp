@@ -150,6 +150,33 @@ char* ftoa(float num, char* str, int base)
 	return str;
 }
 
+unsigned int atoi(const char* str)
+{
+	unsigned int result = 0;
+	for (int i = 0; str[i] != '\0'; i++)
+	{
+		if (str[i] >= '0' && str[i] <= '9')
+			result = result * 10 + str[i] - '0';
+	}
+	return result;
+
+}
+
+uint32_t atoh(const char* str)
+{
+	uint32_t result = 0;
+	for (int i = 0; str[i] != '\0'; i++)
+	{
+		if (str[i] >= '0' && str[i] <= '9')
+			result = result * 16 + str[i] - '0';
+		else if (str[i] >= 'A' && str[i] <= 'F')
+			result = result * 16 + str[i] - 'A' + 10;
+		else if (str[i] >= 'a' && str[i] <= 'f')
+			result = result * 16 + str[i] - 'a' + 10;
+	}
+	return result;
+}
+
 unsigned int strlen(const char* str)
 {
 	int i = 0;

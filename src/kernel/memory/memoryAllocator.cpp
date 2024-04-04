@@ -342,7 +342,7 @@ void* Allocator::callocAligned(size_t size, size_t alignment)
 
 void Allocator::free(void* ptr)
 {
-	if (ptr)
+	if (ptr && (uintptr_t)ptr >= _memStartAddr && (uintptr_t)ptr < _memEndAddr)
 	{
 		UsedBlockHeader* usedBlock = (UsedBlockHeader*)((uintptr_t)ptr - USED_BLOCK_HEADER_SIZE);
 		unsigned int usedBlockSize = usedBlock->size;

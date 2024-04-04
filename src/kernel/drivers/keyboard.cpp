@@ -2,7 +2,7 @@
 
 Keyboard keyboard;
 
-void Keyboard::handleKeyboard(uint8_t scancode) {
+void Keyboard::checkSpecialChar(uint8_t scancode) {
 
     // check if scancode has special key
     switch (scancode) {
@@ -33,44 +33,85 @@ void Keyboard::handleKeyboard(uint8_t scancode) {
     case CAPS_LOCK:
         _capsLock = !_capsLock;
         return;
-    case BACKSPACE:
-        screen.clearLastChar();
-        return;
-    case ENTER:
-        screen.newLine();
-        return;
-    case SPACE_BAR:
-        screen.print(' ');
-        return;
-    case TAB:
-        screen.print('\t');
-        return;
     }
-
-    char ch = translateScanCode(scancode, _rightShift || _leftShift, _capsLock);
-    if (ch != 0) {
-        screen.print(ch);
-    }
-
 }
 
 char Keyboard::translateScanCode(uint8_t scancode, bool shift, bool capsLock)
 {
-    // TODO: add support for more keys (ex. '{', '?', ...)
     if (scancode > 58) 
+    {
         return 0;
+    }
   
     int ch = (int)ASCIITable[scancode];
 
     if (shift)
-        return isAlpha(ch) ? toUpper(ch) : shiftDigit(ch);
+        return isAlpha(ch) ? toUpper(ch) : shiftNonAlpha(ch);
     else if (capsLock)
         return toUpper(ch);
 
     return ch;
 }
 
-void keyboardHandler(uint8_t scancode)
+
+char Keyboard::getChar(uint8_t scancode)
 {
-    keyboard.handleKeyboard(scancode);
+    checkSpecialChar(scancode);
+    return translateScanCode(scancode, _rightShift || _leftShift, _capsLock);
+}
+
+void Keyboard::printScancode(uint8_t scancode)
+{
+    char ch = keyboard.getChar(scancode);
+    if (ch != 0) {
+        screen.print(ch);
+    }
+}
+
+
+void Keyboard::sendToQueue(uint8_t scancode)
+{
+    char ch = keyboard.getChar(scancode);
+    if (ch != 0) {
+        _buffer[_writeIndex] = ch;
+        _writeIndex++;
+        
+        if (_writeIndex >= KEYBOARD_BUFFER_SIZE-1) {
+            _writeIndex = 0;
+        }
+    }
+}
+
+
+char Keyboard::getFromQueue()
+{
+    if (_readIndex == _writeIndex) {
+        return 0;
+    }
+
+    char ch = _buffer[_readIndex];
+    _readIndex++;
+    if (_readIndex >= KEYBOARD_BUFFER_SIZE-1) {
+        _readIndex = 0;
+    }
+    return ch;
+}
+
+
+bool Keyboard::hasBeenPressed()
+{
+    return _writeIndex != _readIndex;
+}
+
+
+
+void Keyboard::reset()
+{
+    _leftShift = false;
+    _rightShift = false;
+    _capsLock = false;
+    alt = false;
+    ctrl = false;
+    _writeIndex = 0;
+    _readIndex = 0;
 }

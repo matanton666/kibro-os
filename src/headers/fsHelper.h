@@ -11,22 +11,6 @@
 
 #define MAX_NAME_LENGTH 64
 
-// TODO: change size of these lists to BLOCK_SIZE
-struct IndirectBlock
-{
-	uint32_t* blocks; // the array size needs to be determined at run time
-}__attribute__((packed));
-
-struct DoublyIndirectBlock
-{
-	uint32_t* blocks; // the array size needs to be determined at run time
-}__attribute__((packed));
-
-struct TriplyIndirectBlock
-{
-	uint32_t* blocks; // the array size needs to be determined at run time
-}__attribute__((packed));
-
 struct DirectoryEntry // used in disk
 {
 	uint32_t InodeIdx; // global index of the inode
@@ -67,6 +51,3 @@ size_t getInodeSize(Inode inode);
 
 void deleteInode(uint32_t globalInodeIndex);
 
-// size_t readSIBP(unsigned int blockAddr, size_t blockCount, uint8_t** buffer, size_t size);
-// size_t readDIBP(unsigned int blockAddr, uint8_t** buffer, size_t size);
-// size_t readTIBP(unsigned int blockAddr, uint8_t** buffer, size_t size);

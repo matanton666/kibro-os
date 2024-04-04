@@ -12,6 +12,8 @@
 #include "../headers/memoryAllocator.h"
 #include "../headers/PCI.h"
 #include "../headers/fileSystem.h"
+#include "../headers/PCI.h"
+#include "../headers/cmd.h"
 
 extern PagingSystem kernelPaging;
 
@@ -24,10 +26,6 @@ extern "C" void kernel_main(void) {
 
 	if (screen.init()) {
 		write_serial((char*)"screen initialized");
-
-		//* test printing to screen
-		screen.cls();
-		screen.println("Welcome to Kibro!");
 	}
 	else {
 		write_serial("**** screen failed to initialize");
@@ -65,8 +63,11 @@ extern "C" void kernel_main(void) {
 	else {
 		write_serial("file system failed to initialize");
 	}
-	
 
+	// runTests();
+
+	startShell();
+	
 	screen.print("\n>");
 	while (true)
 	{

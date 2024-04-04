@@ -1,37 +1,41 @@
 
 # Kibro
 
-an operating system made by matan and yonatan
+a simple 32-bit x86 operating system made from scratch by matan and yonatan
+the os has the basic functionality and core components of an os:
 
-## build image
+- drivers for keyboard, screen and disk
+- memory management
+- process managment
+- file system
+- shell with basic commands
+- and some more features
+
+
+## requirements
+
+- **docker** (for compiling and building)
+- **qemu** (or any other vm manager)
+
+## build docker image
+
+the docker image is used for compiling the os, it ensures the correct compilation environment is always used
 
 `docker build <WORKING_DIR> -t os-buildenv`
 
-## run container
+(usualy the working dir is './' for current direcotory)
 
-`docker run --rm -it --privileged -v <WORKING_DIR>:/root/env os-buildenv`
+## compile and run using script
 
-## in the container compile
-
-`make`
-
-## in windows run qemu
-
-`& 'C:\Program Files\qemu\qemu-system-i386.exe' -cdrom .\dist\os.iso`
-
-## in wsl/linux run
-
-`qemu-system-x86_64 -cdrom ./dist/iso/os.iso`
-
-## or can also run with the bat script
+### windows
 
 `.\run.bat`  
+*windows script does not have debug and clean options 
 
-<br>
+### linux
 
-## debuging
+`./run.sh`
 
-### check register info
+## example output
 
-`ctrl + alt + 2`
-then type `info registers`
+![example run](example.png)

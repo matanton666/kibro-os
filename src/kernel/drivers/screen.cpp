@@ -4,30 +4,30 @@ ScreenApi screen;
 
 void ScreenApi::cls()
 {
-    screen.clearScreen(COLOR_BLACK);
+    screen.clearScreen(_bgColor);
 }
 
 void ScreenApi::println(const char* str)
 {
-    screen.putsCurserPSF2((unsigned char*)str, COLOR_WHITE, COLOR_BLACK);
+    screen.putsCurserPSF2((unsigned char*)str, _textColor, _bgColor);
     print('\n');
 }
 
 void ScreenApi::print(const char* str)
 {
-    screen.putsCurserPSF2((unsigned char*)str, COLOR_WHITE, COLOR_BLACK);
+    screen.putsCurserPSF2((unsigned char*)str, _textColor, _bgColor);
 }
 
 void ScreenApi::print(char c)
 {
-    screen.putcCurserPSF2(c, COLOR_WHITE, COLOR_BLACK);
+    screen.putcCurserPSF2(c, _textColor, _bgColor);
 }
 
 void ScreenApi::print(int num)
 {
     char cnum[32];
     itoa(num, cnum, 10);
-    screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+    screen.putsCurserPSF2((unsigned char*)cnum, _textColor, _bgColor);
 }
 
 void ScreenApi::print(float num) 
@@ -35,7 +35,7 @@ void ScreenApi::print(float num)
     char cnum[32];
     memset(cnum, 0, 32);
     ftoa(num, cnum, 10);
-    screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+    screen.putsCurserPSF2((unsigned char*)cnum, _textColor, _bgColor);
 }
 
 void ScreenApi::print(uint32_t num)
@@ -47,21 +47,21 @@ void ScreenApi::print(uint64_t num)
 {
     char cnum[40];
     uitoa(num, cnum, 10);
-    screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+    screen.putsCurserPSF2((unsigned char*)cnum, _textColor, _bgColor);
 }
 
 void ScreenApi::printBinary(uint64_t num)
 {
     char cnum[64];
     uitoa(num, cnum, 2);
-    screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+    screen.putsCurserPSF2((unsigned char*)cnum, _textColor, _bgColor);
 }
 
 void ScreenApi::printHex(uint64_t num)
 {
     char cnum[32];
     uitoa(num, cnum, 16);
-    screen.putsCurserPSF2((unsigned char*)cnum, COLOR_WHITE, COLOR_BLACK);
+    screen.putsCurserPSF2((unsigned char*)cnum, _textColor, _bgColor);
 }
 
 void ScreenApi::newLine()
@@ -71,8 +71,8 @@ void ScreenApi::newLine()
 
 void ScreenApi::panic(const char* str)
 {
-    screen.putsCurserPSF2((unsigned char *)"\nPANIC:\n", COLOR_RED, COLOR_BLUE);
-    screen.putsCurserPSF2((unsigned char*)str, COLOR_RED, COLOR_BLACK);
+    screen.putsCurserPSF2((unsigned char *)"\nPANIC:\n", COLORS::RED, COLORS::CYAN);
+    screen.putsCurserPSF2((unsigned char*)str, COLORS::RED, _bgColor);
     print('\n');
 }
 
@@ -97,7 +97,9 @@ void ScreenApi::drawPixel( int x, int y, uint32_t color)
     *(pixel + 2) = (color >> 16) & 255; // red color (shift 16 to get to it)
 }
 
-void ScreenApi::clearLastPixels(int rows, int amount) {
+void ScreenApi::clearLastPixels(int rows, int amount) 
+{
+    _is_printing = true;
     int x = getCursur().x - 1;
     int y = getCursur().y;
 
@@ -105,6 +107,7 @@ void ScreenApi::clearLastPixels(int rows, int amount) {
     {
         if (x <= CURSER_PADDING) // got to the left of the screen
         {
+            write_serial("got to end");
             y -= amount;
             x = _fbInfo->width - CURSER_PADDING -1;
             _curserPos.x = x;
@@ -113,7 +116,7 @@ void ScreenApi::clearLastPixels(int rows, int amount) {
         }
         for (int j = 0; j < amount; j++)
         {
-            drawPixel(x, y, COLOR_BLACK);
+            drawPixel(x, y, _bgColor);
             y++;
         }
         
@@ -122,6 +125,7 @@ void ScreenApi::clearLastPixels(int rows, int amount) {
         x--;
     }
     curserAdd(-1 * rows,0);
+    _is_printing = false;
 }
 
 void ScreenApi::clearLastChars(int n)
@@ -273,6 +277,8 @@ bool ScreenApi::initializeScreen(FramebufferInfo* fbInfo)
 
     _fbInfo = fbInfo;
 
+    write_serial_var("fb addr", _fbInfo->addr);
+
     if (_fbInfo == nullptr) {
         return false;
     }
@@ -281,7 +287,7 @@ bool ScreenApi::initializeScreen(FramebufferInfo* fbInfo)
         return false;
     }
     _fbLength = _fbInfo->pitch * _fbInfo->height;
-    clearScreen(COLOR_BLACK);
+    clearScreen(_bgColor);
     
     _is_initialized = true;
     return true;
@@ -289,11 +295,22 @@ bool ScreenApi::initializeScreen(FramebufferInfo* fbInfo)
 
 void ScreenApi::putcCurserPSF2( unsigned char c,uint32_t fgColor, uint32_t bgColor)
  {
+    _is_printing = true;
+
     if (isCursorShow())
         clearCursor();
+
     if (c == '\n')
     {
         curserAdd(-_curserPos.x + CURSER_PADDING, _PSF2_font->height);
+    }
+    else if (c == '\t') 
+    {
+        curserAdd(4 * _PSF2_font->width, 0);
+    }
+    else if (c == '\b') // backspace
+    {
+        clearLastChars(1);
     }
     else
     {
@@ -330,6 +347,7 @@ void ScreenApi::putcCurserPSF2( unsigned char c,uint32_t fgColor, uint32_t bgCol
         curserAdd(_PSF2_font->width, 0);
     }
     showCursor();
+    _is_printing = false;
  }
 
 void ScreenApi::putsCurserPSF2( unsigned char* str, uint32_t fgColor, uint32_t bgColor)
@@ -344,6 +362,7 @@ void ScreenApi::putsCurserPSF2( unsigned char* str, uint32_t fgColor, uint32_t b
 
 void ScreenApi::clearScreen(uint32_t color)
 {
+    _is_printing = true;
     for (unsigned int y = 0; y < _fbInfo->height; y++)
     {
         for (unsigned int x = 0; x < _fbInfo->width; x++)
@@ -351,6 +370,7 @@ void ScreenApi::clearScreen(uint32_t color)
             drawPixel(x, y, color);
         }
     }
+    _is_printing = false;
     _curserPos.x = CURSER_PADDING;
     _curserPos.y = CURSER_PADDING;
 }
@@ -369,13 +389,16 @@ bool ScreenApi::isCursorShow()
 
 void ScreenApi::showCursor()
 {
+    if (_cursorShow) return;
+    _is_printing = true;
+
     int x = _curserPos.x + 1;
     int y = _curserPos.y - 1;
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < _curosr_width; i++)
     {
         for (int j = 0; j < _PSF2_font->height + 2; j++)
         {
-            drawPixel(x, y, COLOR_WHITE);
+            drawPixel(x, y, _textColor);
             y++;
         }
 
@@ -383,16 +406,20 @@ void ScreenApi::showCursor()
         x++;
     }
     _cursorShow = true;
+    _is_printing = false;
 }
 void ScreenApi::clearCursor()
 {
+    if (!_cursorShow) return;
+
+    _is_printing = true;
     int x = _curserPos.x + 1;
     int y = _curserPos.y - 2;
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < _curosr_width; i++)
     {
         for (int j = 0; j < _PSF2_font->height + 4; j++)
         {
-            drawPixel(x, y, COLOR_BLACK);
+            drawPixel(x, y, _bgColor);
             y++;
         }
 
@@ -400,6 +427,7 @@ void ScreenApi::clearCursor()
         x++;
     }
     _cursorShow = false;
+    _is_printing = false;
 }
 
 const uint32_t ScreenApi::getFbStartAddress()
@@ -415,5 +443,37 @@ const Point& ScreenApi::getCursur()
 unsigned long ScreenApi::getFbLength()
 {
     return _fbLength;
+}
+
+void ScreenApi::setTextColor(COLORS color)
+{
+    _textColor = color;
+}
+
+void ScreenApi::setBgColor(COLORS color)
+{
+    _bgColor = color;
+}
+
+bool ScreenApi::isPrinting()
+{
+    return _is_printing;
+}
+
+
+void ScreenApi::setCursorWidth(unsigned int width)
+{
+    if (width >= 1 && width <= 8)
+    {
+        clearCursor();
+        _curosr_width = width;
+        showCursor();
+    }
+}
+
+
+unsigned int ScreenApi::getCursorWidth()
+{
+    return _curosr_width;
 }
 

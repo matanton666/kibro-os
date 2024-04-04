@@ -49,15 +49,6 @@ uint8_t* getInodeData(Inode inode)
 	uint8_t* dataPtrCopy = Data;
 
 	currSize -= readBlockList(inode.directBlockPtrs, &Data, currSize);
-	// TODO: this part should be done only after we finished successful file and dir creation
-	// if (currSize != 0 && inode.SIBP != 0)
-	// 	currSize -= readSIBP(inode.SIBP, &Data, currSize);
-
-	// if (currSize != 0 && inode.DIBP != 0)
-	// 	currSize -= readDIBP(inode.DIBP, &Data, currSize);
-
-	// if (currSize != 0 && inode.TIBP != 0)
-	// 	currSize -= readTIBP(inode.TIBP, &Data, currSize);
 
 	return dataPtrCopy;
 }
@@ -153,7 +144,7 @@ bool writeInode(uint8_t* data, size_t size, uint32_t globalInodeIndex)
 
 		if (inode.directBlockPtrs[i] == 0) // inode does not have a block allocated
 		{
-			uint32_t blockIndex = getFreeBlockIdx(blockBitmap); // TODO: create a request function that automatically fetches and sets
+			uint32_t blockIndex = getFreeBlockIdx(blockBitmap);
 			BitMapDS::setBit(blockBitmap, blockIndex, 1);
 			if (blockIndex == 0)
 			{
