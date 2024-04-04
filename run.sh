@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# build and run os. use -c flag to clean before build and -n flag to skip execution
+# build and run os. 
+#  -c to clean before build 
+# -n to skip execution
+# -d to debug with gdb
 
-# -c flag to clean before build
 if [ "$1" == "-c" ] || [ "$2" == "-c" ] || [ "$3" == "-c" ]; then
     echo "Cleaning..."
     sudo docker run --rm -t --privileged -v .:/root/env os-buildenv make clean
